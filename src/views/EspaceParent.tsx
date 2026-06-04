@@ -1175,33 +1175,47 @@ function MessageTab({ session, messages, setMessages, onToast }: {
   session: Prospect; messages: any[]; setMessages: React.Dispatch<React.SetStateAction<any[]>>;
   onToast: (m: string) => void;
 }) {
-  const [sel,     setSel]     = useState<any | null>(null);
-  const [reply,   setReply]   = useState('');
-  const [sending, setSending] = useState(false);
+  const [sel,       setSel]       = useState<any | null>(null);
+  const [composing, setComposing] = useState(false);
+  const [text,      setText]      = useState('');
+  const [sending,   setSending]   = useState(false);
 
   const open = (m: any) => {
     setSel(m);
+    setComposing(false);
+    setText('');
     if (!m.lu) {
-      apiFetch(`/api/messages/${m.id}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ lu:true }) }).catch(console.error);
+      apiFetch(`/api/messages/${m.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lu: true }),
+      }).catch(console.error);
       setMessages(prev => prev.map(x => x.id === m.id ? { ...x, lu: true } : x));
     }
   };
 
+  const openCompose = () => {
+    setComposing(true);
+    setSel(null);
+    setText('');
+  };
+
   const send = async () => {
-    if (!reply.trim() || sending) return;
+    if (!text.trim() || sending) return;
     setSending(true);
     try {
       const r = await apiFetch('/api/parent/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prospectId: session.id, contenu: reply.trim() }),
+        body: JSON.stringify({ prospectId: session.id, contenu: text.trim() }),
       });
       let data: any = {};
       try { data = await r.json(); } catch {}
       if (!r.ok) throw new Error(data.error || 'Erreur lors de l\'envoi.');
       setMessages(prev => [...prev, data]);
       setSel(data);
-      setReply('');
+      setComposing(false);
+      setText('');
       onToast('Message envoyé à l\'équipe pédagogique.');
     } catch (err: any) {
       onToast(err.message || 'Erreur lors de l\'envoi.');
@@ -1210,51 +1224,122 @@ function MessageTab({ session, messages, setMessages, onToast }: {
     }
   };
 
+  const unread = messages.filter(m => !m.lu).length;
+
   return (
     <SectionPage title="Messagerie sécurisée" sub="Communication directe avec l'équipe pédagogique et administrative">
-      <div className="grid lg:grid-cols-[280px_1fr] gap-4 h-[600px]">
 
-        {/* Liste messages */}
+      {/* Bouton Nouveau message — toujours visible */}
+      <div className="flex justify-end">
+        <button onClick={openCompose}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold hover:bg-[#1A4F8B] cursor-pointer transition-colors">
+          <Send size={13} /> Nouveau message
+        </button>
+      </div>
+
+      <div className="grid lg:grid-cols-[280px_1fr] gap-4 h-[580px]">
+
+        {/* ── Liste messages ── */}
         <Card className="flex flex-col overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+          <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between shrink-0">
             <p className="text-xs font-semibold text-slate-700">Boîte de réception</p>
-            <span className="text-[10px] font-semibold text-slate-400">{messages.length} messages</span>
+            <span className="text-[10px] font-semibold text-slate-400">
+              {messages.length} message{messages.length !== 1 ? 's' : ''}
+              {unread > 0 && <span className="ml-1.5 bg-[#0D2E5C] text-white rounded-full px-1.5 py-0.5">{unread}</span>}
+            </span>
           </div>
+
           <div className="flex-1 overflow-y-auto divide-y divide-slate-50">
-            {messages.map((m: any) => (
+            {messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full py-8 text-center px-4">
+                <MessageSquare size={24} className="text-slate-200 mb-2" />
+                <p className="text-xs text-slate-400">Aucun message pour l'instant.</p>
+                <button onClick={openCompose}
+                  className="mt-3 text-[11px] font-semibold text-[#0D2E5C] hover:underline cursor-pointer">
+                  Écrire à l'administration →
+                </button>
+              </div>
+            ) : messages.map((m: any) => (
               <button key={m.id} onClick={() => open(m)}
                 className={`w-full text-left px-4 py-3.5 hover:bg-slate-50 transition-colors cursor-pointer
-                  ${sel?.id === m.id ? 'bg-slate-50 border-r-2 border-r-[#0D2E5C]' : ''}`}>
+                  ${sel?.id === m.id && !composing ? 'bg-slate-50 border-r-2 border-r-[#0D2E5C]' : ''}`}>
                 <div className="flex items-start justify-between gap-2">
-                  <p className={`text-xs truncate ${!m.lu ? 'font-bold text-slate-900' : 'font-medium text-slate-600'}`}>{m.de}</p>
+                  <p className={`text-xs truncate ${!m.lu ? 'font-bold text-slate-900' : 'font-medium text-slate-600'}`}>
+                    {m.de}
+                  </p>
                   {!m.lu && <div className="w-2 h-2 rounded-full bg-[#0D2E5C] shrink-0 mt-1" />}
                 </div>
-                <p className="text-[10px] text-slate-400 mt-0.5">{m.date}</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">
+                  {m.date ? new Date(m.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '—'}
+                </p>
                 <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 font-normal">{m.contenu}</p>
               </button>
             ))}
           </div>
         </Card>
 
-        {/* Détail + réponse */}
+        {/* ── Panneau droite : détail ou composition ── */}
         <Card className="flex flex-col overflow-hidden">
-          {sel ? (
+
+          {/* Mode composition d'un nouveau message */}
+          {composing && (
             <>
-              <div className="px-5 py-4 border-b border-slate-100">
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">Nouveau message</p>
+                  <p className="text-xs text-slate-400 mt-0.5">À : Direction EPV Horizons Savants</p>
+                </div>
+                <button onClick={() => setComposing(false)}
+                  className="p-1.5 rounded-md hover:bg-slate-100 cursor-pointer transition-colors">
+                  <X size={15} className="text-slate-400" />
+                </button>
+              </div>
+              <div className="flex-1 flex flex-col px-5 py-5 gap-4">
+                <textarea
+                  autoFocus
+                  value={text}
+                  onChange={e => setText(e.target.value)}
+                  placeholder="Rédigez votre message à l'équipe pédagogique ou à l'administration…"
+                  className="flex-1 w-full text-sm font-sans border border-slate-200 rounded-lg px-4 py-3 resize-none text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-[#0D2E5C] transition-colors leading-relaxed"
+                />
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] text-slate-400">
+                    {text.length > 0 ? `${text.length} caractère${text.length > 1 ? 's' : ''}` : 'Votre message sera envoyé directement à l\'administration.'}
+                  </p>
+                  <button onClick={send} disabled={sending || !text.trim()}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold hover:bg-[#1A4F8B] cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    {sending
+                      ? <><div className="w-3 h-3 rounded-full border-2 border-white/40 border-t-white animate-spin" /> Envoi…</>
+                      : <><Send size={12} /> Envoyer le message</>}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Mode lecture d'un message + réponse */}
+          {!composing && sel && (
+            <>
+              <div className="px-5 py-4 border-b border-slate-100 shrink-0">
                 <p className="text-sm font-semibold text-slate-800">{sel.de}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{sel.date}</p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {sel.date ? new Date(sel.date).toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) : '—'}
+                </p>
               </div>
               <div className="flex-1 overflow-y-auto px-5 py-5">
-                <p className="text-sm text-slate-700 leading-relaxed">{sel.contenu}</p>
+                <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{sel.contenu}</p>
               </div>
-              <div className="px-5 py-4 border-t border-slate-100 space-y-3">
+              <div className="px-5 py-4 border-t border-slate-100 space-y-3 shrink-0">
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Répondre</p>
-                <textarea value={reply} onChange={e => setReply(e.target.value)}
-                  placeholder="Rédigez votre réponse..."
+                <textarea
+                  value={text}
+                  onChange={e => setText(e.target.value)}
+                  placeholder="Rédigez votre réponse…"
                   rows={3}
-                  className="w-full text-xs font-sans border border-slate-200 rounded-md px-3 py-2.5 resize-none text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-[#0D2E5C] transition-colors" />
-                <div className="flex justify-end items-center">
-                  <button onClick={send} disabled={sending || !reply.trim()}
+                  className="w-full text-xs font-sans border border-slate-200 rounded-md px-3 py-2.5 resize-none text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-[#0D2E5C] transition-colors"
+                />
+                <div className="flex justify-end">
+                  <button onClick={send} disabled={sending || !text.trim()}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold hover:bg-[#1A4F8B] cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                     {sending
                       ? <><div className="w-3 h-3 rounded-full border-2 border-white/40 border-t-white animate-spin" /> Envoi…</>
@@ -1263,16 +1348,26 @@ function MessageTab({ session, messages, setMessages, onToast }: {
                 </div>
               </div>
             </>
-          ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <MessageSquare size={32} className="text-slate-200 mx-auto mb-3" />
-                <p className="text-sm text-slate-400">Sélectionnez un message pour le consulter</p>
+          )}
+
+          {/* État vide — ni composition ni sélection */}
+          {!composing && !sel && (
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center p-8">
+              <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center">
+                <MessageSquare size={24} className="text-slate-300" />
               </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-600">Aucun message sélectionné</p>
+                <p className="text-xs text-slate-400 mt-1">Choisissez un message dans la liste ou écrivez à l'administration.</p>
+              </div>
+              <button onClick={openCompose}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold hover:bg-[#1A4F8B] cursor-pointer transition-colors">
+                <Send size={13} /> Écrire un message
+              </button>
             </div>
           )}
-        </Card>
 
+        </Card>
       </div>
     </SectionPage>
   );

@@ -158,7 +158,7 @@ export default function App() {
             {renderPublicView()}
           </main>
           <WhatsAppButton />
-          <Footer onNavigate={handleNavigate} />
+          {(currentHash === '#' || currentHash === '') && <Footer onNavigate={handleNavigate} />}
           {/* Bottom nav mobile — toutes pages publiques */}
           <MobileBottomNav
             currentHash={currentHash}
