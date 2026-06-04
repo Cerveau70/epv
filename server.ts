@@ -1845,11 +1845,27 @@ app.post('/api/compositions/:id/notify', requireAdmin, async (req, res) => {
 // NOTES — saisie par section + trimestre
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Liste de classe complète (tous les champs élève)
+app.get('/api/classes/:section', requireAdmin, async (req, res) => {
+  const { rows } = await q(
+    `SELECT id, prenom_enfant, nom_enfant, date_naissance, commune,
+            prenom_parent, nom_parent, lien_parente, telephone, email,
+            section_visee, statut, created_at
+     FROM prospects
+     WHERE section_visee=$1 AND statut IN ('Inscrit','Pré-inscrit')
+     ORDER BY nom_enfant, prenom_enfant`,
+    [req.params.section]
+  );
+  res.json(rowsToObjs(rows));
+});
+
 // Lister les notes d'une section + trimestre
 app.get('/api/notes/classe/:section/:trimestre', requireAdmin, async (req, res) => {
   const { section, trimestre } = req.params;
   const { rows: prospects } = await q(
-    `SELECT id, prenom_enfant, nom_enfant FROM prospects
+    `SELECT id, prenom_enfant, nom_enfant, date_naissance, commune,
+            prenom_parent, nom_parent, lien_parente, telephone, email, statut
+     FROM prospects
      WHERE section_visee=$1 AND statut='Inscrit' ORDER BY nom_enfant, prenom_enfant`,
     [section]
   );
