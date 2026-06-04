@@ -575,50 +575,32 @@ export const Ecole: React.FC = () => {
                 </div>
               </div>
 
-              {/* Map visual */}
-              <div className="lg:col-span-6 bg-gradient-to-br from-[#EBF3FF] to-[#D6E8FF] relative min-h-[280px] flex flex-col items-center justify-center p-8 overflow-hidden">
-                {/* Dot grid */}
-                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#1A4F8B_1.5px,transparent_1.5px)] [background-size:20px_20px] pointer-events-none" />
-
-                {/* Badge top */}
-                <div className="relative z-10 mb-6">
-                  <span className="text-[#0D2E5C] font-sans text-[10px] font-bold uppercase tracking-wider">
-                    {fr ? "Plan d'accès" : 'Access Map'}
+              {/* Map visual — Google Maps embed */}
+              <div className="lg:col-span-6 overflow-hidden flex flex-col">
+                <iframe
+                  title="EPV Horizons Savants — Localisation"
+                  src="https://maps.google.com/maps?q=Riviera+M%27Pouto+Abidjan+C%C3%B4te+d%27Ivoire&output=embed&hl=fr&z=15"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, display: 'block', minHeight: 280, flex: 1 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+                <div className="px-5 py-3 bg-white border-t border-[#0D2E5C]/10 flex items-center justify-between gap-4">
+                  <span className="font-sans font-bold text-xs text-[#0D2E5C]">
+                    {fr ? "Riviera M'Pouto · Cocody, Abidjan" : "Riviera M'Pouto · Cocody, Abidjan"}
                   </span>
-                </div>
-
-                {/* Pin animé */}
-                <div className="relative z-10 flex flex-col items-center text-center">
-                  <motion.div
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
-                    className="w-14 h-14 rounded-full bg-[#F5A623] text-[#0D2E5C] flex items-center justify-center shadow-[0_6px_24px_rgba(245,166,35,0.5)]"
+                  <a
+                    href="https://maps.google.com/?q=Riviera+M'Pouto+Abidjan"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[11px] font-sans font-bold text-white bg-[#0D2E5C] hover:bg-[#1A4F8B] px-4 py-2 rounded-full shadow-sm transition-all shrink-0"
                   >
-                    <MapPin size={24} strokeWidth={2.5} />
-                  </motion.div>
-
-                  {/* Shadow under pin */}
-                  <div className="w-8 h-2 bg-[#0D2E5C]/15 rounded-full blur-sm mt-1" />
-
-                  <span className="font-sans font-bold text-sm text-[#0D2E5C] block mt-4">EPV Horizons Savants</span>
-
-                  <span className="mt-1.5 text-[#0D2E5C] font-sans text-[10px] font-bold uppercase tracking-wide">
-                    Cocody M'Pouto
-                  </span>
-
-                  <span className="text-[10px] text-[#0D2E5C]/60 block mt-1 font-sans">{fr ? "Boulevard d'Excellence, Abidjan" : 'Boulevard of Excellence, Abidjan'}</span>
+                    {fr ? "Ouvrir dans Google Maps" : 'Open in Google Maps'}
+                    <span>→</span>
+                  </a>
                 </div>
-
-                {/* Google Maps link */}
-                <a
-                  href="https://maps.google.com/?q=Riviera+M'Pouto+Abidjan"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative z-10 mt-8 inline-flex items-center gap-1.5 text-[11px] font-sans font-bold text-[#0D2E5C] bg-white/80 backdrop-blur-sm hover:bg-white border border-[#0D2E5C]/15 px-4 py-2 rounded-full shadow-sm transition-all hover:shadow-md"
-                >
-                  {fr ? "Ouvrir dans Google Maps d'Abidjan" : 'Open in Google Maps'}
-                  <span className="text-[#F5A623]">→</span>
-                </a>
               </div>
 
             </div>

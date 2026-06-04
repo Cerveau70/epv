@@ -117,37 +117,37 @@ export const Contact: React.FC = () => {
                 </p>
               </div>
 
-              {/* Info list */}
-              <div className="space-y-4">
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white shadow-[0_2px_16px_rgba(13,46,92,0.07)]">
-                  <MapPin size={20} className="text-[#0D2E5C] shrink-0 mt-0.5" />
+              {/* Info list — 3 colonnes */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="flex flex-col gap-2.5 p-4 rounded-2xl bg-white shadow-[0_2px_16px_rgba(13,46,92,0.07)]">
+                  <MapPin size={20} className="text-[#0D2E5C]" />
                   <div>
-                    <p className="font-sans font-bold text-xs text-[#0D2E5C] uppercase tracking-wide mb-0.5">
+                    <p className="font-sans font-bold text-xs text-[#0D2E5C] uppercase tracking-wide mb-1">
                       {fr ? 'Adresse' : 'Address'}
                     </p>
-                    <p className="font-serif text-sm text-gray-500 leading-relaxed">
-                      Bingerville Mtn Kro, Cité Côtes de Grâces<br />Abidjan, Côte d'Ivoire
+                    <p className="font-serif text-xs text-gray-500 leading-relaxed">
+                      Bingerville Mtn Kro<br />Cité Côtes de Grâces<br />Abidjan, Côte d'Ivoire
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white shadow-[0_2px_16px_rgba(13,46,92,0.07)]">
-                  <Phone size={20} className="text-[#F5A623] shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-2.5 p-4 rounded-2xl bg-white shadow-[0_2px_16px_rgba(13,46,92,0.07)]">
+                  <Phone size={20} className="text-[#F5A623]" />
                   <div>
-                    <p className="font-sans font-bold text-xs text-[#0D2E5C] uppercase tracking-wide mb-0.5">
+                    <p className="font-sans font-bold text-xs text-[#0D2E5C] uppercase tracking-wide mb-1">
                       {fr ? 'Téléphone' : 'Phone'}
                     </p>
-                    <p className="font-mono text-sm text-gray-500">07 78 98 14 56</p>
-                    <p className="font-mono text-sm text-gray-500">05 85 41 51 51</p>
+                    <p className="font-mono text-xs text-gray-500">07 78 98 14 56</p>
+                    <p className="font-mono text-xs text-gray-500">05 85 41 51 51</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white shadow-[0_2px_16px_rgba(13,46,92,0.07)]">
-                  <Mail size={20} className="text-emerald-600 shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-2.5 p-4 rounded-2xl bg-white shadow-[0_2px_16px_rgba(13,46,92,0.07)]">
+                  <Mail size={20} className="text-emerald-600" />
                   <div>
-                    <p className="font-sans font-bold text-xs text-[#0D2E5C] uppercase tracking-wide mb-0.5">Email</p>
+                    <p className="font-sans font-bold text-xs text-[#0D2E5C] uppercase tracking-wide mb-1">Email</p>
                     <a href="mailto:contact@horizonssavants.com"
-                      className="font-serif text-sm text-emerald-600 hover:text-emerald-700 transition-colors">
+                      className="font-serif text-xs text-emerald-600 hover:text-emerald-700 transition-colors break-all">
                       contact@horizonssavants.com
                     </a>
                   </div>
@@ -186,35 +186,23 @@ export const Contact: React.FC = () => {
                 </div>
               </div>
 
-              {/* Map */}
-              <div className="rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(13,46,92,0.07)]"
-                style={{ backgroundColor: '#EBF2FF', minHeight: 220 }}>
-                <div className="relative flex items-center justify-center py-10"
-                  style={{
-                    backgroundImage: 'radial-gradient(circle, rgba(13,46,92,0.12) 1px, transparent 1px)',
-                    backgroundSize: '22px 22px',
-                  }}>
-                  <motion.div animate={{ y: [0, -8, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-                    className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
-                      style={{ backgroundColor: '#0D2E5C' }}>
-                      <MapPin size={24} className="text-[#F5A623]" />
-                    </div>
-                    <div className="w-0.5 h-5 bg-[#0D2E5C] opacity-40 mt-1" />
-                    <div className="w-3 h-1.5 rounded-full bg-[#0D2E5C] opacity-20" />
-                  </motion.div>
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center">
-                    <span className="font-sans font-bold text-xs text-[#0D2E5C]">Bingerville Mtn Kro</span>
-                    <br />
-                    <span className="font-serif text-[11px] text-gray-400">Cité Côtes de Grâces, Abidjan</span>
-                  </div>
-                </div>
+              {/* Map — Google Maps embed */}
+              <div className="rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(13,46,92,0.07)]">
+                <iframe
+                  title="EPV Horizons Savants — Localisation"
+                  src="https://maps.google.com/maps?q=Bingerville+Mtn+Kro+Cit%C3%A9+C%C3%B4tes+de+Gr%C3%A2ces+Abidjan+C%C3%B4te+d%27Ivoire&output=embed&hl=fr"
+                  width="100%"
+                  height="240"
+                  style={{ border: 0, display: 'block' }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
                 <div className="px-5 py-3 bg-white border-t border-[#0D2E5C]/10 flex items-center justify-between gap-4">
-                  <p className="font-sans font-bold text-xs text-[#0D2E5C]">EPV Horizons Savants</p>
-                  <a href="https://maps.google.com/?q=Bingerville+Mtn+Kro+Abidjan"
+                  <p className="font-sans font-bold text-xs text-[#0D2E5C]">EPV Horizons Savants · Bingerville Mtn Kro</p>
+                  <a href="https://maps.google.com/?q=Bingerville+Mtn+Kro+Cité+Côtes+de+Grâces+Abidjan"
                     target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 font-sans font-semibold text-xs text-white px-4 py-2 rounded-full"
+                    className="inline-flex items-center gap-1.5 font-sans font-semibold text-xs text-white px-4 py-2 rounded-full shrink-0"
                     style={{ backgroundColor: '#0D2E5C' }}>
                     <ExternalLink size={12} />
                     {fr ? 'Ouvrir Maps' : 'Open Maps'}
@@ -222,20 +210,22 @@ export const Contact: React.FC = () => {
                 </div>
               </div>
 
-              {/* Pourquoi nous contacter */}
+              {/* Pourquoi nous contacter — 3 colonnes */}
               <div className="space-y-3 pt-2">
                 <h3 className="font-sans font-bold text-sm text-[#0D2E5C] uppercase tracking-wide">
                   {fr ? 'Nous pouvons vous aider pour :' : 'We can help you with:'}
                 </h3>
-                {reasons.map((r) => (
-                  <div key={r.title} className="flex items-start gap-3">
-                    <r.Icon size={16} className={`${r.color} shrink-0 mt-0.5`} />
-                    <div>
-                      <p className="font-sans font-bold text-xs text-[#0D2E5C]">{r.title}</p>
-                      <p className="font-serif text-xs text-gray-400 leading-relaxed">{r.text}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {reasons.map((r) => (
+                    <div key={r.title} className="flex flex-col gap-2.5 p-4 rounded-2xl bg-white shadow-[0_2px_12px_rgba(13,46,92,0.06)] border border-[#0D2E5C]/6 hover:shadow-[0_4px_20px_rgba(13,46,92,0.10)] transition-shadow">
+                      <r.Icon size={18} className={r.color} />
+                      <div>
+                        <p className="font-sans font-bold text-xs text-[#0D2E5C] leading-tight">{r.title}</p>
+                        <p className="font-serif text-[10px] text-gray-400 leading-relaxed mt-1">{r.text}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
             </motion.div>

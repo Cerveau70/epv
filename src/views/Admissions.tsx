@@ -15,7 +15,7 @@ import { Toast } from '../components/ui/Toast.tsx';
 import { useLang } from '../lib/LanguageContext.tsx';
 import {
   CheckCircle, ShieldAlert, FileText, Gift, Calendar, Phone,
-  Award, HelpCircle, Download, AlertCircle, Sparkles, Clock,
+  Award, HelpCircle, Download, AlertCircle, Sparkles, Clock, FilePlus,
   ChevronRight, Lock, Mail
 } from 'lucide-react';
 import { Baby, Books, Student } from '@phosphor-icons/react';
@@ -278,7 +278,7 @@ export const Admissions: React.FC = () => {
               href="#inscription-anchor"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-brand-gold text-[#0b1d3a] font-bold text-sm shadow-lg hover:brightness-105 transition-all"
             >
-              <Sparkles size={15} /> {fr ? 'Déposer ma pré-inscription' : 'Submit my pre-enrollment'}
+              <FilePlus size={15} /> {fr ? 'Déposer ma pré-inscription' : 'Submit my pre-enrollment'}
             </a>
             <a
               href="#admission-documents-section"
@@ -302,15 +302,48 @@ export const Admissions: React.FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <div className="text-center mb-10">
-            <h2 className="font-sans font-extrabold text-2xl md:text-4xl text-brand-blue-deep tracking-tight">
-              {fr ? "Processus d'Inscription en 4 Étapes" : '4-Step Enrollment Process'}
-            </h2>
-            <div className="h-1 w-16 bg-brand-gold mx-auto mt-4 rounded-full" />
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-10 items-start">
 
-          <div className="max-w-5xl mx-auto rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.08)] bg-white p-8 md:p-12 border border-brand-border/40">
-            <Stepper steps={stepsAdmissions} currentStep={0} />
+            {/* ── Colonne gauche — contexte & chiffres ── */}
+            <div className="space-y-5 lg:sticky lg:top-28">
+              <div className="rounded-3xl bg-[#0b1d3a] text-white p-7 space-y-1">
+                <h2 className="font-sans font-extrabold text-xl md:text-2xl text-white leading-tight">
+                  {fr ? "Processus d'Inscription" : 'Enrollment Process'}
+                  <span className="block text-brand-gold">{fr ? 'en 4 Étapes' : 'in 4 Steps'}</span>
+                </h2>
+                <div className="h-0.5 w-12 bg-brand-gold/60 rounded-full mt-3 mb-5" />
+                {([
+                  { val: '4',    label: fr ? 'étapes simples' : 'simple steps' },
+                  { val: '15',   label: fr ? 'élèves max · Maternelle' : 'students max · Kindergarten' },
+                  { val: '20',   label: fr ? 'élèves max · Primaire' : 'students max · Primary' },
+                  { val: '30m',  label: fr ? 'confirmation de rendez-vous' : 'appointment confirmed' },
+                ] as { val: string; label: string }[]).map((s) => (
+                  <div key={s.label} className="flex items-center gap-3 py-2.5 border-b border-white/10 last:border-0">
+                    <span className="font-mono font-extrabold text-2xl text-brand-gold leading-none w-14 shrink-0">{s.val}</span>
+                    <span className="font-serif text-xs text-white/65 leading-snug">{s.label}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="rounded-3xl bg-white shadow-[0_4px_30px_rgba(13,46,92,0.08)] p-5 border border-brand-border/40 space-y-3">
+                <p className="font-sans font-bold text-[10px] text-brand-blue-deep uppercase tracking-widest">
+                  {fr ? 'Rentrée Septembre 2026' : 'September 2026 Enrollment'}
+                </p>
+                <p className="font-serif text-xs text-brand-muted leading-relaxed">
+                  {fr
+                    ? "Les places sont limitées et attribuées par ordre de dossier. Déposez votre candidature dès maintenant."
+                    : "Spots are limited and assigned in order of application. Submit your file now to secure your place."}
+                </p>
+                <a href="#inscription-anchor" className="inline-flex items-center gap-1.5 font-sans font-bold text-xs text-brand-gold hover:text-brand-blue-deep transition-colors">
+                  {fr ? 'Je dépose ma pré-inscription →' : 'Submit my pre-enrollment →'}
+                </a>
+              </div>
+            </div>
+
+            {/* ── Colonne droite — stepper ── */}
+            <div className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.08)] bg-white p-8 md:p-12 border border-brand-border/40">
+              <Stepper steps={stepsAdmissions} currentStep={0} />
+            </div>
+
           </div>
         </motion.section>
 

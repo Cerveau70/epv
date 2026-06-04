@@ -408,21 +408,58 @@ export const Programmes: React.FC = () => {
             </p>
           </div>
 
-          <motion.div
-            className="max-w-4xl mx-auto"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-          >
+          <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-10 items-start">
+
+            {/* ── Sidebar gauche — chiffres clés ── */}
+            <div className="space-y-4 lg:sticky lg:top-28">
+              <div className="rounded-3xl bg-brand-blue-deep p-6 text-white space-y-5">
+                <h3 className="font-sans font-bold text-[10px] uppercase tracking-widest text-brand-gold">
+                  {fr ? 'Chiffres Clés' : 'Key Facts'}
+                </h3>
+                {([
+                  { val: '2', label: fr ? 'Cycles scolaires' : 'School cycles' },
+                  { val: '6', label: fr ? 'Niveaux au total' : 'Total levels' },
+                  { val: '15', label: fr ? 'Élèves max · Maternelle' : 'Students max · Kindergarten' },
+                  { val: '20', label: fr ? 'Élèves max · Primaire' : 'Students max · Primary' },
+                ] as { val: string; label: string }[]).map((s) => (
+                  <div key={s.label} className="flex items-center gap-3">
+                    <span className="font-mono font-extrabold text-3xl text-brand-gold leading-none w-12 shrink-0">{s.val}</span>
+                    <span className="font-serif text-xs text-white/70 leading-snug">{s.label}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="rounded-3xl bg-white shadow-[0_4px_30px_rgba(13,46,92,0.08)] p-5 space-y-3">
+                <p className="font-sans font-bold text-[10px] text-brand-blue-deep uppercase tracking-widest">
+                  {fr ? 'Détail des programmes' : 'Program details'}
+                </p>
+                <a href="#/programmes/maternelle" className="flex items-center justify-between p-3 rounded-xl bg-[#F4F8FF] hover:bg-brand-blue-deep/5 transition-colors group">
+                  <span className="font-sans text-xs font-semibold text-brand-blue-deep">{fr ? 'Cycle Maternelle' : 'Kindergarten Cycle'}</span>
+                  <span className="text-brand-gold group-hover:translate-x-1 transition-transform text-sm">→</span>
+                </a>
+                <a href="#/programmes/primaire" className="flex items-center justify-between p-3 rounded-xl bg-[#F4F8FF] hover:bg-brand-blue-deep/5 transition-colors group">
+                  <span className="font-sans text-xs font-semibold text-brand-blue-deep">{fr ? 'Cycle Primaire' : 'Primary Cycle'}</span>
+                  <span className="text-brand-gold group-hover:translate-x-1 transition-transform text-sm">→</span>
+                </a>
+              </div>
+            </div>
+
+            {/* ── Accordion droite ── */}
             <motion.div
-              variants={staggerItem}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.08)] bg-white p-6 md:p-8"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
             >
-              <Accordion items={schoolLevels} />
+              <motion.div
+                variants={staggerItem}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.08)] bg-white p-6 md:p-8"
+              >
+                <Accordion items={schoolLevels} />
+              </motion.div>
             </motion.div>
-          </motion.div>
+
+          </div>
         </motion.section>
 
         {/* ── SÉPARATEUR ── */}
@@ -446,7 +483,41 @@ export const Programmes: React.FC = () => {
             </p>
           </div>
 
-          <div className="max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+
+            {/* ── Colonne gauche — dates clés ── */}
+            <div className="space-y-5 lg:sticky lg:top-28">
+              <div className="rounded-3xl bg-brand-blue-deep text-white p-7 space-y-5">
+                <h3 className="font-sans font-bold text-[10px] uppercase tracking-widest text-brand-gold">
+                  {fr ? 'Dates à retenir' : 'Key Dates'}
+                </h3>
+                {([
+                  { color: 'bg-brand-gold', date: fr ? '1er Sept 2026' : 'Sept 1, 2026', label: fr ? 'Grande Rentrée Scolaire solennelle' : 'Solemn School Opening Day' },
+                  { color: 'bg-brand-green', date: fr ? 'Décembre 2026' : 'December 2026', label: fr ? "Vacances d'Hiver & fête artistique de fin d'année" : 'Winter Break & Year-End Celebration' },
+                  { color: 'bg-brand-blue-light', date: fr ? 'Juin 2027' : 'June 2027', label: fr ? "Kermesse de l'Excellence & bulletins annuels" : 'Excellence Festival & Annual Report Cards' },
+                ] as { color: string; date: string; label: string }[]).map((d) => (
+                  <div key={d.label} className="flex items-start gap-3">
+                    <span className={`w-2.5 h-2.5 rounded-full ${d.color} shrink-0 mt-1`} />
+                    <div>
+                      <span className="font-mono font-bold text-xs text-brand-gold block">{d.date}</span>
+                      <span className="font-serif text-xs text-white/70 leading-snug">{d.label}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="rounded-3xl bg-white shadow-[0_4px_30px_rgba(13,46,92,0.08)] p-6 space-y-2">
+                <p className="font-sans font-bold text-[10px] text-brand-blue-deep uppercase tracking-widest">
+                  {fr ? 'Année Scolaire 2026/2027' : 'School Year 2026/2027'}
+                </p>
+                <p className="font-serif text-xs text-brand-muted leading-relaxed">
+                  {fr
+                    ? "Calendrier provisoire conforme au programme officiel du Ministère de l'Éducation Nationale de Côte d'Ivoire."
+                    : "Provisional schedule aligned with the official curriculum of Côte d'Ivoire's Ministry of Education."}
+                </p>
+              </div>
+            </div>
+
+            {/* ── Colonne droite — timeline ── */}
             <Card className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.08)] bg-white border-0 p-8 md:p-10">
               <div className="flex items-center gap-3 mb-10">
                 <div className="p-3 bg-brand-green/10 rounded-2xl">
