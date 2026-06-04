@@ -338,3 +338,34 @@ CREATE TABLE IF NOT EXISTS documents (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS compositions (
+  id            TEXT PRIMARY KEY,
+  titre         TEXT NOT NULL,
+  section       TEXT NOT NULL,
+  trimestre     TEXT NOT NULL,
+  date_debut    DATE NOT NULL,
+  date_fin      DATE,
+  matieres      JSONB NOT NULL DEFAULT '[]',
+  statut        TEXT NOT NULL DEFAULT 'planifie',
+  notif_envoye  BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS bulletins (
+  id                    TEXT PRIMARY KEY,
+  prospect_id           TEXT NOT NULL,
+  trimestre             TEXT NOT NULL,
+  annee_scolaire        TEXT NOT NULL DEFAULT '2026-2027',
+  notes_detail          JSONB NOT NULL DEFAULT '[]',
+  moyenne_generale      NUMERIC,
+  rang                  INTEGER,
+  effectif_classe       INTEGER,
+  mention               TEXT,
+  appreciation_generale TEXT,
+  publie                BOOLEAN NOT NULL DEFAULT FALSE,
+  date_publication      TIMESTAMPTZ,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

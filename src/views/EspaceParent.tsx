@@ -26,6 +26,7 @@ import {
 type ParentTab =
   | 'dashboard'
   | 'parcours'
+  | 'bulletins'
   | 'vie'
   | 'finances'
   | 'messagerie'
@@ -1814,12 +1815,212 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
+// BULLETIN PARENT TAB
+// ════════════════════════════════════════════════════════════════════════════
+
+const SECTION_LABEL_B: Record<string,string> = {
+  PS:'Petite Section', MS:'Moyenne Section', GS:'Grande Section',
+  CP:'CP', CE1:'CE1', CE2:'CE2', CM1:'CM1', CM2:'CM2',
+};
+
+function noteCls(n?: number) {
+  if (!n && n !== 0) return 'text-slate-400';
+  if (n >= 16) return 'text-emerald-600 font-bold';
+  if (n >= 12) return 'text-blue-600 font-semibold';
+  if (n >= 10) return 'text-amber-600';
+  return 'text-red-500';
+}
+
+function BulletinParentTab({ session }: { session: Prospect }) {
+  const [bulletins, setBulletins] = useState<any[]>([]);
+  const [loading,   setLoading]   = useState(true);
+  const [selected,  setSelected]  = useState<any | null>(null);
+
+  useEffect(() => {
+    apiFetch('/api/parent/bulletins')
+      .then(r => r.json()).then(d => { setBulletins(Array.isArray(d) ? d : []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  function exportCSVBulletin(b: any) {
+    const detail: any[] = b.notesDetail || [];
+    const rows = [
+      ['Élève', `${session.prenomEnfant} ${session.nomEnfant}`],
+      ['Section', SECTION_LABEL_B[session.sectionVisee] || session.sectionVisee],
+      ['Trimestre', b.trimestre],
+      ['Moyenne', b.moyenneGenerale?.toFixed(2) ?? ''],
+      ['Rang', b.rang ?? ''],
+      ['Effectif', b.effectifClasse ?? ''],
+      ['Mention', b.mention ?? ''],
+      [],
+      ['Matière', 'Note /20', 'Coeff.', 'Appréciation'],
+      ...detail.map((n: any) => [n.matiere, n.note?.toFixed(2) ?? '', n.coef, n.appreciation || '']),
+    ];
+    const csv = rows.map(r => (r as any[]).map(c => `"${String(c ?? '').replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = `bulletin_${b.trimestre}_${session.prenomEnfant}.csv`; a.click();
+  }
+
+  function printBulletinParent(b: any) {
+    const detail: any[] = b.notesDetail || [];
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+    <title>Bulletin ${session.prenomEnfant} — ${b.trimestre}</title>
+    <style>
+      @page{size:A4;margin:18mm}body{font-family:Arial,sans-serif;color:#1e293b;font-size:11pt}
+      .hd{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #0D2E5C;padding-bottom:10px;margin-bottom:16px}
+      .sc h1{margin:0;font-size:15pt;color:#0D2E5C}.sc p{margin:2px 0;font-size:9pt;color:#475569}
+      .badge{background:#0D2E5C;color:white;padding:6px 14px;border-radius:8px;font-size:10pt;font-weight:bold}
+      .ig{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;background:#F8FAFF;padding:10px;border-radius:8px;border:1px solid #e2e8f0}
+      .ig label{font-size:8pt;color:#94a3b8;text-transform:uppercase;display:block}.ig span{font-weight:700;color:#0D2E5C}
+      .sum{display:flex;gap:12px;margin-bottom:16px}
+      .sc2{flex:1;text-align:center;border:1px solid #e2e8f0;border-radius:10px;padding:10px}
+      .sc2 .v{font-size:22pt;font-weight:900;color:#0D2E5C}.sc2 .l{font-size:8pt;color:#94a3b8}
+      table{width:100%;border-collapse:collapse;margin-bottom:16px}
+      th{background:#0D2E5C;color:white;padding:7px 10px;text-align:left;font-size:9pt}
+      td{padding:6px 10px;border-bottom:1px solid #e2e8f0;font-size:10pt}
+      tr:nth-child(even) td{background:#F8FAFF}
+      .g{color:#16a34a;font-weight:700}.ok{color:#2563eb;font-weight:600}.avg{color:#d97706}.low{color:#dc2626}
+      .men{display:inline-block;padding:5px 14px;border-radius:20px;font-weight:700;border:2px solid #F5A623;background:#FFF7ED;color:#c2410c}
+      .sig{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:30px}
+      .sb{border:1px solid #e2e8f0;border-radius:8px;padding:10px;min-height:60px}
+      .sb label{font-size:8pt;color:#94a3b8;display:block;margin-bottom:4px}
+      .ft{margin-top:24px;border-top:1px solid #e2e8f0;padding-top:12px;font-size:8pt;color:#94a3b8;text-align:center}
+    </style></head><body>
+    <div class="hd"><div class="sc"><h1>EPV Horizons Savants</h1>
+    <p>École Maternelle & Primaire d'Excellence · Abidjan</p>
+    <p>Bingerville Mtn Kro · contact@horizonssavants.com</p></div>
+    <div class="badge">BULLETIN SCOLAIRE</div></div>
+    <div class="ig">
+      <div><label>Élève</label><span>${session.prenomEnfant} ${session.nomEnfant}</span></div>
+      <div><label>Section</label><span>${SECTION_LABEL_B[session.sectionVisee] || session.sectionVisee}</span></div>
+      <div><label>Trimestre</label><span>${b.trimestre} — 2026-2027</span></div>
+      <div><label>Effectif</label><span>${b.effectifClasse ?? '—'} élèves</span></div>
+    </div>
+    <div class="sum">
+      <div class="sc2"><div class="v">${b.moyenneGenerale?.toFixed(2) ?? '—'}</div><div class="l">Moyenne / 20</div></div>
+      <div class="sc2"><div class="v">${b.rang ?? '—'}</div><div class="l">Classement</div></div>
+      <div class="sc2"><div class="v"><span class="men">${b.mention || '—'}</span></div><div class="l">Mention</div></div>
+    </div>
+    <table><thead><tr><th>Matière</th><th>Note / 20</th><th>Coeff.</th><th>Appréciation</th></tr></thead>
+    <tbody>${detail.map((n: any) => {
+      const cls = n.note >= 16 ? 'g' : n.note >= 12 ? 'ok' : n.note >= 10 ? 'avg' : 'low';
+      return `<tr><td>${n.matiere}</td><td class="${cls}">${n.note?.toFixed(2) ?? '—'}</td><td>${n.coef}</td><td>${n.appreciation || ''}</td></tr>`;
+    }).join('')}</tbody></table>
+    <div class="sig">
+      <div class="sb"><label>Signature du parent / tuteur</label></div>
+      <div class="sb"><label>Cachet & Signature de la Direction</label></div>
+    </div>
+    <div class="ft">EPV Horizons Savants · Abidjan 2026-2027 · Document officiel</div>
+    </body></html>`;
+    const w = window.open('','_blank')!;
+    w.document.write(html); w.document.close();
+    w.onload = () => { w.focus(); w.print(); };
+  }
+
+  if (loading) return <div className="flex items-center justify-center h-64 text-slate-400 text-sm">Chargement…</div>;
+
+  return (
+    <div className="p-4 md:p-6 space-y-6 max-w-3xl mx-auto">
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-10 h-10 rounded-2xl bg-brand-gold/15 flex items-center justify-center">
+          <Award size={20} className="text-brand-gold" />
+        </div>
+        <div>
+          <h2 className="font-bold text-lg text-brand-blue-deep">Bulletins & Notes</h2>
+          <p className="text-xs text-brand-muted">{session.prenomEnfant} {session.nomEnfant}</p>
+        </div>
+      </div>
+
+      {bulletins.length === 0 ? (
+        <div className="rounded-2xl bg-white border border-brand-border/40 shadow-sm p-10 text-center">
+          <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+            <BookOpen size={24} className="text-slate-400" />
+          </div>
+          <p className="text-slate-500 font-semibold text-sm">Aucun bulletin disponible</p>
+          <p className="text-xs text-slate-400 mt-1">Les bulletins apparaissent ici dès que l'administration les publie.</p>
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {bulletins.map((b: any) => (
+            <div key={b.id} className="rounded-2xl bg-white border border-brand-border/40 shadow-sm overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-[#0D2E5C] to-[#1A4F8B]">
+                <div>
+                  <p className="font-bold text-white text-sm">Bulletin {b.trimestre}</p>
+                  <p className="text-white/60 text-xs">Année scolaire 2026-2027</p>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => exportCSVBulletin(b)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/15 text-white hover:bg-white/25 cursor-pointer">
+                    <Download size={12} /> Excel
+                  </button>
+                  <button onClick={() => printBulletinParent(b)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-gold text-white hover:brightness-105 cursor-pointer">
+                    <FileText size={12} /> PDF
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-4 p-5 border-b border-brand-border/40">
+                <div className="text-center">
+                  <p className={`text-2xl font-black ${noteCls(b.moyenneGenerale)}`}>{b.moyenneGenerale?.toFixed(2) ?? '—'}</p>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold mt-0.5">Moyenne / 20</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-black text-brand-blue-deep">{b.rang ?? '—'}<span className="text-sm text-slate-400 font-normal">/{b.effectifClasse ?? '?'}</span></p>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold mt-0.5">Classement</p>
+                </div>
+                <div className="text-center">
+                  <span className="inline-block px-3 py-1 rounded-full text-xs font-bold border border-amber-200 bg-amber-50 text-amber-700">
+                    {b.mention || '—'}
+                  </span>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold mt-1.5">Mention</p>
+                </div>
+              </div>
+
+              {/* Détail des notes */}
+              <div className="p-5">
+                <button onClick={() => setSelected(selected?.id === b.id ? null : b)}
+                  className="flex items-center gap-2 text-xs font-bold text-brand-blue-deep hover:text-brand-gold transition-colors cursor-pointer mb-3">
+                  <Eye size={13} /> {selected?.id === b.id ? 'Masquer le détail' : 'Voir le détail des notes'}
+                </button>
+
+                <AnimatePresence>
+                  {selected?.id === b.id && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                      <div className="space-y-2">
+                        {(b.notesDetail || []).map((n: any, i: number) => (
+                          <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                            <span className="text-xs font-semibold text-slate-600 flex-1">{n.matiere}</span>
+                            <span className={`text-sm font-bold w-14 text-center ${noteCls(n.note)}`}>{n.note?.toFixed(2) ?? '—'}</span>
+                            <span className="text-xs text-slate-400 w-12 text-center">coef {n.coef}</span>
+                            <span className="text-xs text-slate-500 flex-1 text-right">{n.appreciation || ''}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ════════════════════════════════════════════════════════════════════════════
 
 const NAV: { id: ParentTab; label: string; Icon: React.FC<any> }[] = [
   { id: 'dashboard',  label: 'Tableau de bord',       Icon: LayoutGrid     },
   { id: 'parcours',   label: 'Parcours académique',   Icon: BookOpen       },
+  { id: 'bulletins',  label: 'Bulletins & Notes',     Icon: Award          },
   { id: 'vie',        label: 'Vie scolaire',           Icon: Utensils       },
   { id: 'finances',   label: 'Finances & Documents',  Icon: FolderOpen     },
   { id: 'messagerie', label: 'Messagerie',             Icon: MessageSquare  },
@@ -2106,6 +2307,7 @@ export const EspaceParent: React.FC = () => {
               transition={{ duration: 0.18 }}>
               {tab === 'dashboard'  && <DashboardTab session={session} appointments={appointments} devoirs={devoirs} cantine={cantine} notes={notes} absences={absences} messages={messages} evenements={evenements} paiements={paiements} reduction={reduction} tarifs={tarifs} onTabChange={setTab} />}
               {tab === 'parcours'   && <ParcoursTab  session={session} devoirs={devoirs} setDevoirs={setDevoirs} notes={notes} absences={absences} bilinguisme={bilinguisme} />}
+              {tab === 'bulletins'  && <BulletinParentTab session={session} />}
               {tab === 'vie'        && <VieScolaireTab session={session} cantine={cantine} evenements={evenements} transport={transport} sante={sante} />}
               {tab === 'finances'   && <FinancesTab  session={session} appointments={appointments} paiements={paiements} reduction={reduction} tarifs={tarifs} onRdvBooked={handleRdvBooked} onToast={setToast} />}
               {tab === 'messagerie' && <MessageTab   session={session} messages={messages} setMessages={setMessages} onToast={setToast} />}

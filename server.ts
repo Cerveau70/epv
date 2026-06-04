@@ -1775,6 +1775,250 @@ crudTable('bilinguisme', 'bil');
 crudTable('documents',    'doc');
 crudTable('qr_campaigns', 'qr');
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPOSITIONS — planification des évaluations
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.get('/api/compositions', requireAdmin, async (_req, res) => {
+  const { rows } = await q('SELECT * FROM compositions ORDER BY date_debut DESC');
+  res.json(rowsToObjs(rows));
+});
+
+app.post('/api/compositions', requireAdmin, async (req, res) => {
+  const { titre, section, trimestre, dateDebut, dateFin, matieres } = req.body;
+  if (!titre || !section || !trimestre || !dateDebut) return res.status(400).json({ error: 'Champs requis manquants.' });
+  const id = uid('comp');
+  await q(
+    `INSERT INTO compositions (id,titre,section,trimestre,date_debut,date_fin,matieres,statut)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,'planifie')`,
+    [id, titre, section, trimestre, dateDebut, dateFin || null, JSON.stringify(matieres || [])]
+  );
+  res.json({ id });
+});
+
+app.patch('/api/compositions/:id', requireAdmin, async (req, res) => {
+  const fields = req.body;
+  const sets: string[] = [];
+  const vals: any[] = [];
+  let i = 1;
+  if (fields.statut)    { sets.push(`statut=$${i++}`);    vals.push(fields.statut); }
+  if (fields.notifEnvoye !== undefined) { sets.push(`notif_envoye=$${i++}`); vals.push(fields.notifEnvoye); }
+  if (!sets.length) return res.status(400).json({ error: 'Rien à mettre à jour.' });
+  sets.push(`updated_at=NOW()`);
+  vals.push(req.params.id);
+  await q(`UPDATE compositions SET ${sets.join(',')} WHERE id=$${i}`, vals);
+  res.json({ ok: true });
+});
+
+app.delete('/api/compositions/:id', requireAdmin, async (req, res) => {
+  await q('DELETE FROM compositions WHERE id=$1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// Notifier les parents d'une section d'une composition
+app.post('/api/compositions/:id/notify', requireAdmin, async (req, res) => {
+  try {
+    const { rows: comps } = await q('SELECT * FROM compositions WHERE id=$1', [req.params.id]);
+    if (!comps.length) return res.status(404).json({ error: 'Composition introuvable.' });
+    const comp = rowToObj(comps[0]) as any;
+    const { rows: parents } = await q(
+      `SELECT telephone, prenom_parent, prenom_enfant FROM prospects
+       WHERE section_visee=$1 AND statut IN ('Inscrit','Pré-inscrit')`,
+      [comp.section]
+    );
+    let sent = 0;
+    for (const p of parents) {
+      const po = rowToObj(p) as any;
+      const msg = `📅 *EPV Horizons Savants*\n\nBonjour ${po.prenomParent},\n\n*${comp.titre}* est planifié du *${new Date(comp.dateDebut).toLocaleDateString('fr-FR')}*.\n\nMatières : ${(comp.matieres || []).join(', ') || 'Voir secrétariat'}\n\nBonne préparation à ${po.prenomEnfant} ! 🎒`;
+      await sendInfobipWhatsApp(po.telephone, msg);
+      sent++;
+    }
+    await q('UPDATE compositions SET notif_envoye=TRUE, updated_at=NOW() WHERE id=$1', [req.params.id]);
+    await logNotification('whatsapp', `section:${comp.section}`, `Notif composition ${comp.titre}`, `${sent} parents notifiés`);
+    res.json({ sent });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NOTES — saisie par section + trimestre
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Lister les notes d'une section + trimestre
+app.get('/api/notes/classe/:section/:trimestre', requireAdmin, async (req, res) => {
+  const { section, trimestre } = req.params;
+  const { rows: prospects } = await q(
+    `SELECT id, prenom_enfant, nom_enfant FROM prospects
+     WHERE section_visee=$1 AND statut='Inscrit' ORDER BY nom_enfant, prenom_enfant`,
+    [section]
+  );
+  const { rows: notes } = await q(
+    `SELECT * FROM notes WHERE prospect_id = ANY($1::text[])`,
+    [prospects.map((p: any) => p.id)]
+  );
+  const notesMap: Record<string, any[]> = {};
+  for (const n of notes) { const no = rowToObj(n) as any; (notesMap[no.prospectId] = notesMap[no.prospectId] || []).push(no); }
+  res.json({ prospects: rowsToObjs(prospects), notes: notesMap });
+});
+
+// Sauvegarder les notes d'un élève (upsert par matière)
+app.put('/api/notes/eleve/:prospectId', requireAdmin, async (req, res) => {
+  const { prospectId } = req.params;
+  const { notes } = req.body as { notes: { matiere: string; t1?: number; t2?: number; t3?: number; coef?: number }[] };
+  if (!notes?.length) return res.status(400).json({ error: 'Notes manquantes.' });
+  for (const n of notes) {
+    const { rows } = await q('SELECT id FROM notes WHERE prospect_id=$1 AND matiere=$2', [prospectId, n.matiere]);
+    if (rows.length) {
+      await q('UPDATE notes SET t1=$1,t2=$2,t3=$3,coef=$4,updated_at=NOW() WHERE prospect_id=$5 AND matiere=$6',
+        [n.t1 ?? null, n.t2 ?? null, n.t3 ?? null, n.coef ?? 1, prospectId, n.matiere]);
+    } else {
+      await q('INSERT INTO notes (id,prospect_id,matiere,t1,t2,t3,coef) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        [uid('note'), prospectId, n.matiere, n.t1 ?? null, n.t2 ?? null, n.t3 ?? null, n.coef ?? 1]);
+    }
+  }
+  res.json({ ok: true });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BULLETINS — génération, publication, consultation parent
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Générer les bulletins d'une section + trimestre
+app.post('/api/bulletins/generer', requireAdmin, async (req, res) => {
+  const { section, trimestre, annee } = req.body;
+  if (!section || !trimestre) return res.status(400).json({ error: 'section et trimestre requis.' });
+  try {
+    const { rows: prospects } = await q(
+      `SELECT id, prenom_enfant, nom_enfant FROM prospects
+       WHERE section_visee=$1 AND statut='Inscrit' ORDER BY nom_enfant`,
+      [section]
+    );
+    if (!prospects.length) return res.status(400).json({ error: 'Aucun élève inscrit dans cette section.' });
+
+    const noteField = trimestre === 'T1' ? 't1' : trimestre === 'T2' ? 't2' : 't3';
+    const moyennes: { id: string; moy: number }[] = [];
+
+    for (const p of prospects) {
+      const { rows: notesRows } = await q('SELECT * FROM notes WHERE prospect_id=$1', [p.id]);
+      const notes = notesRows.map(rowToObj) as any[];
+      const validNotes = notes.filter((n: any) => n[noteField] !== null && n[noteField] !== undefined);
+      let totalPondere = 0, totalCoef = 0;
+      const detail = validNotes.map((n: any) => {
+        const note = parseFloat(n[noteField]);
+        const coef = n.coef || 1;
+        totalPondere += note * coef;
+        totalCoef += coef;
+        const appreciation = note >= 16 ? 'Excellent' : note >= 14 ? 'Très bien' : note >= 12 ? 'Bien' : note >= 10 ? 'Assez bien' : 'À améliorer';
+        return { matiere: n.matiere, note, coef, appreciation };
+      });
+      const moyenne = totalCoef > 0 ? Math.round((totalPondere / totalCoef) * 100) / 100 : null;
+      if (moyenne !== null) moyennes.push({ id: p.id, moy: moyenne });
+
+      const existing = await q('SELECT id FROM bulletins WHERE prospect_id=$1 AND trimestre=$2', [p.id, trimestre]);
+      if (existing.rows.length) {
+        await q(
+          `UPDATE bulletins SET notes_detail=$1, moyenne_generale=$2, annee_scolaire=$3, updated_at=NOW()
+           WHERE prospect_id=$4 AND trimestre=$5`,
+          [JSON.stringify(detail), moyenne, annee || '2026-2027', p.id, trimestre]
+        );
+      } else {
+        await q(
+          `INSERT INTO bulletins (id,prospect_id,trimestre,annee_scolaire,notes_detail,moyenne_generale)
+           VALUES ($1,$2,$3,$4,$5,$6)`,
+          [uid('bull'), p.id, trimestre, annee || '2026-2027', JSON.stringify(detail), moyenne]
+        );
+      }
+    }
+
+    // Calculer les rangs
+    moyennes.sort((a, b) => b.moy - a.moy);
+    for (let i = 0; i < moyennes.length; i++) {
+      await q(
+        `UPDATE bulletins SET rang=$1, effectif_classe=$2,
+         mention=CASE WHEN moyenne_generale>=16 THEN 'Félicitations' WHEN moyenne_generale>=14 THEN 'Très bien' WHEN moyenne_generale>=12 THEN 'Bien' WHEN moyenne_generale>=10 THEN 'Assez bien' ELSE 'À encourager' END
+         WHERE prospect_id=$3 AND trimestre=$4`,
+        [i + 1, moyennes.length, moyennes[i].id, trimestre]
+      );
+    }
+    res.json({ generated: prospects.length });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Lister les bulletins d'une section + trimestre
+app.get('/api/bulletins/classe/:section/:trimestre', requireAdmin, async (req, res) => {
+  const { section, trimestre } = req.params;
+  const { rows } = await q(
+    `SELECT b.*, p.prenom_enfant, p.nom_enfant, p.email, p.telephone
+     FROM bulletins b JOIN prospects p ON b.prospect_id = p.id
+     WHERE p.section_visee=$1 AND b.trimestre=$2
+     ORDER BY b.rang ASC NULLS LAST`,
+    [section, trimestre]
+  );
+  res.json(rowsToObjs(rows));
+});
+
+// Publier un bulletin + notifier le parent
+app.post('/api/bulletins/:id/publier', requireAdmin, async (req, res) => {
+  try {
+    const { rows } = await q(
+      `SELECT b.*, p.prenom_parent, p.nom_parent, p.prenom_enfant, p.telephone, p.email
+       FROM bulletins b JOIN prospects p ON b.prospect_id = p.id
+       WHERE b.id=$1`,
+      [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Bulletin introuvable.' });
+    const b = rowToObj(rows[0]) as any;
+    await q('UPDATE bulletins SET publie=TRUE, date_publication=NOW(), updated_at=NOW() WHERE id=$1', [req.params.id]);
+    const mention = b.mention || '';
+    const msg = `📊 *EPV Horizons Savants*\n\nBonjour ${b.prenomParent},\n\nLe bulletin de *${b.prenomEnfant}* (${b.trimestre}) est disponible !\n\n📈 Moyenne : *${b.moyenneGenerale}/20*\n🏅 Rang : *${b.rang}/${b.effectifClasse}*\n🎖️ Mention : *${mention}*\n\nConsultez le détail dans votre Espace Parent EPV. 🎒`;
+    await sendInfobipWhatsApp(b.telephone, msg);
+    await logNotification('whatsapp', b.telephone, msg, `Bulletin ${b.trimestre} publié pour ${b.prenomEnfant}`);
+    res.json({ ok: true });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Publier tous les bulletins d'une section + trimestre
+app.post('/api/bulletins/publier-classe', requireAdmin, async (req, res) => {
+  const { section, trimestre } = req.body;
+  try {
+    const { rows } = await q(
+      `SELECT b.id FROM bulletins b JOIN prospects p ON b.prospect_id=p.id
+       WHERE p.section_visee=$1 AND b.trimestre=$2 AND b.publie=FALSE`,
+      [section, trimestre]
+    );
+    let published = 0;
+    for (const r of rows) {
+      await fetch(`http://localhost:${process.env.PORT || 3000}/api/bulletins/${r.id}/publier`, {
+        method: 'POST', headers: { 'Authorization': req.headers.authorization || '' }
+      }).catch(() => null);
+      published++;
+    }
+    res.json({ published });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Parent — consulter ses bulletins
+app.get('/api/parent/bulletins', requireAuth, async (req: any, res) => {
+  const { rows } = await q(
+    `SELECT * FROM bulletins WHERE prospect_id=$1 AND publie=TRUE ORDER BY trimestre DESC`,
+    [req.user.prospectId]
+  );
+  res.json(rowsToObjs(rows));
+});
+
+// Parent — consulter les notes de son enfant
+app.get('/api/parent/notes', requireAuth, async (req: any, res) => {
+  const { rows } = await q('SELECT * FROM notes WHERE prospect_id=$1', [req.user.prospectId]);
+  res.json(rowsToObjs(rows));
+});
+
 // ─── Démarrage ────────────────────────────────────────────────────────────────
 
 async function startServer() {

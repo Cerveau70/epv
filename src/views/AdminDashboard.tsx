@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { checkSession, signOutNeon, apiFetch as authFetch } from '../lib/auth.ts';
+import { BulletinsTab } from './admin/BulletinsTab.tsx';
 import { motion, AnimatePresence } from 'motion/react';
 import { Badge }       from '../components/ui/Badge.tsx';
 import { KanbanBoard } from '../components/ui/KanbanBoard.tsx';
@@ -30,7 +31,7 @@ import {
 
 type AdminTab =
   | 'dashboard'    | 'statistiques'
-  | 'annuaire'     | 'inscriptions' | 'classes'    | 'assiduite'
+  | 'annuaire'     | 'inscriptions' | 'classes'    | 'assiduite' | 'bulletins'
   | 'enseignants'  | 'rh'
   | 'scolarites'   | 'facturation'  | 'depenses'
   | 'newsletters'  | 'messages'     | 'notif-log'
@@ -68,9 +69,10 @@ const NAV_GROUPS: { group: string; items: { id: AdminTab; label: string; Icon: R
   {
     group: 'GESTION ÉLÈVES',
     items: [
-      { id: 'annuaire',     label: 'Annuaire',         Icon: Users          },
+      { id: 'annuaire',     label: 'Annuaire',           Icon: Users          },
       { id: 'inscriptions', label: 'Inscriptions',     Icon: FileText       },
       { id: 'classes',      label: 'Classes & Quotas', Icon: GraduationCap  },
+      { id: 'bulletins',    label: 'Notes & Bulletins', Icon: BookMarked    },
       { id: 'assiduite',    label: 'Assiduité',        Icon: Activity       },
     ],
   },
@@ -3956,6 +3958,7 @@ export const AdminDashboard: React.FC = () => {
               {tab === 'annuaire'     && <AnnuaireTab        {...dataProps} />}
               {tab === 'inscriptions' && <InscriptionsTab    {...dataProps} />}
               {tab === 'classes'      && <ClassesTab         {...dataProps} />}
+              {tab === 'bulletins'    && <BulletinsTab onToast={dataProps.onToast} />}
               {tab === 'messages'     && <MessagerieTab      {...dataProps} />}
               {tab === 'notif-log'    && <MessagerieTab      {...dataProps} />}
               {tab === 'configuration'&& <ConfigurationTab   {...dataProps} />}
