@@ -691,9 +691,9 @@ function NotesSection({ prospectId }: { prospectId: string }) {
   if (loading) return <p className="text-[11px] text-slate-400 text-center py-3">Chargement…</p>;
   if (!notes.length) return <p className="text-[11px] text-slate-400 text-center py-3">Aucune note enregistrée pour cet élève.</p>;
 
-  const fmtNote = (v: number | null) => v != null ? v.toFixed(1) : '—';
+  const fmtNote = (v: any) => v != null && v !== '' ? Number(v).toFixed(1) : '—';
   const moy = (n: any) => {
-    const vals = [n.t1, n.t2, n.t3].filter(v => v != null) as number[];
+    const vals = [n.t1, n.t2, n.t3].filter(v => v != null && v !== '').map(Number);
     return vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : '—';
   };
 

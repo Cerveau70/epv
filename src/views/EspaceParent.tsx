@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../lib/auth.ts';
@@ -67,10 +63,13 @@ const fmtDate = (iso: string, opts?: Intl.DateTimeFormatOptions) =>
 const todayLabel = () =>
   new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
+const toNum = (v: any) => Number(v) || 0;
+const fmtN  = (v: any, dec = 1) => v != null && v !== '' ? Number(v).toFixed(dec) : '—';
+
 const avg = (notes: any[], key: 't1' | 't2') => {
   if (!notes.length) return '—';
-  const total = notes.reduce((s: number, n: any) => s + (n[key] || 0) * n.coef, 0);
-  const coef  = notes.reduce((s: number, n: any) => s + n.coef, 0);
+  const total = notes.reduce((s: number, n: any) => s + toNum(n[key]) * toNum(n.coef), 0);
+  const coef  = notes.reduce((s: number, n: any) => s + toNum(n.coef), 0);
   return coef > 0 ? (total / coef).toFixed(2) : '—';
 };
 
@@ -78,7 +77,7 @@ const avg = (notes: any[], key: 't1' | 't2') => {
 
 function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`bg-white border border-slate-200 rounded-lg ${className}`}>
+    <div className={`bg-white border border-[#E5E7EB] rounded-lg ${className}`}>
       {children}
     </div>
   );
@@ -86,10 +85,10 @@ function Card({ children, className = '' }: { children: React.ReactNode; classNa
 
 function CardHeader({ title, sub, action }: { title: string; sub?: string; action?: React.ReactNode }) {
   return (
-    <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-4">
+    <div className="px-5 py-4 border-b border-[#F4F8FF] flex items-center justify-between gap-4">
       <div>
-        <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
-        {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+        <h3 className="text-sm font-semibold text-[#2C2C2C]">{title}</h3>
+        {sub && <p className="text-xs text-[#6B7280] mt-0.5">{sub}</p>}
       </div>
       {action}
     </div>
@@ -104,12 +103,12 @@ function KpiCard({ label, value, sub, Icon, accent = false }: {
     <Card className="p-5">
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{label}</p>
-          <p className={`text-2xl font-bold mt-1.5 ${accent ? 'text-[#F5A623]' : 'text-slate-900'}`}>{value}</p>
-          {sub && <p className="text-xs text-slate-400 mt-1">{sub}</p>}
+          <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-widest">{label}</p>
+          <p className={`text-2xl font-bold mt-1.5 ${accent ? 'text-[#F5A623]' : 'text-[#2C2C2C]'}`}>{value}</p>
+          {sub && <p className="text-xs text-[#6B7280] mt-1">{sub}</p>}
         </div>
-        <div className="w-9 h-9 rounded-md bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-          <Icon size={16} className="text-slate-400" />
+        <div className="w-9 h-9 rounded-md bg-[#F9FAFB] border border-[#F4F8FF] flex items-center justify-center shrink-0">
+          <Icon size={16} className="text-[#6B7280]" />
         </div>
       </div>
     </Card>
@@ -120,13 +119,13 @@ function SubTabNav<T extends string>({
   tabs, active, onChange
 }: { tabs: { id: T; label: string }[]; active: T; onChange: React.Dispatch<React.SetStateAction<T>> | ((t: T) => void) }) {
   return (
-    <div className="flex gap-1 border-b border-slate-200 mb-6">
+    <div className="flex gap-1 border-b border-[#E5E7EB] mb-6">
       {tabs.map(t => (
         <button key={t.id} onClick={() => onChange(t.id)}
           className={`px-4 py-2.5 text-xs font-semibold border-b-2 -mb-px transition-colors cursor-pointer
             ${active === t.id
               ? 'border-[#0D2E5C] text-[#0D2E5C]'
-              : 'border-transparent text-slate-400 hover:text-slate-700'}`}>
+              : 'border-transparent text-[#6B7280] hover:text-slate-700'}`}>
           {t.label}
         </button>
       ))}
@@ -141,7 +140,7 @@ function StatusBadge({ statut }: { statut: string }) {
     confirme: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     planifie: 'bg-blue-50 text-blue-700 border-blue-200',
     annule: 'bg-red-50 text-red-600 border-red-200',
-    fait: 'bg-slate-50 text-slate-500 border-slate-200',
+    fait: 'bg-[#F9FAFB] text-slate-500 border-[#E5E7EB]',
     done: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     pending: 'bg-amber-50 text-amber-700 border-amber-200',
   };
@@ -181,11 +180,11 @@ function ProgressBar({ value, max = 100, color = '#0D2E5C' }: { value: number; m
   const pct = Math.round((value / max) * 100);
   return (
     <div className="flex items-center gap-3">
-      <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+      <div className="flex-1 h-1.5 bg-[#F4F8FF] rounded-full overflow-hidden">
         <motion.div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }}
           initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.7 }} />
       </div>
-      <span className="text-[11px] font-mono font-semibold text-slate-600 w-8 text-right">{pct}%</span>
+      <span className="text-[11px] font-mono font-semibold text-[#6B7280] w-8 text-right">{pct}%</span>
     </div>
   );
 }
@@ -194,8 +193,8 @@ function SectionPage({ title, sub, children }: { title: string; sub?: string; ch
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-5">
       <div className="mb-1">
-        <h1 className="text-base font-semibold text-slate-900">{title}</h1>
-        {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+        <h1 className="text-base font-semibold text-[#2C2C2C]">{title}</h1>
+        {sub && <p className="text-xs text-[#6B7280] mt-0.5">{sub}</p>}
       </div>
       {children}
     </div>
@@ -261,10 +260,10 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
           <div className="p-5 space-y-3">
             {notes.map((n: any, i: number) => (
               <div key={i} className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-4">
-                <span className="text-xs text-slate-600 truncate">{n.matiere}</span>
-                <span className="text-[11px] font-mono text-slate-400 tabular-nums w-8 text-right">{n.t1}</span>
+                <span className="text-xs text-[#6B7280] truncate">{n.matiere}</span>
+                <span className="text-[11px] font-mono text-[#6B7280] tabular-nums w-8 text-right">{n.t1}</span>
                 <MiniLineChart values={[n.t1, n.t2 || n.t1]} color={(n.t2||n.t1) >= n.t1 ? '#059669' : '#DC2626'} />
-                <span className="text-[11px] font-mono font-semibold text-slate-800 tabular-nums w-8 text-right">{n.t2 ?? '—'}</span>
+                <span className="text-[11px] font-mono font-semibold text-[#2C2C2C] tabular-nums w-8 text-right">{n.t2 ?? '—'}</span>
               </div>
             ))}
           </div>
@@ -277,15 +276,15 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
             <div className="p-5">
               {nextRdv ? (
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-md bg-slate-900 flex flex-col items-center justify-center text-white shrink-0">
+                  <div className="w-12 h-12 rounded-md bg-[#0D2E5C] flex flex-col items-center justify-center text-white shrink-0">
                     <span className="font-bold text-base leading-none">{new Date(nextRdv.dateHeure).getDate()}</span>
                     <span className="text-[9px] text-white/60 uppercase mt-0.5">
                       {new Date(nextRdv.dateHeure).toLocaleString('fr-FR', { month: 'short' })}
                     </span>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-slate-800">{nextRdv.typeRdv}</p>
-                    <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                    <p className="text-sm font-semibold text-[#2C2C2C]">{nextRdv.typeRdv}</p>
+                    <p className="text-xs text-[#6B7280] mt-0.5 flex items-center gap-1">
                       <Clock size={11} />
                       {new Date(nextRdv.dateHeure).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} · 30 min
                     </p>
@@ -294,7 +293,7 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-slate-400">Aucun rendez-vous planifié.</p>
+                  <p className="text-sm text-[#6B7280]">Aucun rendez-vous planifié.</p>
                   <button onClick={() => onTabChange('finances')}
                     className="text-[11px] font-semibold text-[#0D2E5C] hover:underline cursor-pointer">
                     Prendre RDV
@@ -306,20 +305,20 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
 
           <Card>
             <CardHeader title="Agenda — Prochains événements" />
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-[#F9FAFB]">
               {evenements.slice(0, 3).map((e: any, i: number) => (
                 <div key={i} className="px-5 py-3 flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-md bg-slate-50 border border-slate-100 flex flex-col items-center justify-center shrink-0">
-                    <span className="font-bold text-sm text-slate-800 leading-none">{new Date(e.date).getDate()}</span>
-                    <span className="text-[8px] text-slate-400 uppercase">
+                  <div className="w-10 h-10 rounded-md bg-[#F9FAFB] border border-[#F4F8FF] flex flex-col items-center justify-center shrink-0">
+                    <span className="font-bold text-sm text-[#2C2C2C] leading-none">{new Date(e.date).getDate()}</span>
+                    <span className="text-[8px] text-[#6B7280] uppercase">
                       {new Date(e.date).toLocaleString('fr-FR', { month: 'short' })}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-slate-800 truncate">{e.titre}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{e.heure} · {e.lieu}</p>
+                    <p className="text-xs font-semibold text-[#2C2C2C] truncate">{e.titre}</p>
+                    <p className="text-[11px] text-[#6B7280] mt-0.5">{e.heure} · {e.lieu}</p>
                   </div>
-                  <span className="text-[10px] font-medium text-slate-400 shrink-0">{e.type}</span>
+                  <span className="text-[10px] font-medium text-[#6B7280] shrink-0">{e.type}</span>
                 </div>
               ))}
             </div>
@@ -343,23 +342,23 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left px-5 py-2.5 font-semibold text-slate-400 text-[10px] uppercase tracking-wide">Jour</th>
-                  <th className="text-left px-3 py-2.5 font-semibold text-slate-400 text-[10px] uppercase tracking-wide">Plat principal</th>
-                  <th className="text-left px-3 py-2.5 font-semibold text-slate-400 text-[10px] uppercase tracking-wide hidden sm:table-cell">Dessert</th>
+                <tr className="border-b border-[#F4F8FF]">
+                  <th className="text-left px-5 py-2.5 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">Jour</th>
+                  <th className="text-left px-3 py-2.5 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">Plat principal</th>
+                  <th className="text-left px-3 py-2.5 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide hidden sm:table-cell">Dessert</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-[#F9FAFB]">
                 {cantine.map((c: any, i: number) => {
                   const isToday = c.jour === ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'][new Date().getDay()];
                   return (
-                    <tr key={i} className={isToday ? 'bg-slate-50' : ''}>
+                    <tr key={i} className={isToday ? 'bg-[#F9FAFB]' : ''}>
                       <td className="px-5 py-3">
-                        <span className={`font-semibold ${isToday ? 'text-[#0D2E5C]' : 'text-slate-600'}`}>{c.jour}</span>
+                        <span className={`font-semibold ${isToday ? 'text-[#0D2E5C]' : 'text-[#6B7280]'}`}>{c.jour}</span>
                         {isToday && <span className="ml-2 text-[9px] font-bold text-[#F5A623] uppercase">Aujourd'hui</span>}
                       </td>
-                      <td className="px-3 py-3 text-slate-600">{c.plat}</td>
-                      <td className="px-3 py-3 text-slate-400 hidden sm:table-cell">{c.dessert}</td>
+                      <td className="px-3 py-3 text-[#6B7280]">{c.plat}</td>
+                      <td className="px-3 py-3 text-[#6B7280] hidden sm:table-cell">{c.dessert}</td>
                     </tr>
                   );
                 })}
@@ -375,20 +374,20 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
             <div className="grid grid-cols-3 gap-3 text-center">
               {[
                 { label: 'Taux de présence', value: '97,2 %', color: 'text-emerald-700' },
-                { label: 'Absences',          value: `${absences.filter((a:any)=>a.type==='Absence').length}`,  color: 'text-slate-900' },
-                { label: 'Retards',           value: `${absences.filter((a:any)=>a.type==='Retard').length}`,   color: 'text-slate-900' },
+                { label: 'Absences',          value: `${absences.filter((a:any)=>a.type==='Absence').length}`,  color: 'text-[#2C2C2C]' },
+                { label: 'Retards',           value: `${absences.filter((a:any)=>a.type==='Retard').length}`,   color: 'text-[#2C2C2C]' },
               ].map(s => (
-                <div key={s.label} className="bg-slate-50 rounded-md p-3 border border-slate-100">
+                <div key={s.label} className="bg-[#F9FAFB] rounded-md p-3 border border-[#F4F8FF]">
                   <p className={`font-bold text-xl ${s.color}`}>{s.value}</p>
-                  <p className="text-[9px] text-slate-400 uppercase tracking-wide mt-0.5">{s.label}</p>
+                  <p className="text-[9px] text-[#6B7280] uppercase tracking-wide mt-0.5">{s.label}</p>
                 </div>
               ))}
             </div>
             <div className="space-y-2 pt-1">
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Dernières absences</p>
+              <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide">Dernières absences</p>
               {absences.map((a: any, i: number) => (
                 <div key={i} className="flex items-center justify-between py-1.5 border-b border-slate-50">
-                  <span className="text-xs text-slate-600">{fmtDate(a.date, { day:'numeric', month:'short' })} — {a.motif}</span>
+                  <span className="text-xs text-[#6B7280]">{fmtDate(a.date, { day:'numeric', month:'short' })} — {a.motif}</span>
                   <StatusBadge statut={a.type === 'Absence' ? 'annule' : 'en_attente'} />
                 </div>
               ))}
@@ -403,7 +402,7 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
           <div className="px-5 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <MessageSquare size={16} className="text-[#0D2E5C]" />
-              <p className="text-sm font-semibold text-slate-800">
+              <p className="text-sm font-semibold text-[#2C2C2C]">
                 {unreadMsg} message{unreadMsg > 1 ? 's' : ''} non lu{unreadMsg > 1 ? 's' : ''} dans votre messagerie
               </p>
             </div>
@@ -465,10 +464,10 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                   { label: '3e trimestre',   val: '—',                  sub: 'En cours' },
                 ].map(s => (
                   <Card key={s.label} className="p-5 text-center">
-                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{s.label}</p>
-                    <p className="text-3xl font-bold text-slate-900 mt-2">{s.val !== '—' ? `${s.val}` : '—'}</p>
-                    {s.val !== '—' && <p className="text-[10px] text-slate-400 mt-0.5">sur 20</p>}
-                    <p className="text-[10px] text-slate-400 mt-1">{s.sub}</p>
+                    <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide">{s.label}</p>
+                    <p className="text-3xl font-bold text-[#2C2C2C] mt-2">{s.val !== '—' ? `${s.val}` : '—'}</p>
+                    {s.val !== '—' && <p className="text-[10px] text-[#6B7280] mt-0.5">sur 20</p>}
+                    <p className="text-[10px] text-[#6B7280] mt-1">{s.sub}</p>
                   </Card>
                 ))}
               </div>
@@ -478,24 +477,25 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="border-b border-slate-100 bg-slate-50">
+                      <tr className="border-b border-[#F4F8FF] bg-[#F9FAFB]">
                         {['Matière', 'Coef.', '1er Trimestre', '2e Trimestre', 'Évolution'].map(h => (
-                          <th key={h} className="text-left px-5 py-3 font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                          <th key={h} className="text-left px-5 py-3 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">{h}</th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
+                    <tbody className="divide-y divide-[#F9FAFB]">
                       {notes.map((n: any, i: number) => {
-                        const up = n.t2 > n.t1;
+                        const t1 = toNum(n.t1); const t2 = toNum(n.t2);
+                        const up = t2 > t1;
                         return (
-                          <tr key={i} className="hover:bg-slate-50 transition-colors">
-                            <td className="px-5 py-3.5 font-medium text-slate-800">{n.matiere}</td>
-                            <td className="px-5 py-3.5 text-slate-400 text-center">{n.coef}</td>
-                            <td className="px-5 py-3.5 font-mono text-slate-600 tabular-nums">{n.t1.toFixed(1)}</td>
-                            <td className="px-5 py-3.5 font-mono font-semibold text-slate-900 tabular-nums">{n.t2.toFixed(1)}</td>
+                          <tr key={i} className="hover:bg-[#F9FAFB] transition-colors">
+                            <td className="px-5 py-3.5 font-medium text-[#2C2C2C]">{n.matiere}</td>
+                            <td className="px-5 py-3.5 text-[#6B7280] text-center">{n.coef}</td>
+                            <td className="px-5 py-3.5 font-mono text-[#6B7280] tabular-nums">{fmtN(n.t1)}</td>
+                            <td className="px-5 py-3.5 font-mono font-semibold text-[#2C2C2C] tabular-nums">{fmtN(n.t2)}</td>
                             <td className="px-5 py-3.5">
                               <span className={`text-[10px] font-semibold ${up ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                {up ? '+' : ''}{(n.t2 - n.t1).toFixed(1)} pt
+                                {up ? '+' : ''}{(t2 - t1).toFixed(1)} pt
                               </span>
                             </td>
                           </tr>
@@ -504,8 +504,8 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                     </tbody>
                   </table>
                 </div>
-                <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between">
-                  <p className="text-xs text-slate-400">Bulletin officiel — Année scolaire 2025/2026</p>
+                <div className="px-5 py-3 border-t border-[#F4F8FF] flex items-center justify-between">
+                  <p className="text-xs text-[#6B7280]">Bulletin officiel — Année scolaire 2025/2026</p>
                   <button onClick={() => {
                     const w = window.open('', '_blank', 'width=800,height=900');
                     if (!w) return;
@@ -540,7 +540,7 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                     </body></html>`);
                     w.document.close();
                   }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-900 text-white text-[10px] font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0D2E5C] text-white text-[10px] font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
                     <Download size={11} /> Télécharger / Imprimer
                   </button>
                 </div>
@@ -561,18 +561,18 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
               <Card>
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="border-b border-slate-100 bg-slate-50">
+                    <tr className="border-b border-[#F4F8FF] bg-[#F9FAFB]">
                       {['Matière', 'Travail demandé', 'À rendre', 'Statut'].map(h => (
-                        <th key={h} className="text-left px-5 py-3 font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                        <th key={h} className="text-left px-5 py-3 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50">
+                  <tbody className="divide-y divide-[#F9FAFB]">
                     {devoirs.map((d, i) => (
-                      <tr key={i} className={`hover:bg-slate-50 transition-colors ${d.statut==='done'?'opacity-60':''}`}>
+                      <tr key={i} className={`hover:bg-[#F9FAFB] transition-colors ${d.statut==='done'?'opacity-60':''}`}>
                         <td className="px-5 py-3.5 font-semibold text-slate-700 whitespace-nowrap">{d.matiere}</td>
-                        <td className="px-5 py-3.5 text-slate-600 max-w-xs">{d.sujet}</td>
-                        <td className="px-5 py-3.5 text-slate-400 whitespace-nowrap">{d.rendu}</td>
+                        <td className="px-5 py-3.5 text-[#6B7280] max-w-xs">{d.sujet}</td>
+                        <td className="px-5 py-3.5 text-[#6B7280] whitespace-nowrap">{d.rendu}</td>
                         <td className="px-5 py-3.5">
                           <button onClick={() => toggleDevoir(i)}
                             className="flex items-center gap-1.5 cursor-pointer">
@@ -596,18 +596,18 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
               {competences.length === 0 ? (
                 <Card className="p-8 text-center">
                   <BookMarked size={24} className="mx-auto mb-2 text-slate-300" />
-                  <p className="text-sm text-slate-400">Aucune donnée de progression bilingue disponible pour le moment.</p>
+                  <p className="text-sm text-[#6B7280]">Aucune donnée de progression bilingue disponible pour le moment.</p>
                 </Card>
               ) : (
                 <>
                   <Card className="p-6">
                     <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-sm font-semibold text-slate-800">Niveau de progression en anglais</h3>
+                      <h3 className="text-sm font-semibold text-[#2C2C2C]">Niveau de progression en anglais</h3>
                       {bilinguisme?.niveau && (
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Niveau CECRL estimé : {bilinguisme.niveau}</span>
+                        <span className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide">Niveau CECRL estimé : {bilinguisme.niveau}</span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-400 mb-6">Programme bilingue EPV — {SECTION_LABEL[session.sectionVisee] || session.sectionVisee} · 8h d'anglais par semaine</p>
+                    <p className="text-xs text-[#6B7280] mb-6">Programme bilingue EPV — {SECTION_LABEL[session.sectionVisee] || session.sectionVisee} · 8h d'anglais par semaine</p>
                     <div className="space-y-4">
                       {competences.map((b: any, i: number) => (
                         <div key={i} className="grid grid-cols-[200px_1fr] items-center gap-6">
@@ -621,7 +621,7 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                     <Card className="p-5">
                       <div className="flex items-start gap-3">
                         <Info size={15} className="text-[#0D2E5C] shrink-0 mt-0.5" />
-                        <p className="text-xs text-slate-600 leading-relaxed">{bilinguisme.commentaire}</p>
+                        <p className="text-xs text-[#6B7280] leading-relaxed">{bilinguisme.commentaire}</p>
                       </div>
                     </Card>
                   )}
@@ -644,25 +644,25 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
               <Card>
                 <CardHeader title="Registre des absences et retards" />
                 {absences.length === 0 ? (
-                  <div className="px-5 py-8 text-center text-slate-400 text-sm">Aucune absence enregistrée pour cette année scolaire.</div>
+                  <div className="px-5 py-8 text-center text-[#6B7280] text-sm">Aucune absence enregistrée pour cette année scolaire.</div>
                 ) : (
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="border-b border-slate-100 bg-slate-50">
+                      <tr className="border-b border-[#F4F8FF] bg-[#F9FAFB]">
                         {['Date', 'Type', 'Motif', 'Durée'].map(h => (
-                          <th key={h} className="text-left px-5 py-3 font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                          <th key={h} className="text-left px-5 py-3 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">{h}</th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
+                    <tbody className="divide-y divide-[#F9FAFB]">
                       {absences.map((a: any, i: number) => (
                         <tr key={i}>
-                          <td className="px-5 py-3.5 text-slate-600">{fmtDate(a.date)}</td>
+                          <td className="px-5 py-3.5 text-[#6B7280]">{fmtDate(a.date)}</td>
                           <td className="px-5 py-3.5">
                             <StatusBadge statut={a.type === 'Absence' ? 'annule' : 'en_attente'} />
                           </td>
-                          <td className="px-5 py-3.5 text-slate-600">{a.motif}</td>
-                          <td className="px-5 py-3.5 text-slate-400">{a.duree}</td>
+                          <td className="px-5 py-3.5 text-[#6B7280]">{a.motif}</td>
+                          <td className="px-5 py-3.5 text-[#6B7280]">{a.duree}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -708,24 +708,24 @@ function VieScolaireTab({ session, cantine, evenements, transport, sante }: { se
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="border-b border-slate-100 bg-slate-50">
+                    <tr className="border-b border-[#F4F8FF] bg-[#F9FAFB]">
                       {['Jour', 'Plat principal', 'Accompagnement', 'Dessert'].map(h => (
-                        <th key={h} className="text-left px-5 py-3 font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                        <th key={h} className="text-left px-5 py-3 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50">
+                  <tbody className="divide-y divide-[#F9FAFB]">
                     {cantine.map((c: any, i: number) => {
                       const isToday = c.jour === ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'][new Date().getDay()];
                       return (
-                        <tr key={i} className={`${isToday ? 'bg-slate-50 border-l-2 border-l-[#F5A623]' : 'hover:bg-slate-50/50'} transition-colors`}>
-                          <td className="px-5 py-4 font-semibold text-slate-800">
+                        <tr key={i} className={`${isToday ? 'bg-[#F9FAFB] border-l-2 border-l-[#F5A623]' : 'hover:bg-[#F9FAFB]/50'} transition-colors`}>
+                          <td className="px-5 py-4 font-semibold text-[#2C2C2C]">
                             {c.jour}
                             {isToday && <span className="ml-2 text-[9px] font-bold text-[#F5A623] uppercase tracking-wide">Aujourd'hui</span>}
                           </td>
                           <td className="px-5 py-4 text-slate-700 font-medium">{c.plat}</td>
                           <td className="px-5 py-4 text-slate-500">{c.accomp}</td>
-                          <td className="px-5 py-4 text-slate-400">{c.dessert}</td>
+                          <td className="px-5 py-4 text-[#6B7280]">{c.dessert}</td>
                         </tr>
                       );
                     })}
@@ -738,23 +738,23 @@ function VieScolaireTab({ session, cantine, evenements, transport, sante }: { se
           {sub === 'agenda' && (
             <Card>
               <CardHeader title="Agenda institutionnel" sub="Événements, sorties et réunions à venir" />
-              <div className="divide-y divide-slate-50">
+              <div className="divide-y divide-[#F9FAFB]">
                 {evenements.map((e: any, i: number) => (
                   <div key={i} className="flex items-start gap-5 px-5 py-4">
-                    <div className="w-12 h-12 rounded-md border border-slate-200 bg-white flex flex-col items-center justify-center shrink-0 text-[#0D2E5C]">
+                    <div className="w-12 h-12 rounded-md border border-[#E5E7EB] bg-white flex flex-col items-center justify-center shrink-0 text-[#0D2E5C]">
                       <span className="font-bold text-base leading-none">{new Date(e.date).getDate()}</span>
                       <span className="text-[9px] uppercase mt-0.5">
                         {new Date(e.date).toLocaleString('fr-FR', { month: 'short' })}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0 pt-0.5">
-                      <p className="text-sm font-semibold text-slate-800">{e.titre}</p>
-                      <div className="flex items-center gap-4 mt-1.5 text-xs text-slate-400">
+                      <p className="text-sm font-semibold text-[#2C2C2C]">{e.titre}</p>
+                      <div className="flex items-center gap-4 mt-1.5 text-xs text-[#6B7280]">
                         <span className="flex items-center gap-1"><Clock size={11} /> {e.heure}</span>
                         <span className="flex items-center gap-1"><MapPin size={11} /> {e.lieu}</span>
                       </div>
                     </div>
-                    <span className="text-[10px] font-medium text-slate-400 border border-slate-200 px-2 py-0.5 rounded shrink-0">{e.type}</span>
+                    <span className="text-[10px] font-medium text-[#6B7280] border border-[#E5E7EB] px-2 py-0.5 rounded shrink-0">{e.type}</span>
                   </div>
                 ))}
               </div>
@@ -766,31 +766,31 @@ function VieScolaireTab({ session, cantine, evenements, transport, sante }: { se
               {transport.length === 0 ? (
                 <Card className="p-8 text-center">
                   <Bus size={24} className="mx-auto mb-2 text-slate-300" />
-                  <p className="text-sm text-slate-400">Aucun itinéraire de transport configuré pour le moment.</p>
-                  <p className="text-xs text-slate-400 mt-1">Contactez l'administration pour plus d'informations.</p>
+                  <p className="text-sm text-[#6B7280]">Aucun itinéraire de transport configuré pour le moment.</p>
+                  <p className="text-xs text-[#6B7280] mt-1">Contactez l'administration pour plus d'informations.</p>
                 </Card>
               ) : transport.map((t: any, idx: number) => (
                 <Card key={idx} className="p-6">
-                  <h3 className="text-sm font-semibold text-slate-800 mb-1">{t.ligne || 'Transport scolaire'}</h3>
-                  {t.numero && <p className="text-xs text-slate-400 mb-5">{t.numero}{t.operateur ? ` · Opérateur : ${t.operateur}` : ''}</p>}
+                  <h3 className="text-sm font-semibold text-[#2C2C2C] mb-1">{t.ligne || 'Transport scolaire'}</h3>
+                  {t.numero && <p className="text-xs text-[#6B7280] mb-5">{t.numero}{t.operateur ? ` · Opérateur : ${t.operateur}` : ''}</p>}
                   {t.arrets && t.arrets.length > 0 && (
                     <div className="space-y-3">
                       {t.arrets.map((r: any, i: number) => (
-                        <div key={i} className="flex items-center gap-4 p-4 rounded-md bg-slate-50 border border-slate-100">
-                          <Bus size={15} className="text-slate-400 shrink-0" />
+                        <div key={i} className="flex items-center gap-4 p-4 rounded-md bg-[#F9FAFB] border border-[#F4F8FF]">
+                          <Bus size={15} className="text-[#6B7280] shrink-0" />
                           <div className="flex-1">
                             <p className="text-xs font-semibold text-slate-700">{r.dir}</p>
-                            <p className="text-[11px] text-slate-400 mt-0.5">{r.arret}</p>
+                            <p className="text-[11px] text-[#6B7280] mt-0.5">{r.arret}</p>
                           </div>
-                          <span className="font-mono font-bold text-sm text-slate-900">{r.heure}</span>
+                          <span className="font-mono font-bold text-sm text-[#2C2C2C]">{r.heure}</span>
                         </div>
                       ))}
                     </div>
                   )}
                   {t.statut && (
-                    <div className="mt-4 flex items-center gap-2.5 p-3 rounded-md border border-slate-200 bg-white">
+                    <div className="mt-4 flex items-center gap-2.5 p-3 rounded-md border border-[#E5E7EB] bg-white">
                       <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 animate-pulse" />
-                      <p className="text-xs text-slate-600">{t.statut}</p>
+                      <p className="text-xs text-[#6B7280]">{t.statut}</p>
                     </div>
                   )}
                 </Card>
@@ -810,9 +810,9 @@ function VieScolaireTab({ session, cantine, evenements, transport, sante }: { se
                       { label: 'Vaccinations',     val: sante?.vaccinations || '—' },
                       { label: 'Médecin référent', val: sante?.medecin || '—' },
                     ].map(f => (
-                      <div key={f.label} className="bg-slate-50 border border-slate-100 rounded-md p-3">
-                        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wide">{f.label}</p>
-                        <p className="text-xs font-semibold text-slate-800 mt-1">{f.val}</p>
+                      <div key={f.label} className="bg-[#F9FAFB] border border-[#F4F8FF] rounded-md p-3">
+                        <p className="text-[9px] font-semibold text-[#6B7280] uppercase tracking-wide">{f.label}</p>
+                        <p className="text-xs font-semibold text-[#2C2C2C] mt-1">{f.val}</p>
                       </div>
                     ))}
                   </div>
@@ -826,16 +826,16 @@ function VieScolaireTab({ session, cantine, evenements, transport, sante }: { se
               </Card>
               <Card>
                 <CardHeader title="Registre infirmerie" sub="Interventions enregistrées cette année scolaire" />
-                <div className="divide-y divide-slate-50">
+                <div className="divide-y divide-[#F9FAFB]">
                   {(sante?.infirmerie || []).length === 0 ? (
-                    <div className="px-5 py-6 text-xs text-slate-400 text-center">Aucune intervention enregistrée pour l'année en cours.</div>
+                    <div className="px-5 py-6 text-xs text-[#6B7280] text-center">Aucune intervention enregistrée pour l'année en cours.</div>
                   ) : (sante.infirmerie as any[]).map((v: any, i: number) => (
                     <div key={i} className="px-5 py-4 flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-md bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                        <Heart size={14} className="text-slate-400" />
+                      <div className="w-10 h-10 rounded-md bg-[#F9FAFB] border border-[#F4F8FF] flex items-center justify-center shrink-0">
+                        <Heart size={14} className="text-[#6B7280]" />
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-slate-800">{v.date} · {v.heure}</p>
+                        <p className="text-xs font-semibold text-[#2C2C2C]">{v.date} · {v.heure}</p>
                         <p className="text-xs text-slate-500 mt-0.5">{v.description}</p>
                       </div>
                     </div>
@@ -950,33 +950,33 @@ function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRd
                 <CardHeader title="Historique des paiements" />
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="border-b border-slate-100 bg-slate-50">
+                    <tr className="border-b border-[#F4F8FF] bg-[#F9FAFB]">
                       {['Référence', 'Description', 'Date', 'Montant', 'Statut'].map(h => (
-                        <th key={h} className="text-left px-5 py-3 font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                        <th key={h} className="text-left px-5 py-3 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50">
+                  <tbody className="divide-y divide-[#F9FAFB]">
                     {factures.map(f => (
-                      <tr key={f.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-5 py-3.5 font-mono text-slate-400 text-[10px]">{f.id}</td>
+                      <tr key={f.id} className="hover:bg-[#F9FAFB] transition-colors">
+                        <td className="px-5 py-3.5 font-mono text-[#6B7280] text-[10px]">{f.id}</td>
                         <td className="px-5 py-3.5 font-medium text-slate-700">{f.libelle}</td>
-                        <td className="px-5 py-3.5 text-slate-400">{fmtDate(f.date, { day:'numeric', month:'short', year:'numeric' })}</td>
-                        <td className="px-5 py-3.5 font-mono font-semibold text-slate-900 tabular-nums">{fmtMoney(f.montant)}</td>
+                        <td className="px-5 py-3.5 text-[#6B7280]">{fmtDate(f.date, { day:'numeric', month:'short', year:'numeric' })}</td>
+                        <td className="px-5 py-3.5 font-mono font-semibold text-[#2C2C2C] tabular-nums">{fmtMoney(f.montant)}</td>
                         <td className="px-5 py-3.5"><StatusBadge statut={f.statut} /></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                <div className="px-5 py-4 border-t border-slate-100 bg-slate-50 rounded-b-lg">
+                <div className="px-5 py-4 border-t border-[#F4F8FF] bg-[#F9FAFB] rounded-b-lg">
                   <p className="text-xs text-slate-500">Pour tout litige ou demande de reçu, contactez le secrétariat : <span className="font-semibold text-slate-700">+225 07 07 07 07 07</span></p>
                 </div>
               </Card>
               <Card className="border-l-4 border-l-[#0D2E5C]">
                 <div className="p-5 flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">Ré-inscription 2026/2027</p>
-                    <p className="text-xs text-slate-400 mt-0.5">Votre dossier est pré-rempli. Réservez la place de {session.prenomEnfant} pour la prochaine rentrée.</p>
+                    <p className="text-sm font-semibold text-[#2C2C2C]">Ré-inscription 2026/2027</p>
+                    <p className="text-xs text-[#6B7280] mt-0.5">Votre dossier est pré-rempli. Réservez la place de {session.prenomEnfant} pour la prochaine rentrée.</p>
                   </div>
                   <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors whitespace-nowrap">
                     Initier la ré-inscription <ChevronRight size={13} />
@@ -990,7 +990,7 @@ function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRd
             <div className="space-y-4">
               <div className="grid lg:grid-cols-2 gap-4">
                 <Card className="p-5">
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-3">Enfant</p>
+                  <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide mb-3">Enfant</p>
                   <div className="space-y-2.5">
                     {[
                       { l: 'Nom complet',      v: `${session.prenomEnfant} ${session.nomEnfant}` },
@@ -999,14 +999,14 @@ function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRd
                       { l: 'Statut',           v: session.statut },
                     ].map(r => (
                       <div key={r.l} className="flex items-center justify-between py-1.5 border-b border-slate-50">
-                        <span className="text-xs text-slate-400">{r.l}</span>
-                        <span className="text-xs font-semibold text-slate-800">{r.v}</span>
+                        <span className="text-xs text-[#6B7280]">{r.l}</span>
+                        <span className="text-xs font-semibold text-[#2C2C2C]">{r.v}</span>
                       </div>
                     ))}
                   </div>
                 </Card>
                 <Card className="p-5">
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-3">Responsable légal</p>
+                  <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide mb-3">Responsable légal</p>
                   <div className="space-y-2.5">
                     {[
                       { l: 'Identité',  v: `${session.prenomParent} ${session.nomParent} (${session.lienParente})` },
@@ -1015,8 +1015,8 @@ function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRd
                       { l: 'Commune',   v: `${session.commune}, Abidjan` },
                     ].map(r => (
                       <div key={r.l} className="flex items-start justify-between py-1.5 border-b border-slate-50 gap-4">
-                        <span className="text-xs text-slate-400 shrink-0">{r.l}</span>
-                        <span className="text-xs font-semibold text-slate-800 text-right break-all">{r.v}</span>
+                        <span className="text-xs text-[#6B7280] shrink-0">{r.l}</span>
+                        <span className="text-xs font-semibold text-[#2C2C2C] text-right break-all">{r.v}</span>
                       </div>
                     ))}
                   </div>
@@ -1024,10 +1024,10 @@ function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRd
               </div>
               <Card>
                 <CardHeader title="Pièces justificatives requises"
-                  action={<span className="text-[11px] text-slate-400">{checklist.filter(c=>c.done).length}/{checklist.length} déposées</span>}
+                  action={<span className="text-[11px] text-[#6B7280]">{checklist.filter(c=>c.done).length}/{checklist.length} déposées</span>}
                 />
                 <div className="p-5 space-y-1">
-                  <div className="h-1 bg-slate-100 rounded-full overflow-hidden mb-4">
+                  <div className="h-1 bg-[#F4F8FF] rounded-full overflow-hidden mb-4">
                     <motion.div className="h-full bg-emerald-500 rounded-full"
                       initial={{ width: 0 }}
                       animate={{ width: `${(checklist.filter(c=>c.done).length / checklist.length) * 100}%` }}
@@ -1035,12 +1035,12 @@ function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRd
                   </div>
                   {checklist.map((item, i) => (
                     <button key={i} onClick={() => toggleItem(i)}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-50 transition-colors cursor-pointer text-left">
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-[#F9FAFB] transition-colors cursor-pointer text-left">
                       <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-all
                         ${item.done ? 'bg-emerald-500 border-emerald-500' : 'bg-white border-slate-300'}`}>
                         {item.done && <Check size={10} className="text-white" strokeWidth={3} />}
                       </div>
-                      <span className={`text-xs ${item.done ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}>
+                      <span className={`text-xs ${item.done ? 'text-[#6B7280] line-through' : 'text-slate-700 font-medium'}`}>
                         {item.doc}
                       </span>
                     </button>
@@ -1063,19 +1063,19 @@ function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRd
                   {upcoming.length > 0 && (
                     <Card>
                       <CardHeader title={`Rendez-vous à venir (${upcoming.length})`} />
-                      <div className="divide-y divide-slate-50">
+                      <div className="divide-y divide-[#F9FAFB]">
                         {upcoming.map(r => {
                           const d = new Date(r.dateHeure);
                           return (
                             <div key={r.id} className="flex items-start gap-4 px-5 py-4">
-                              <div className="w-10 h-10 rounded-md bg-slate-900 flex flex-col items-center justify-center text-white shrink-0">
+                              <div className="w-10 h-10 rounded-md bg-[#0D2E5C] flex flex-col items-center justify-center text-white shrink-0">
                                 <span className="font-bold text-sm leading-none">{d.getDate()}</span>
                                 <span className="text-[9px] text-white/60 uppercase">{d.toLocaleString('fr-FR',{month:'short'})}</span>
                               </div>
                               <div className="flex-1">
-                                <p className="text-xs font-semibold text-slate-800">{r.typeRdv}</p>
-                                <p className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1"><Clock size={11}/>{d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} · 30 min</p>
-                                {r.notes && <p className="text-[11px] text-slate-400 italic mt-1">{r.notes}</p>}
+                                <p className="text-xs font-semibold text-[#2C2C2C]">{r.typeRdv}</p>
+                                <p className="text-[11px] text-[#6B7280] mt-0.5 flex items-center gap-1"><Clock size={11}/>{d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} · 30 min</p>
+                                {r.notes && <p className="text-[11px] text-[#6B7280] italic mt-1">{r.notes}</p>}
                               </div>
                               <StatusBadge statut={r.statut} />
                             </div>
@@ -1088,23 +1088,23 @@ function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRd
                     <Card className="p-6">
                       <div className="flex items-center gap-3">
                         <Calendar size={16} className="text-slate-300" />
-                        <p className="text-sm text-slate-400">Aucun rendez-vous planifié. Utilisez le bouton ci-dessus pour réserver un créneau.</p>
+                        <p className="text-sm text-[#6B7280]">Aucun rendez-vous planifié. Utilisez le bouton ci-dessus pour réserver un créneau.</p>
                       </div>
                     </Card>
                   )}
                   {past.length > 0 && (
                     <Card>
                       <CardHeader title="Historique" />
-                      <div className="divide-y divide-slate-50 opacity-60">
+                      <div className="divide-y divide-[#F9FAFB] opacity-60">
                         {past.map(r => {
                           const d = new Date(r.dateHeure);
                           return (
                             <div key={r.id} className="flex items-center gap-4 px-5 py-3.5">
-                              <div className="w-9 h-9 rounded-md bg-slate-100 flex flex-col items-center justify-center shrink-0">
-                                <span className="font-bold text-xs text-slate-600">{d.getDate()}</span>
-                                <span className="text-[8px] text-slate-400 uppercase">{d.toLocaleString('fr-FR',{month:'short'})}</span>
+                              <div className="w-9 h-9 rounded-md bg-[#F4F8FF] flex flex-col items-center justify-center shrink-0">
+                                <span className="font-bold text-xs text-[#6B7280]">{d.getDate()}</span>
+                                <span className="text-[8px] text-[#6B7280] uppercase">{d.toLocaleString('fr-FR',{month:'short'})}</span>
                               </div>
-                              <p className="flex-1 text-xs text-slate-600">{r.typeRdv}</p>
+                              <p className="flex-1 text-xs text-[#6B7280]">{r.typeRdv}</p>
                               <StatusBadge statut={r.statut} />
                             </div>
                           );
@@ -1117,8 +1117,8 @@ function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRd
                 <Card>
                   <CardHeader title="Nouveau rendez-vous"
                     action={
-                      <button onClick={() => setShowForm(false)} className="p-1.5 rounded-md hover:bg-slate-100 cursor-pointer">
-                        <X size={15} className="text-slate-400" />
+                      <button onClick={() => setShowForm(false)} className="p-1.5 rounded-md hover:bg-[#F4F8FF] cursor-pointer">
+                        <X size={15} className="text-[#6B7280]" />
                       </button>
                     }
                   />
@@ -1134,23 +1134,23 @@ function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRd
           {sub === 'documents' && (
             <div className="space-y-3">
               {documents.length === 0 && (
-                <Card className="p-6 text-center text-sm text-slate-400">Aucun document disponible.</Card>
+                <Card className="p-6 text-center text-sm text-[#6B7280]">Aucun document disponible.</Card>
               )}
               {[...new Set(documents.map((d:any) => d.cat))].map(cat => (
                 <Card key={cat as string}>
                   <CardHeader title={cat as string} />
-                  <div className="divide-y divide-slate-50">
+                  <div className="divide-y divide-[#F9FAFB]">
                     {documents.filter((d:any) => d.cat === cat).sort((a:any,b:any) => (a.ordre||0)-(b.ordre||0)).map((doc:any) => (
                       <div key={doc.id} className="flex items-center gap-4 px-5 py-3.5">
                         <FileText size={15} className="text-slate-300 shrink-0" />
                         <p className="flex-1 text-xs font-medium text-slate-700">{doc.titre}</p>
                         {doc.fichier ? (
                           <a href={doc.fichier} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-200 text-slate-600 text-[10px] font-semibold hover:bg-slate-50 transition-colors">
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-[#E5E7EB] text-[#6B7280] text-[10px] font-semibold hover:bg-[#F9FAFB] transition-colors">
                             <Download size={11} /> PDF
                           </a>
                         ) : (
-                          <span className="text-[10px] text-slate-300 px-3 py-1.5 border border-slate-100 rounded-md">
+                          <span className="text-[10px] text-slate-300 px-3 py-1.5 border border-[#F4F8FF] rounded-md">
                             Bientôt disponible
                           </span>
                         )}
@@ -1242,19 +1242,19 @@ function MessageTab({ session, messages, setMessages, onToast }: {
 
         {/* ── Liste messages ── */}
         <Card className="flex flex-col overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between shrink-0">
+          <div className="px-4 py-3 border-b border-[#F4F8FF] flex items-center justify-between shrink-0">
             <p className="text-xs font-semibold text-slate-700">Boîte de réception</p>
-            <span className="text-[10px] font-semibold text-slate-400">
+            <span className="text-[10px] font-semibold text-[#6B7280]">
               {messages.length} message{messages.length !== 1 ? 's' : ''}
               {unread > 0 && <span className="ml-1.5 bg-[#0D2E5C] text-white rounded-full px-1.5 py-0.5">{unread}</span>}
             </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto divide-y divide-slate-50">
+          <div className="flex-1 overflow-y-auto divide-y divide-[#F9FAFB]">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full py-8 text-center px-4">
                 <MessageSquare size={24} className="text-slate-200 mb-2" />
-                <p className="text-xs text-slate-400">Aucun message pour l'instant.</p>
+                <p className="text-xs text-[#6B7280]">Aucun message pour l'instant.</p>
                 <button onClick={openCompose}
                   className="mt-3 text-[11px] font-semibold text-[#0D2E5C] hover:underline cursor-pointer">
                   Écrire à l'administration →
@@ -1262,15 +1262,15 @@ function MessageTab({ session, messages, setMessages, onToast }: {
               </div>
             ) : messages.map((m: any) => (
               <button key={m.id} onClick={() => open(m)}
-                className={`w-full text-left px-4 py-3.5 hover:bg-slate-50 transition-colors cursor-pointer
-                  ${sel?.id === m.id && !composing ? 'bg-slate-50 border-r-2 border-r-[#0D2E5C]' : ''}`}>
+                className={`w-full text-left px-4 py-3.5 hover:bg-[#F9FAFB] transition-colors cursor-pointer
+                  ${sel?.id === m.id && !composing ? 'bg-[#F9FAFB] border-r-2 border-r-[#0D2E5C]' : ''}`}>
                 <div className="flex items-start justify-between gap-2">
-                  <p className={`text-xs truncate ${!m.lu ? 'font-bold text-slate-900' : 'font-medium text-slate-600'}`}>
+                  <p className={`text-xs truncate ${!m.lu ? 'font-bold text-[#2C2C2C]' : 'font-medium text-[#6B7280]'}`}>
                     {m.de}
                   </p>
                   {!m.lu && <div className="w-2 h-2 rounded-full bg-[#0D2E5C] shrink-0 mt-1" />}
                 </div>
-                <p className="text-[10px] text-slate-400 mt-0.5">
+                <p className="text-[10px] text-[#6B7280] mt-0.5">
                   {m.date ? new Date(m.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '—'}
                 </p>
                 <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 font-normal">{m.contenu}</p>
@@ -1285,14 +1285,14 @@ function MessageTab({ session, messages, setMessages, onToast }: {
           {/* Mode composition d'un nouveau message */}
           {composing && (
             <>
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+              <div className="px-5 py-4 border-b border-[#F4F8FF] flex items-center justify-between shrink-0">
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">Nouveau message</p>
-                  <p className="text-xs text-slate-400 mt-0.5">À : Direction EPV Horizons Savants</p>
+                  <p className="text-sm font-semibold text-[#2C2C2C]">Nouveau message</p>
+                  <p className="text-xs text-[#6B7280] mt-0.5">À : Direction EPV Horizons Savants</p>
                 </div>
                 <button onClick={() => setComposing(false)}
-                  className="p-1.5 rounded-md hover:bg-slate-100 cursor-pointer transition-colors">
-                  <X size={15} className="text-slate-400" />
+                  className="p-1.5 rounded-md hover:bg-[#F4F8FF] cursor-pointer transition-colors">
+                  <X size={15} className="text-[#6B7280]" />
                 </button>
               </div>
               <div className="flex-1 flex flex-col px-5 py-5 gap-4">
@@ -1301,10 +1301,10 @@ function MessageTab({ session, messages, setMessages, onToast }: {
                   value={text}
                   onChange={e => setText(e.target.value)}
                   placeholder="Rédigez votre message à l'équipe pédagogique ou à l'administration…"
-                  className="flex-1 w-full text-sm font-sans border border-slate-200 rounded-lg px-4 py-3 resize-none text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-[#0D2E5C] transition-colors leading-relaxed"
+                  className="flex-1 w-full text-sm font-sans border border-[#E5E7EB] rounded-lg px-4 py-3 resize-none text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-[#0D2E5C] transition-colors leading-relaxed"
                 />
                 <div className="flex items-center justify-between">
-                  <p className="text-[10px] text-slate-400">
+                  <p className="text-[10px] text-[#6B7280]">
                     {text.length > 0 ? `${text.length} caractère${text.length > 1 ? 's' : ''}` : 'Votre message sera envoyé directement à l\'administration.'}
                   </p>
                   <button onClick={send} disabled={sending || !text.trim()}
@@ -1321,23 +1321,23 @@ function MessageTab({ session, messages, setMessages, onToast }: {
           {/* Mode lecture d'un message + réponse */}
           {!composing && sel && (
             <>
-              <div className="px-5 py-4 border-b border-slate-100 shrink-0">
-                <p className="text-sm font-semibold text-slate-800">{sel.de}</p>
-                <p className="text-xs text-slate-400 mt-0.5">
+              <div className="px-5 py-4 border-b border-[#F4F8FF] shrink-0">
+                <p className="text-sm font-semibold text-[#2C2C2C]">{sel.de}</p>
+                <p className="text-xs text-[#6B7280] mt-0.5">
                   {sel.date ? new Date(sel.date).toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) : '—'}
                 </p>
               </div>
               <div className="flex-1 overflow-y-auto px-5 py-5">
                 <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{sel.contenu}</p>
               </div>
-              <div className="px-5 py-4 border-t border-slate-100 space-y-3 shrink-0">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Répondre</p>
+              <div className="px-5 py-4 border-t border-[#F4F8FF] space-y-3 shrink-0">
+                <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide">Répondre</p>
                 <textarea
                   value={text}
                   onChange={e => setText(e.target.value)}
                   placeholder="Rédigez votre réponse…"
                   rows={3}
-                  className="w-full text-xs font-sans border border-slate-200 rounded-md px-3 py-2.5 resize-none text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-[#0D2E5C] transition-colors"
+                  className="w-full text-xs font-sans border border-[#E5E7EB] rounded-md px-3 py-2.5 resize-none text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-[#0D2E5C] transition-colors"
                 />
                 <div className="flex justify-end">
                   <button onClick={send} disabled={sending || !text.trim()}
@@ -1354,12 +1354,12 @@ function MessageTab({ session, messages, setMessages, onToast }: {
           {/* État vide — ni composition ni sélection */}
           {!composing && !sel && (
             <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center p-8">
-              <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-[#F9FAFB] border border-[#F4F8FF] flex items-center justify-center">
                 <MessageSquare size={24} className="text-slate-300" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-600">Aucun message sélectionné</p>
-                <p className="text-xs text-slate-400 mt-1">Choisissez un message dans la liste ou écrivez à l'administration.</p>
+                <p className="text-sm font-semibold text-[#6B7280]">Aucun message sélectionné</p>
+                <p className="text-xs text-[#6B7280] mt-1">Choisissez un message dans la liste ou écrivez à l'administration.</p>
               </div>
               <button onClick={openCompose}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold hover:bg-[#1A4F8B] cursor-pointer transition-colors">
@@ -1416,18 +1416,18 @@ function ParrainageTab({ session, reduction, onToast }: { session: Prospect; red
       </div>
 
       <Card className="p-6">
-        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Votre code de parrainage personnel</p>
+        <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-widest mb-1">Votre code de parrainage personnel</p>
         <div className="flex items-center gap-4 mt-3">
           <span className="font-mono font-bold text-3xl text-[#0D2E5C] tracking-[0.15em]">
             {session.codeParrainagePersonnel}
           </span>
           <button onClick={copy}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md border text-xs font-semibold transition-all cursor-pointer
-              ${copied ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}>
+              ${copied ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'border-[#E5E7EB] text-[#6B7280] hover:border-slate-300'}`}>
             {copied ? <><Check size={13} /> Copié</> : <><Copy size={13} /> Copier</>}
           </button>
         </div>
-        <p className="text-xs text-slate-400 mt-3 leading-relaxed max-w-lg">
+        <p className="text-xs text-[#6B7280] mt-3 leading-relaxed max-w-lg">
           Communiquez ce code à vos proches lors de leur pré-inscription sur le site d'EPV Horizons Savants. Toute famille dont l'inscription est confirmée vous fait bénéficier d'une réduction de 10% sur vos frais de scolarité.
         </p>
       </Card>
@@ -1441,29 +1441,29 @@ function ParrainageTab({ session, reduction, onToast }: { session: Prospect; red
         {filleuls.length === 0 ? (
           <div className="px-5 py-8 text-center">
             <Users size={24} className="mx-auto mb-2 text-slate-200" />
-            <p className="text-sm text-slate-400">Aucune famille n'a encore utilisé votre code.</p>
-            <p className="text-xs text-slate-400 mt-1">Partagez votre code ci-dessus pour commencer à parrainer.</p>
+            <p className="text-sm text-[#6B7280]">Aucune famille n'a encore utilisé votre code.</p>
+            <p className="text-xs text-[#6B7280] mt-1">Partagez votre code ci-dessus pour commencer à parrainer.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
+                <tr className="border-b border-[#F4F8FF] bg-[#F9FAFB]">
                   {['Famille', 'Enfant', 'Classe', 'Dossier', 'Réduction'].map(h => (
-                    <th key={h} className="text-left px-5 py-3 font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                    <th key={h} className="text-left px-5 py-3 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-[#F9FAFB]">
                 {filleuls.map((f: any) => {
                   const ps = STATUT_PARRAINAGE_LABEL[f.parrainageStatut] ?? STATUT_PARRAINAGE_LABEL.en_attente;
                   return (
-                    <tr key={f.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-5 py-3.5 font-medium text-slate-800">{f.prenomParent} {f.nomParent}</td>
-                      <td className="px-5 py-3.5 text-slate-600">{f.prenomEnfant} {f.nomEnfant}</td>
+                    <tr key={f.id} className="hover:bg-[#F9FAFB] transition-colors">
+                      <td className="px-5 py-3.5 font-medium text-[#2C2C2C]">{f.prenomParent} {f.nomParent}</td>
+                      <td className="px-5 py-3.5 text-[#6B7280]">{f.prenomEnfant} {f.nomEnfant}</td>
                       <td className="px-5 py-3.5 text-slate-500">{SECTION_LABEL[f.sectionVisee] || f.sectionVisee}</td>
                       <td className="px-5 py-3.5">
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded border bg-slate-50 text-slate-600 border-slate-200">{f.statut}</span>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded border bg-[#F9FAFB] text-[#6B7280] border-[#E5E7EB]">{f.statut}</span>
                       </td>
                       <td className="px-5 py-3.5">
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${ps.cls}`}>{ps.label}</span>
@@ -1488,8 +1488,8 @@ function ParrainageTab({ session, reduction, onToast }: { session: Prospect; red
             ].map(s => (
               <div key={s.num} className="px-5 first:pl-0 last:pr-0">
                 <p className="text-2xl font-bold text-slate-100 mb-2">{s.num}</p>
-                <p className="text-xs font-semibold text-slate-800 mb-1.5">{s.title}</p>
-                <p className="text-xs text-slate-400 leading-relaxed">{s.desc}</p>
+                <p className="text-xs font-semibold text-[#2C2C2C] mb-1.5">{s.title}</p>
+                <p className="text-xs text-[#6B7280] leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -1502,7 +1502,7 @@ function ParrainageTab({ session, reduction, onToast }: { session: Prospect; red
           <Share2 size={13} /> Partager via WhatsApp
         </a>
         <button onClick={copy}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-md border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 cursor-pointer transition-colors">
+          className="flex items-center gap-2 px-4 py-2.5 rounded-md border border-[#E5E7EB] text-[#6B7280] text-xs font-semibold hover:bg-[#F9FAFB] cursor-pointer transition-colors">
           <Copy size={13} /> Copier le lien
         </button>
       </div>
@@ -1585,8 +1585,8 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
 
   const FieldDisplay = ({ label, value }: { label: string; value: string }) => (
     <div className="flex items-start justify-between py-3 border-b border-slate-50 gap-4">
-      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">{label}</p>
-      <p className="text-sm font-medium text-slate-800 text-right">{value}</p>
+      <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide shrink-0">{label}</p>
+      <p className="text-sm font-medium text-[#2C2C2C] text-right">{value}</p>
     </div>
   );
 
@@ -1609,13 +1609,13 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
           {sub === 'infos' && (
             <div className="space-y-4">
               <Card className="p-6">
-                <div className="flex items-center gap-4 mb-6 pb-5 border-b border-slate-100">
+                <div className="flex items-center gap-4 mb-6 pb-5 border-b border-[#F4F8FF]">
                   <div className="w-14 h-14 rounded-full bg-[#0D2E5C] flex items-center justify-center text-white font-bold text-lg">
                     {session.prenomParent[0]}{session.nomParent[0]}
                   </div>
                   <div>
-                    <p className="text-base font-bold text-slate-900">{session.prenomParent} {session.nomParent}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{session.lienParente} · Parent EPV Horizons Savants</p>
+                    <p className="text-base font-bold text-[#2C2C2C]">{session.prenomParent} {session.nomParent}</p>
+                    <p className="text-xs text-[#6B7280] mt-0.5">{session.lienParente} · Parent EPV Horizons Savants</p>
                     <Badge status={session.statut} />
                   </div>
                 </div>
@@ -1639,11 +1639,11 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
                       { key: 'commune',   label: 'Commune',   type: 'text'  },
                     ].map(f => (
                       <div key={f.key}>
-                        <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">{f.label}</label>
+                        <label className="block text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide mb-1">{f.label}</label>
                         <input type={f.type}
                           value={(form as any)[f.key]}
                           onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))}
-                          className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-[#0D2E5C] transition-colors" />
+                          className="w-full border border-[#E5E7EB] rounded-md px-3 py-2 text-sm text-[#2C2C2C] focus:outline-none focus:border-[#0D2E5C] transition-colors" />
                       </div>
                     ))}
                     <div className="flex gap-2 pt-2">
@@ -1652,7 +1652,7 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
                         {saving ? <><div className="w-3 h-3 rounded-full border-2 border-white/40 border-t-white animate-spin" /> Enregistrement…</> : 'Enregistrer'}
                       </button>
                       <button onClick={() => { setEditing(false); setForm({ telephone: session.telephone, email: session.email, commune: session.commune }); }}
-                        className="px-4 py-2 rounded-md border border-slate-200 text-slate-600 text-xs font-semibold cursor-pointer hover:bg-slate-50 transition-colors">
+                        className="px-4 py-2 rounded-md border border-[#E5E7EB] text-[#6B7280] text-xs font-semibold cursor-pointer hover:bg-[#F9FAFB] transition-colors">
                         Annuler
                       </button>
                     </div>
@@ -1663,7 +1663,7 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
                     <FieldDisplay label="Email"     value={session.email} />
                     <FieldDisplay label="Commune"   value={`${session.commune}, Abidjan`} />
                     <div className="flex items-center justify-between pt-4">
-                      <p className="text-[10px] text-slate-400">Compte créé le {fmtDate(session.createdAt)}</p>
+                      <p className="text-[10px] text-[#6B7280]">Compte créé le {fmtDate(session.createdAt)}</p>
                       <button onClick={() => { setEditing(true); setInfoMsg(null); }}
                         className="flex items-center gap-2 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
                         Modifier mes coordonnées
@@ -1678,21 +1678,21 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
           {sub === 'enfant' && (
             <div className="space-y-4">
               <Card className="p-6">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-4">Identité de l'enfant</p>
+                <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide mb-4">Identité de l'enfant</p>
                 <FieldDisplay label="Nom complet"       value={`${session.prenomEnfant} ${session.nomEnfant}`} />
                 <FieldDisplay label="Date de naissance" value={fmtDate(session.dateNaissance)} />
                 <FieldDisplay label="Classe visée"      value={SECTION_LABEL[session.sectionVisee] || session.sectionVisee} />
                 <FieldDisplay label="Rentrée"           value="Septembre 2026" />
               </Card>
               <Card className="p-6">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-4">Données de santé</p>
+                <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide mb-4">Données de santé</p>
                 <FieldDisplay label="Groupe sanguin"    value={sante?.groupeSanguin || '—'} />
                 <FieldDisplay label="Allergies connues" value={sante?.allergies     || '—'} />
                 <FieldDisplay label="Vaccinations"      value={sante?.vaccinations  || '—'} />
                 <FieldDisplay label="Médecin traitant"  value={sante?.medecin       || '—'} />
               </Card>
               <Card className="p-6">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-4">Contacts d'urgence</p>
+                <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide mb-4">Contacts d'urgence</p>
                 <FieldDisplay label="Contact principal"  value={`${session.prenomParent} ${session.nomParent} — ${session.telephone}`} />
                 <FieldDisplay label="Contact secondaire" value="Non renseigné" />
                 <FieldDisplay label="Email de contact"   value={session.email} />
@@ -1704,21 +1704,21 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
             <div className="space-y-4">
               <Card className="p-6">
                 <div className="flex items-center gap-3 mb-5">
-                  <Smartphone size={15} className="text-slate-400" />
+                  <Smartphone size={15} className="text-[#6B7280]" />
                   <div>
-                    <p className="text-sm font-semibold text-slate-800">Connexion sécurisée par OTP</p>
-                    <p className="text-xs text-slate-400 mt-0.5">Votre accès est protégé par un code à usage unique envoyé sur WhatsApp</p>
+                    <p className="text-sm font-semibold text-[#2C2C2C]">Connexion sécurisée par OTP</p>
+                    <p className="text-xs text-[#6B7280] mt-0.5">Votre accès est protégé par un code à usage unique envoyé sur WhatsApp</p>
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-lg">
+                  <div className="flex items-start gap-3 p-4 bg-[#F9FAFB] rounded-lg">
                     <CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5" />
                     <div>
                       <p className="text-xs font-semibold text-slate-700">Numéro WhatsApp enregistré</p>
                       <p className="text-xs text-slate-500 mt-0.5">{session.telephone}</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-lg">
+                  <div className="flex items-start gap-3 p-4 bg-[#F9FAFB] rounded-lg">
                     <CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5" />
                     <div>
                       <p className="text-xs font-semibold text-slate-700">Authentification à deux facteurs active</p>
@@ -1735,8 +1735,8 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
               </Card>
               <Card className="p-5">
                 <div className="flex items-center gap-2.5">
-                  <Clock size={14} className="text-slate-400 shrink-0" />
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <Clock size={14} className="text-[#6B7280] shrink-0" />
+                  <p className="text-xs text-[#6B7280] leading-relaxed">
                     Dernière connexion : aujourd'hui à {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}.
                   </p>
                 </div>
@@ -1748,10 +1748,10 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
             <div className="space-y-4">
               <Card className="p-6">
                 <div className="flex items-center gap-3 mb-5">
-                  <Bell size={15} className="text-slate-400" />
+                  <Bell size={15} className="text-[#6B7280]" />
                   <div>
-                    <p className="text-sm font-semibold text-slate-800">Notifications</p>
-                    <p className="text-xs text-slate-400 mt-0.5">Gérez les alertes reçues par email et SMS</p>
+                    <p className="text-sm font-semibold text-[#2C2C2C]">Notifications</p>
+                    <p className="text-xs text-[#6B7280] mt-0.5">Gérez les alertes reçues par email et SMS</p>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -1764,7 +1764,7 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
                     <div key={n.key} className="flex items-center justify-between py-3 border-b border-slate-50">
                       <div>
                         <p className="text-xs font-semibold text-slate-700">{n.label}</p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">{n.sub}</p>
+                        <p className="text-[11px] text-[#6B7280] mt-0.5">{n.sub}</p>
                       </div>
                       <Toggle val={notifs[n.key]} onToggle={() => setNotifs(prev => ({ ...prev, [n.key]: !prev[n.key] }))} />
                     </div>
@@ -1774,8 +1774,8 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
 
               <Card className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <Sliders size={15} className="text-slate-400" />
-                  <p className="text-sm font-semibold text-slate-800">Préférences d'affichage</p>
+                  <Sliders size={15} className="text-[#6B7280]" />
+                  <p className="text-sm font-semibold text-[#2C2C2C]">Préférences d'affichage</p>
                 </div>
                 <div className="space-y-3">
                   {[
@@ -1784,8 +1784,8 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
                     { label: 'Devise',                  value: 'FCFA (XOF)' },
                   ].map(f => (
                     <div key={f.label} className="flex items-center justify-between py-2.5 border-b border-slate-50">
-                      <span className="text-xs text-slate-600">{f.label}</span>
-                      <span className="text-xs font-semibold text-slate-800">{f.value}</span>
+                      <span className="text-xs text-[#6B7280]">{f.label}</span>
+                      <span className="text-xs font-semibold text-[#2C2C2C]">{f.value}</span>
                     </div>
                   ))}
                 </div>
@@ -1809,7 +1809,7 @@ const SECTION_LABEL_B: Record<string,string> = {
 };
 
 function noteCls(n?: number) {
-  if (!n && n !== 0) return 'text-slate-400';
+  if (!n && n !== 0) return 'text-[#6B7280]';
   if (n >= 16) return 'text-emerald-600 font-bold';
   if (n >= 12) return 'text-blue-600 font-semibold';
   if (n >= 10) return 'text-amber-600';
@@ -1833,13 +1833,13 @@ function BulletinParentTab({ session }: { session: Prospect }) {
       ['Élève', `${session.prenomEnfant} ${session.nomEnfant}`],
       ['Section', SECTION_LABEL_B[session.sectionVisee] || session.sectionVisee],
       ['Trimestre', b.trimestre],
-      ['Moyenne', b.moyenneGenerale?.toFixed(2) ?? ''],
+      ['Moyenne', b.moyenneGenerale != null ? Number(b.moyenneGenerale).toFixed(2) : ''],
       ['Rang', b.rang ?? ''],
       ['Effectif', b.effectifClasse ?? ''],
       ['Mention', b.mention ?? ''],
       [],
       ['Matière', 'Note /20', 'Coeff.', 'Appréciation'],
-      ...detail.map((n: any) => [n.matiere, n.note?.toFixed(2) ?? '', n.coef, n.appreciation || '']),
+      ...detail.map((n: any) => [n.matiere, n.note != null ? Number(n.note).toFixed(2) : '', n.coef, n.appreciation || '']),
     ];
     const csv = rows.map(r => (r as any[]).map(c => `"${String(c ?? '').replace(/"/g,'""')}"`).join(',')).join('\n');
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -1952,7 +1952,7 @@ function BulletinParentTab({ session }: { session: Prospect }) {
     w.onload = () => { w.focus(); w.print(); };
   }
 
-  if (loading) return <div className="flex items-center justify-center h-64 text-slate-400 text-sm">Chargement…</div>;
+  if (loading) return <div className="flex items-center justify-center h-64 text-[#6B7280] text-sm">Chargement…</div>;
 
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-3xl mx-auto">
@@ -1968,11 +1968,11 @@ function BulletinParentTab({ session }: { session: Prospect }) {
 
       {bulletins.length === 0 ? (
         <div className="rounded-2xl bg-white border border-brand-border/40 shadow-sm p-10 text-center">
-          <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-            <BookOpen size={24} className="text-slate-400" />
+          <div className="w-14 h-14 rounded-full bg-[#F4F8FF] flex items-center justify-center mx-auto mb-4">
+            <BookOpen size={24} className="text-[#6B7280]" />
           </div>
           <p className="text-slate-500 font-semibold text-sm">Aucun bulletin disponible</p>
-          <p className="text-xs text-slate-400 mt-1">Les bulletins apparaissent ici dès que l'administration les publie.</p>
+          <p className="text-xs text-[#6B7280] mt-1">Les bulletins apparaissent ici dès que l'administration les publie.</p>
         </div>
       ) : (
         <div className="space-y-5">
@@ -1999,18 +1999,18 @@ function BulletinParentTab({ session }: { session: Prospect }) {
               {/* Stats */}
               <div className="grid grid-cols-3 gap-4 p-5 border-b border-brand-border/40">
                 <div className="text-center">
-                  <p className={`text-2xl font-black ${noteCls(b.moyenneGenerale)}`}>{b.moyenneGenerale?.toFixed(2) ?? '—'}</p>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold mt-0.5">Moyenne / 20</p>
+                  <p className={`text-2xl font-black ${noteCls(b.moyenneGenerale)}`}>{b.moyenneGenerale != null ? Number(b.moyenneGenerale).toFixed(2) : '—'}</p>
+                  <p className="text-[10px] text-[#6B7280] uppercase tracking-wide font-semibold mt-0.5">Moyenne / 20</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-black text-brand-blue-deep">{b.rang ?? '—'}<span className="text-sm text-slate-400 font-normal">/{b.effectifClasse ?? '?'}</span></p>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold mt-0.5">Classement</p>
+                  <p className="text-2xl font-black text-brand-blue-deep">{b.rang ?? '—'}<span className="text-sm text-[#6B7280] font-normal">/{b.effectifClasse ?? '?'}</span></p>
+                  <p className="text-[10px] text-[#6B7280] uppercase tracking-wide font-semibold mt-0.5">Classement</p>
                 </div>
                 <div className="text-center">
                   <span className="inline-block px-3 py-1 rounded-full text-xs font-bold border border-amber-200 bg-amber-50 text-amber-700">
                     {b.mention || '—'}
                   </span>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide font-semibold mt-1.5">Mention</p>
+                  <p className="text-[10px] text-[#6B7280] uppercase tracking-wide font-semibold mt-1.5">Mention</p>
                 </div>
               </div>
 
@@ -2027,10 +2027,10 @@ function BulletinParentTab({ session }: { session: Prospect }) {
                       exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                       <div className="space-y-2">
                         {(b.notesDetail || []).map((n: any, i: number) => (
-                          <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                            <span className="text-xs font-semibold text-slate-600 flex-1">{n.matiere}</span>
-                            <span className={`text-sm font-bold w-14 text-center ${noteCls(n.note)}`}>{n.note?.toFixed(2) ?? '—'}</span>
-                            <span className="text-xs text-slate-400 w-12 text-center">coef {n.coef}</span>
+                          <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[#F9FAFB] border border-[#F4F8FF]">
+                            <span className="text-xs font-semibold text-[#6B7280] flex-1">{n.matiere}</span>
+                            <span className={`text-sm font-bold w-14 text-center ${noteCls(n.note)}`}>{n.note != null ? Number(n.note).toFixed(2) : '—'}</span>
+                            <span className="text-xs text-[#6B7280] w-12 text-center">coef {n.coef}</span>
                             <span className="text-xs text-slate-500 flex-1 text-right">{n.appreciation || ''}</span>
                           </div>
                         ))}
@@ -2170,7 +2170,7 @@ export const EspaceParent: React.FC = () => {
         <Card className="p-8 max-w-sm w-full text-center">
           <User size={32} className="text-slate-300 mx-auto mb-4" />
           <p className="text-sm font-semibold text-slate-700 mb-1">Session expirée</p>
-          <p className="text-xs text-slate-400 mb-5">Veuillez vous reconnecter pour accéder à votre espace.</p>
+          <p className="text-xs text-[#6B7280] mb-5">Veuillez vous reconnecter pour accéder à votre espace.</p>
           <button onClick={() => { window.location.hash = '#/espace-parent'; }}
             className="w-full py-2.5 rounded-md bg-[#0D2E5C] text-white text-sm font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
             Se reconnecter
@@ -2262,14 +2262,14 @@ export const EspaceParent: React.FC = () => {
       <div className="flex-1 flex flex-col lg:ml-[220px]">
 
         {/* Top bar */}
-        <header className="sticky top-0 z-20 h-14 bg-white border-b border-slate-200 flex items-center px-5 gap-4 shrink-0">
+        <header className="sticky top-0 z-20 h-14 bg-white border-b border-[#E5E7EB] flex items-center px-5 gap-4 shrink-0">
           <button onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden p-1.5 rounded-md hover:bg-slate-100 cursor-pointer transition-colors">
+            className="lg:hidden p-1.5 rounded-md hover:bg-[#F4F8FF] cursor-pointer transition-colors">
             <Menu size={17} className="text-slate-500" />
           </button>
 
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-xs text-slate-400 flex-1">
+          <div className="flex items-center gap-2 text-xs text-[#6B7280] flex-1">
             <span className="text-slate-300">EPV</span>
             <ChevronRight size={13} className="text-slate-200" />
             <span className="font-semibold text-slate-700">
@@ -2281,8 +2281,8 @@ export const EspaceParent: React.FC = () => {
           <div className="flex items-center gap-2">
             {unreadMsgs > 0 && (
               <button onClick={() => setTab('messagerie')}
-                className="relative p-2 rounded-md hover:bg-slate-100 cursor-pointer transition-colors">
-                <Bell size={16} className="text-slate-400" />
+                className="relative p-2 rounded-md hover:bg-[#F4F8FF] cursor-pointer transition-colors">
+                <Bell size={16} className="text-[#6B7280]" />
                 <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#F5A623] text-[#0A1628] text-[8px] font-bold flex items-center justify-center">
                   {unreadMsgs}
                 </span>
@@ -2297,8 +2297,8 @@ export const EspaceParent: React.FC = () => {
 
         {/* ── Sélecteur d'enfants (si plusieurs) ── */}
         {allChildren.length > 1 && (
-          <div className="border-b border-slate-200 bg-white px-4 md:px-6 py-2 flex items-center gap-2 overflow-x-auto shrink-0">
-            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap shrink-0">Enfant :</span>
+          <div className="border-b border-[#E5E7EB] bg-white px-4 md:px-6 py-2 flex items-center gap-2 overflow-x-auto shrink-0">
+            <span className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wider whitespace-nowrap shrink-0">Enfant :</span>
             {allChildren.map((child, idx) => (
               <button
                 key={child.id}

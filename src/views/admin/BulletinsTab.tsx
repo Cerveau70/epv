@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -58,9 +54,9 @@ function noteColor(n?: number) {
   if (n >= 10) return '#d97706';
   return '#dc2626';
 }
-function noteLabel(n?: number) {
-  if (n === undefined || n === null) return '—';
-  return n.toFixed(2);
+function noteLabel(n?: any) {
+  if (n === undefined || n === null || n === '') return '—';
+  return Number(n).toFixed(2);
 }
 function mentionClass(m: string) {
   if (m === 'Félicitations') return 'bg-amber-50 text-amber-700 border-amber-300';
@@ -220,8 +216,8 @@ function printClasseList(eleves: Eleve[], section: string) {
 function printBulletinsClasse(bulletins: Bulletin[], section: string, trimestre: string) {
   const logo = LOGO_URL();
   const matieres = getMatieres(section);
-  const moyClasse = bulletins.length ? (bulletins.reduce((s,b) => s+(b.moyenneGenerale||0),0)/bulletins.length).toFixed(2) : '—';
-  const meilleure = bulletins.length ? Math.max(...bulletins.map(b=>b.moyenneGenerale||0)).toFixed(2) : '—';
+  const moyClasse = bulletins.length ? (bulletins.reduce((s,b) => s+(Number(b.moyenneGenerale)||0),0)/bulletins.length).toFixed(2) : '—';
+  const meilleure = bulletins.length ? Math.max(...bulletins.map(b=>Number(b.moyenneGenerale)||0)).toFixed(2) : '—';
   const tauxReussite = bulletins.length ? Math.round(bulletins.filter(b=>b.moyenneGenerale>=10).length/bulletins.length*100) : 0;
 
   const nc = (n: number) => n>=16?'#16a34a':n>=12?'#2563eb':n>=10?'#d97706':'#dc2626';
@@ -231,14 +227,14 @@ function printBulletinsClasse(bulletins: Bulletin[], section: string, trimestre:
   const rows = bulletins.map((b,i) => {
     const noteCells = matieres.map(mat => {
       const n = (b.notesDetail||[]).find((x:any) => x.matiere===mat);
-      return `<td style="text-align:center;font-weight:700;color:${n?.note!==undefined?nc(n.note):'#94a3b8'};font-size:8.5pt">${n?.note!==undefined?n.note.toFixed(2):'—'}</td>`;
+      return `<td style="text-align:center;font-weight:700;color:${n?.note!=null?nc(Number(n.note)):'#94a3b8'};font-size:8.5pt">${n?.note!=null?Number(n.note).toFixed(2):'—'}</td>`;
     }).join('');
     return `<tr style="background:${i%2===0?'#ffffff':'#F8FAFF'}">
       <td style="text-align:center;font-weight:900;color:${b.rang<=3?'#d97706':'#0D2E5C'};font-size:10pt">${b.rang??'—'}</td>
       <td style="font-weight:800;color:#0D2E5C;font-size:9.5pt">${b.nomEnfant}</td>
       <td style="font-size:9pt">${b.prenomEnfant}</td>
       ${noteCells}
-      <td style="text-align:center;font-weight:900;font-size:11pt;color:${nc(b.moyenneGenerale)}">${b.moyenneGenerale?.toFixed(2)??'—'}</td>
+      <td style="text-align:center;font-weight:900;font-size:11pt;color:${nc(b.moyenneGenerale)}">${b.moyenneGenerale!=null?Number(b.moyenneGenerale).toFixed(2):'—'}</td>
       <td style="text-align:center"><span style="background:${mentionBg(b.mention)};color:${mentionFg(b.mention)};padding:3px 8px;border-radius:12px;font-size:7.5pt;font-weight:700">${b.mention||'—'}</span></td>
     </tr>`;
   }).join('');
@@ -368,7 +364,7 @@ function printBulletinIndividuel(b: Bulletin, eleve?: Eleve) {
     <!-- STATS GLOBALES -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 2fr;gap:10px;margin-bottom:16px">
       <div style="border:2px solid ${noteColor(b.moyenneGenerale)};border-radius:10px;padding:12px;text-align:center">
-        <div style="font-size:26pt;font-weight:900;color:${nc(b.moyenneGenerale)};line-height:1">${b.moyenneGenerale?.toFixed(2)??'—'}</div>
+        <div style="font-size:26pt;font-weight:900;color:${nc(b.moyenneGenerale)};line-height:1">${b.moyenneGenerale!=null?Number(b.moyenneGenerale).toFixed(2):'—'}</div>
         <div style="font-size:7.5pt;color:#64748b;text-transform:uppercase;margin-top:4px">Moyenne / 20</div>
       </div>
       <div style="border:2px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center">
@@ -397,7 +393,7 @@ function printBulletinIndividuel(b: Bulletin, eleve?: Eleve) {
         ${detail.map((n,i) => `
           <tr style="background:${i%2===0?'white':'#F8FAFF'}">
             <td style="font-weight:700;font-size:9.5pt">${n.matiere}</td>
-            <td style="text-align:center;font-size:11pt;font-weight:900;color:${nc(n.note)}">${n.note?.toFixed(2)??'—'}</td>
+            <td style="text-align:center;font-size:11pt;font-weight:900;color:${nc(n.note)}">${n.note!=null?Number(n.note).toFixed(2):'—'}</td>
             <td style="text-align:center;color:#64748b">${n.coef}</td>
             <td style="color:#475569;font-style:italic;font-size:9pt">${n.appreciation||''}</td>
           </tr>`).join('')}
@@ -579,10 +575,10 @@ export function BulletinsTab({ onToast, onSelectEleve }: { onToast: (m: string) 
     const header = ['Rang','NOM','Prénom','Moyenne /20','Mention',...matieres];
     const rows = bulletins.map(b => [
       b.rang, b.nomEnfant, b.prenomEnfant,
-      b.moyenneGenerale?.toFixed(2) ?? '', b.mention,
+      b.moyenneGenerale!=null?Number(b.moyenneGenerale).toFixed(2):'', b.mention,
       ...matieres.map(mat => {
         const n = (b.notesDetail||[]).find((x:any) => x.matiere===mat);
-        return n ? n.note?.toFixed(2) ?? '' : '';
+        return n ? n.note!=null?Number(n.note).toFixed(2):'' : '';
       }),
     ]);
     exportCSV([header,...rows], `bulletins_${section}_${trimestre}_2026-2027.csv`);
@@ -848,7 +844,7 @@ export function BulletinsTab({ onToast, onSelectEleve }: { onToast: (m: string) 
               <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y divide-slate-200 border-b border-slate-200">
                 {[
                   { label: 'Effectif', val: bulletins.length, color: 'text-[#0D2E5C]' },
-                  { label: 'Moy. de classe', val: (bulletins.reduce((s,b)=>s+(b.moyenneGenerale||0),0)/bulletins.length).toFixed(2)+' /20', color: 'text-blue-600' },
+                  { label: 'Moy. de classe', val: (bulletins.reduce((s,b)=>s+(Number(b.moyenneGenerale)||0),0)/bulletins.length).toFixed(2)+' /20', color: 'text-blue-600' },
                   { label: 'Taux réussite', val: Math.round(bulletins.filter(b=>b.moyenneGenerale>=10).length/bulletins.length*100)+'%', color: 'text-emerald-600' },
                   { label: 'Félicitations', val: bulletins.filter(b=>b.mention==='Félicitations').length, color: 'text-amber-600' },
                 ].map(s => (
@@ -913,7 +909,7 @@ export function BulletinsTab({ onToast, onSelectEleve }: { onToast: (m: string) 
                         })}
                         <td className="px-4 py-3 text-center">
                           <span className="text-sm font-black" style={{ color: noteColor(b.moyenneGenerale) }}>
-                            {b.moyenneGenerale?.toFixed(2) ?? '—'}
+                            {b.moyenneGenerale!=null?Number(b.moyenneGenerale).toFixed(2):'—'}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-center">
