@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -13,7 +9,7 @@ interface AdminAuthPageProps {
   onBack: () => void;
 }
 
-/* Champ underline — minimaliste, ligne dorée au focus */
+/* Champ underline minimaliste, ligne dorée au focus */
 function UnderlineInput({
   label, type = 'text', value, onChange, placeholder, children
 }: {
@@ -97,13 +93,11 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({ onSuccess, onBack 
   const [password, setPassword] = useState('');
   const [showPwd,  setShowPwd]  = useState(false);
   const [error,    setError]    = useState<string | null>(null);
-  const [debug,    setDebug]    = useState<{ status?: number; raw?: string } | null>(null);
   const [loading,  setLoading]  = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setDebug(null);
     setLoading(true);
     try {
       const data = await signInNeon(email, password);
@@ -112,7 +106,6 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({ onSuccess, onBack 
       onSuccess({ role: 'admin', email });
     } catch (err: any) {
       setError(err.message || 'Identifiants incorrects.');
-      setDebug({ status: err.status, raw: err.raw });
     } finally {
       setLoading(false);
     }
@@ -169,28 +162,9 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({ onSuccess, onBack 
           <form onSubmit={handleSubmit} className="space-y-6">
             <AnimatePresence>
               {error && (
-                <ErrorToast key="err" message={error} onDismiss={() => { setError(null); setDebug(null); }} />
+                <ErrorToast key="err" message={error} onDismiss={() => setError(null)} />
               )}
             </AnimatePresence>
-
-            {/* ── DEBUG PANEL ── */}
-            {debug && (
-              <div className="rounded-xl bg-black/40 border border-white/10 p-3 space-y-1.5 text-left">
-                <p className="text-[9px] font-mono font-bold uppercase tracking-widest text-brand-gold">
-                  Debug — Réponse serveur
-                </p>
-                {debug.status && (
-                  <p className="text-[10px] font-mono text-white/60">
-                    HTTP <span className="text-red-400 font-bold">{debug.status}</span>
-                  </p>
-                )}
-                {debug.raw && (
-                  <pre className="text-[10px] font-mono text-white/50 whitespace-pre-wrap break-all max-h-32 overflow-y-auto">
-                    {debug.raw}
-                  </pre>
-                )}
-              </div>
-            )}
 
             <UnderlineInput label="Email administrateur" type="email" value={email} onChange={setEmail} placeholder="admin@epv.ci" />
 
@@ -213,7 +187,7 @@ export const AdminAuthPage: React.FC<AdminAuthPageProps> = ({ onSuccess, onBack 
         </div>
 
         <p className="text-center text-[8px] text-white/15 font-sans uppercase tracking-widest mt-5">
-          EPV Horizons Savants — Abidjan © {new Date().getFullYear()}
+          EPV Horizons Savants Abidjan © {new Date().getFullYear()}
         </p>
       </motion.div>
 

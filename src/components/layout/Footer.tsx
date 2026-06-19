@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React from 'react';
 import { Mail, Phone, MapPin, Clock, Facebook, Shield } from 'lucide-react';
@@ -25,7 +21,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, id }) => {
 
   return (
     <footer id={id} className="relative bg-brand-blue-deep text-brand-border/90 border-t border-brand-blue-medium/50 select-none">
-      <div className="absolute inset-0 pattern-sunburst opacity-5 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -48,8 +43,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, id }) => {
             </p>
             <div className="text-[11px] leading-relaxed text-brand-border/60">
               {fr
-                ? "École primaire & maternelle d'excellence agréée par le Ministère de l'Éducation Nationale. Ouverture de rentrée en Septembre 2026."
-                : "Accredited primary & kindergarten school of excellence by the Ministry of National Education. Opening in September 2026."}
+                ? "École primaire & maternelle agréée par le Ministère de l'Éducation Nationale. Ouverture de rentrée en Septembre 2026."
+                : "Accredited primary & kindergarten school by the Ministry of National Education. Opening in September 2026."}
             </div>
           </div>
 
@@ -125,7 +120,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, id }) => {
         {/* Legal */}
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs select-none">
           <p className="text-brand-border/50 text-center md:text-left leading-normal font-sans text-[11px]">
-            &copy; {currentYear} EPV Horizons Savants · {fr ? "École d'Excellence Abidjan. Tous droits réservés." : "School of Excellence Abidjan. All rights reserved."}
+            &copy; {currentYear} EPV Horizons Savants · {fr ? "Abidjan. Tous droits réservés." : "Abidjan. All rights reserved."}
           </p>
           <div className="flex flex-wrap justify-center gap-6 text-brand-border/60 text-[11px] font-sans">
             <span className="flex items-center gap-1">

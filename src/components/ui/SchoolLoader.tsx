@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -62,8 +58,6 @@ export const SchoolLoader: React.FC<SchoolLoaderProps> = ({ onComplete }) => {
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       className="fixed inset-0 z-[300] bg-[#060d1a] flex flex-col items-center justify-center overflow-hidden select-none"
     >
-      {/* Fond topographique */}
-      <div className="absolute inset-0 pattern-topo opacity-25 pointer-events-none" />
 
       {/* Lueurs ambiantes */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-gold/7 blur-[150px] rounded-full pointer-events-none" />
@@ -112,9 +106,6 @@ export const SchoolLoader: React.FC<SchoolLoaderProps> = ({ onComplete }) => {
         >
           <p className="font-sans font-extrabold text-2xl md:text-3xl text-white uppercase tracking-[0.08em]">
             EPV Horizons Savants
-          </p>
-          <p className="text-[10px] font-sans uppercase tracking-[0.4em] text-brand-gold">
-            École d'Excellence · Abidjan
           </p>
         </motion.div>
 

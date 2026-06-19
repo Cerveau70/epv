@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React from 'react';
 import { Card } from '../components/ui/Card.tsx';
@@ -44,7 +40,7 @@ export const ProgrammesPrimaire: React.FC = () => {
             <p className="text-sm md:text-md italic leading-relaxed">
               {fr
                 ? '« L\'école primaire ne doit pas seulement transférer des faits mémorisés de façon mécanique, elle doit aiguiser la curiosité analytique, installer l\'éloquence orale publique et donner le goût de l\'abstraction mathématique. C\'est l\'essence de notre programme d\'excellence académique à Abidjan. »'
-                : '"Primary school must not simply transfer mechanically memorized facts — it must sharpen analytical curiosity, build public oral eloquence and cultivate a taste for mathematical abstraction. This is the essence of our academic excellence program in Abidjan."'}
+                : '"Primary school must not simply transfer mechanically memorized facts it must sharpen analytical curiosity, build public oral eloquence and cultivate a taste for mathematical abstraction. This is the essence of our academic excellence program in Abidjan."'}
             </p>
             <div className="font-sans text-xs uppercase tracking-wider text-brand-gold font-bold">
               {fr ? '· Conseil de l\'Élite Académique, EPV Horizons Savants' : '· Academic Excellence Council, EPV Horizons Savants'}
@@ -98,7 +94,7 @@ export const ProgrammesPrimaire: React.FC = () => {
               <div className="bg-brand-pale p-5 rounded-xl border border-brand-border/60 space-y-3">
                 <div className="flex gap-2 items-center">
                   <span className="font-extrabold text-sm text-brand-blue-medium shrink-0">CP</span>
-                  <h4 className="font-bold text-xs text-brand-blue-deep font-sans">{fr ? 'CPI / CP (6-7 ans)' : 'Grade 1 — CP (6-7 years)'}</h4>
+                  <h4 className="font-bold text-xs text-brand-blue-deep font-sans">{fr ? 'CPI / CP (6-7 ans)' : 'Grade 1 CP (6-7 years)'}</h4>
                 </div>
                 <div className="text-[11px] text-brand-muted leading-relaxed font-serif space-y-2">
                   <p>{fr ? "Le cycle de lecture phonique active et d'acquisition de l'écriture cursive impeccable en Français et en Anglais." : "The cycle of active phonics reading and impeccable cursive writing acquisition in French and English."}</p>
@@ -109,7 +105,7 @@ export const ProgrammesPrimaire: React.FC = () => {
               <div className="bg-brand-pale p-5 rounded-xl border border-brand-border/60 space-y-3">
                 <div className="flex gap-2 items-center">
                   <span className="font-extrabold text-sm text-brand-gold shrink-0">CE</span>
-                  <h4 className="font-bold text-xs text-brand-blue-deep font-sans">{fr ? 'CE1 & CE2 (7-9 ans)' : 'Grades 2 & 3 — CE (7-9 years)'}</h4>
+                  <h4 className="font-bold text-xs text-brand-blue-deep font-sans">{fr ? 'CE1 & CE2 (7-9 ans)' : 'Grades 2 & 3 CE (7-9 years)'}</h4>
                 </div>
                 <div className="text-[11px] text-brand-muted leading-relaxed font-serif space-y-2">
                   <p>{fr ? "La phase de consolidation orthographique, de grammaire et de structuration du raisonnement scientifique et d'éloquence." : "The phase of spelling consolidation, grammar and structuring of scientific reasoning and eloquence."}</p>
@@ -120,7 +116,7 @@ export const ProgrammesPrimaire: React.FC = () => {
               <div className="bg-brand-pale p-5 rounded-xl border border-brand-border/60 space-y-3">
                 <div className="flex gap-2 items-center">
                   <span className="font-extrabold text-sm text-brand-blue-deep shrink-0">CM</span>
-                  <h4 className="font-bold text-xs text-brand-blue-deep font-sans">{fr ? 'CM1 & CM2 (9-11 ans)' : 'Grades 4 & 5 — CM (9-11 years)'}</h4>
+                  <h4 className="font-bold text-xs text-brand-blue-deep font-sans">{fr ? 'CM1 & CM2 (9-11 ans)' : 'Grades 4 & 5 CM (9-11 years)'}</h4>
                 </div>
                 <div className="text-[11px] text-brand-muted leading-relaxed font-serif space-y-2">
                   <p>{fr ? "Le cycle d'élargissement critique, de bilinguisme soutenu et de préparation aux concours prestigieux d'admission." : "The cycle of critical expansion, sustained bilingualism and preparation for prestigious entrance exams."}</p>

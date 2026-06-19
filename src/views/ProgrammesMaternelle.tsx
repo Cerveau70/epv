@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React from 'react';
 import { Card } from '../components/ui/Card.tsx';
@@ -30,8 +26,8 @@ export const ProgrammesMaternelle: React.FC = () => {
 
           <h1 className="font-sans font-extrabold text-3xl md:text-5xl text-brand-blue-deep tracking-tight leading-tight">
             {fr
-              ? "Programme Maternelle d'Excellence à Abidjan — EPV Horizons Savants"
-              : "Excellence Kindergarten Program in Abidjan — EPV Horizons Savants"}
+              ? "Programme Maternelle d'Excellence à Abidjan EPV Horizons Savants"
+              : "Excellence Kindergarten Program in Abidjan EPV Horizons Savants"}
           </h1>
           <p className="font-serif text-sm md:text-base text-brand-muted leading-relaxed max-w-4xl">
             {fr

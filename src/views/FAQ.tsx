@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card.tsx';
@@ -233,7 +229,7 @@ export const FAQ: React.FC = () => {
 
         {/* ── HEADER ── */}
         <motion.div
-          className="text-center max-w-2xl mx-auto space-y-4"
+          className="text-left max-w-2xl space-y-4"
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -382,7 +378,7 @@ export const FAQ: React.FC = () => {
                           </motion.span>
                         </button>
 
-                        {/* Answer — AnimatePresence for smooth open/close */}
+                        {/* Answer AnimatePresence for smooth open/close */}
                         <AnimatePresence initial={false}>
                           {isOpen && (
                             <motion.div
@@ -427,7 +423,7 @@ export const FAQ: React.FC = () => {
           )}
         </motion.div>
 
-        {/* ── CTA FINAL — section navy ── */}
+        {/* ── CTA FINAL section navy ── */}
         <motion.div
           whileInView={{ opacity: 1, y: 0 }}
           initial={{ opacity: 0, y: 20 }}
@@ -435,8 +431,6 @@ export const FAQ: React.FC = () => {
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         >
           <Card className="relative overflow-hidden bg-[#0D2E5C] border-0 rounded-2xl shadow-premium-lg p-0">
-            {/* Topographic pattern overlay */}
-            <div className="absolute inset-0 pattern-topo opacity-60 pointer-events-none" />
 
             {/* Gold accent line */}
             <div className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-brand-gold/60 via-brand-gold to-brand-gold/60" />

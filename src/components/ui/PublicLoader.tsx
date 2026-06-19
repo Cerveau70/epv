@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -489,9 +485,7 @@ export const PublicLoader: React.FC<PublicLoaderProps> = ({ onComplete }) => {
             textTransform: 'uppercase',
             letterSpacing: '0.32em',
             marginTop: 2,
-          }}>
-            École d'Excellence · Abidjan
-          </p>
+          }} />
         </div>
 
         {/* ── Barre de progression cartoon ── */}

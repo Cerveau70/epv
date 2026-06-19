@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
@@ -67,11 +63,11 @@ export const Contact: React.FC = () => {
     <div className="select-none">
 
       {/* ══ HERO ══════════════════════════════════════════════════ */}
-      <section className="relative pattern-topo overflow-hidden" style={{ backgroundColor: '#0b1d3a' }}>
+      <section className="relative overflow-hidden" style={{ backgroundColor: '#0b1d3a' }}>
         <div className="pointer-events-none absolute inset-0"
           style={{ background: 'radial-gradient(ellipse 70% 60% at 50% 110%, rgba(245,166,35,0.12) 0%, transparent 70%)' }}
         />
-        <div className="relative max-w-4xl mx-auto px-6 py-24 md:py-28 text-center">
+        <div className="relative max-w-4xl mx-auto px-6 py-24 md:py-28 text-left">
           <motion.h1
             initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -83,7 +79,7 @@ export const Contact: React.FC = () => {
           <motion.p
             initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.18 }}
-            className="mt-5 font-serif text-sm md:text-base leading-relaxed max-w-2xl mx-auto"
+            className="mt-5 font-serif text-sm md:text-base leading-relaxed max-w-2xl"
             style={{ color: 'rgba(255,255,255,0.65)' }}
           >
             {fr
@@ -117,7 +113,7 @@ export const Contact: React.FC = () => {
                 </p>
               </div>
 
-              {/* Info list — 3 colonnes */}
+              {/* Info list 3 colonnes */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="flex flex-col gap-2.5 p-4 rounded-2xl bg-white shadow-[0_2px_16px_rgba(13,46,92,0.07)]">
                   <MapPin size={20} className="text-[#0D2E5C]" />
@@ -186,10 +182,10 @@ export const Contact: React.FC = () => {
                 </div>
               </div>
 
-              {/* Map — Google Maps embed */}
+              {/* Map Google Maps embed */}
               <div className="rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(13,46,92,0.07)]">
                 <iframe
-                  title="EPV Horizons Savants — Localisation"
+                  title="EPV Horizons Savants Localisation"
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3972.2880363103195!2d-3.894524925016189!3d5.372973394605878!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfc1f3026262acff%3A0xdf46db16a1a955b3!2sEPV%20HORIZONS%20SAVANTS!5e0!3m2!1sen!2sci!4v1781556186800!5m2!1sen!2sci"
                   width="100%"
                   height="300"
@@ -210,7 +206,7 @@ export const Contact: React.FC = () => {
                 </div>
               </div>
 
-              {/* Pourquoi nous contacter — 3 colonnes */}
+              {/* Pourquoi nous contacter 3 colonnes */}
               <div className="space-y-3 pt-2">
                 <h3 className="font-sans font-bold text-sm text-[#0D2E5C] uppercase tracking-wide">
                   {fr ? 'Nous pouvons vous aider pour :' : 'We can help you with:'}

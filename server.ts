@@ -12,7 +12,7 @@ import pg from "pg";
 import fs from "fs";
 import { randomBytes, scrypt, timingSafeEqual } from "crypto";
 import { createRemoteJWKSet, jwtVerify, SignJWT } from "jose";
-import { StatutProspect, StatutRendezVous, Prospect, RendezVous, Parrainage, SectionPlace, NotificationLog } from "./src/types.js";
+import { StatutProspect, StatutRendezVous, Prospect, RendezVous, SectionPlace, NotificationLog } from "./src/types.js";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import multer from "multer";
 import { randomUUID } from "crypto";
@@ -351,7 +351,7 @@ async function initDB() {
     prenomEnfant: 'Koffi', nomEnfant: 'Aka', dateNaissance: '2021-03-12', sectionVisee: 'GS',
     prenomParent: 'Jean-Baptiste', nomParent: 'Aka', lienParente: 'Père',
     telephone: '+2250707070707', email: 'jb.aka@gmail.com', commune: 'Cocody',
-    source: 'Réseaux sociaux', codeParrainagePersonnel: 'EPV-AKA01',
+    source: 'Réseaux sociaux',
     statut: StatutProspect.PRE_INSCRIT, notesAdmin: 'Famille motivée. S\'intéresse particulièrement au bilinguisme.',
   };
   const p2: Prospect = {
@@ -359,7 +359,7 @@ async function initDB() {
     prenomEnfant: 'Awa', nomEnfant: 'Koné', dateNaissance: '2018-09-05', sectionVisee: 'CP',
     prenomParent: 'Mariam', nomParent: 'Koné', lienParente: 'Mère',
     telephone: '+2250505123456', email: 'mariam.kone@hotmail.com', commune: 'Marcory',
-    source: 'Bouche-à-oreille', codeParrainagePersonnel: 'EPV-KONE01',
+    source: 'Bouche-à-oreille',
     statut: StatutProspect.INSCRIT, notesAdmin: 'Test d\'évaluation passé avec succès.',
   };
   const p3: Prospect = {
@@ -367,7 +367,7 @@ async function initDB() {
     prenomEnfant: 'Marc-Aurèle', nomEnfant: 'N\'Guessan', dateNaissance: '2023-01-20', sectionVisee: 'PS',
     prenomParent: 'Amélie', nomParent: 'N\'Guessan', lienParente: 'Mère',
     telephone: '+2250102030405', email: 'amelie.nguessan@live.fr', commune: 'Bingerville',
-    source: 'Flyer', codeParrainagePersonnel: 'EPV-NGUESSAN01',
+    source: 'Flyer',
     statut: StatutProspect.PROSPECT, notesAdmin: 'Contact établi par téléphone.',
   };
   const p4: Prospect = {
@@ -375,20 +375,19 @@ async function initDB() {
     prenomEnfant: 'Emeka', nomEnfant: 'Diop', dateNaissance: '2020-05-14', sectionVisee: 'MS',
     prenomParent: 'Cheikh', nomParent: 'Diop', lienParente: 'Père',
     telephone: '+2250789888777', email: 'cheikh.diop@yahoo.fr', commune: 'Plateau',
-    source: 'Affiche', codeParrainagePersonnel: 'EPV-DIOP01',
+    source: 'Affiche',
     statut: StatutProspect.PROSPECT, notesAdmin: 'Visite des locaux planifiée.',
   };
 
   for (const p of [p1, p2, p3, p4]) {
     await q(
       `INSERT INTO prospects (id,created_at,updated_at,prenom_enfant,nom_enfant,date_naissance,section_visee,
-        prenom_parent,nom_parent,lien_parente,telephone,email,commune,source,
-        code_parrainage_utilise,code_parrainage_personnel,statut,notes_admin)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+        prenom_parent,nom_parent,lien_parente,telephone,email,commune,source,statut,notes_admin)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
        ON CONFLICT DO NOTHING`,
       [p.id, p.createdAt, p.updatedAt, p.prenomEnfant, p.nomEnfant, p.dateNaissance, p.sectionVisee,
        p.prenomParent, p.nomParent, p.lienParente, p.telephone, p.email, p.commune, p.source,
-       p.codeParrainageUtilise ?? null, p.codeParrainagePersonnel, p.statut, p.notesAdmin ?? null]
+       p.statut, p.notesAdmin ?? null]
     );
   }
 
@@ -1225,7 +1224,7 @@ app.post('/api/prospects', async (req, res) => {
   const {
     prenomEnfant, nomEnfant, dateNaissance, sectionVisee,
     prenomParent, nomParent, lienParente, telephone, email, commune,
-    source, codeParrainageUtilise, messageLibre,
+    source, messageLibre,
   } = req.body;
 
   if (!prenomEnfant || !nomEnfant || !dateNaissance || !sectionVisee ||
@@ -1236,15 +1235,6 @@ app.post('/api/prospects', async (req, res) => {
   let phone = telephone.trim().replace(/\s+/g, '');
   if (!phone.startsWith('+225') && !phone.startsWith('225')) phone = '+225' + phone;
   else if (phone.startsWith('225')) phone = '+' + phone;
-
-  let referralValid = false;
-  if (codeParrainageUtilise?.trim()) {
-    const code = codeParrainageUtilise.trim().toUpperCase();
-    if (!/^EPV-[A-Z0-9]{3,12}$/.test(code)) {
-      return res.status(400).json({ success: false, error: 'Format du code parrainage invalide.' });
-    }
-    referralValid = true;
-  }
 
   try {
     const { rows: sameNameRows } = await q(
@@ -1259,39 +1249,19 @@ app.post('/api/prospects', async (req, res) => {
     await q(
       `INSERT INTO prospects (id,created_at,updated_at,prenom_enfant,nom_enfant,date_naissance,section_visee,
         prenom_parent,nom_parent,lien_parente,telephone,email,commune,source,
-        code_parrainage_utilise,code_parrainage_personnel,statut,notes_admin)
-       VALUES ($1,NOW(),NOW(),$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
+        code_parrainage_personnel,statut,notes_admin)
+       VALUES ($1,NOW(),NOW(),$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
       [id, prenomEnfant.trim(), nomEnfant.trim(), dateNaissance, sectionVisee,
        prenomParent.trim(), nomParent.trim(), lienParente, phone,
        email.trim().toLowerCase(), commune, source,
-       codeParrainageUtilise ? codeParrainageUtilise.trim().toUpperCase() : null,
        personalCode, StatutProspect.PROSPECT,
        messageLibre ? `Note initiale : ${messageLibre}` : null]
     );
 
     // Places calculées dynamiquement depuis prospects — pas de mise à jour manuelle
 
-    if (referralValid) {
-      const code = codeParrainageUtilise.trim().toUpperCase();
-      const { rows: sponsors } = await q(
-        'SELECT * FROM prospects WHERE UPPER(code_parrainage_personnel) = $1', [code]
-      );
-      if (sponsors.length > 0) {
-        const sponsor = rowToObj(sponsors[0]) as Prospect;
-        await q(
-          'INSERT INTO parrainages (id,code_parrain,prospect_id_parrain,prospect_id_filleul,statut,reduction_appliquee,created_at) VALUES ($1,$2,$3,$4,$5,$6,NOW())',
-          [uid('parrainage'), code, sponsor.id, id, 'en_attente', 10]
-        );
-        await logNotification('email', sponsor.email,
-          `Bonjour ${sponsor.prenomParent}, votre code ${sponsor.codeParrainagePersonnel} a été utilisé par ${prenomEnfant} ${nomEnfant}. Une réduction de 10% sera appliquée dès inscription confirmée.`,
-          'EPV — Votre parrainage a été partagé !');
-        await logNotification('whatsapp', sponsor.telephone,
-          `EPV Horizons Savants : Votre code de parrainage ${sponsor.codeParrainagePersonnel} a été utilisé ! 10% de réduction dès confirmation d'inscription.`);
-      }
-    }
-
-    const emailContent = `<h2>EPV Horizons Savants — Pré-inscription reçue</h2><p>Bonjour ${prenomParent} ${nomParent},</p><p>La pré-inscription de <strong>${prenomEnfant} ${nomEnfant}</strong> en <strong>${sectionVisee}</strong> a été enregistrée.</p><p>Votre code de parrainage : <strong>${personalCode}</strong></p><p>L'équipe EPV Horizons Savants</p>`;
-    const waContent = `🌟 EPV HORIZONS SAVANTS 🌟\n\nBonjour ${prenomParent}, la pré-inscription de ${prenomEnfant} en ${sectionVisee} est reçue.\n🔑 Code parrainage : *${personalCode}*\nAccédez à votre Espace Parent : https://horizonssavants.com/#/espace-parent`;
+    const emailContent = `<h2>EPV Horizons Savants — Pré-inscription reçue</h2><p>Bonjour ${prenomParent} ${nomParent},</p><p>La pré-inscription de <strong>${prenomEnfant} ${nomEnfant}</strong> en <strong>${sectionVisee}</strong> a été enregistrée.</p><p>L'équipe EPV Horizons Savants</p>`;
+    const waContent = `🌟 EPV HORIZONS SAVANTS 🌟\n\nBonjour ${prenomParent}, la pré-inscription de ${prenomEnfant} en ${sectionVisee} est reçue.\nAccédez à votre Espace Parent : https://horizonssavants.com/#/espace-parent`;
 
     await logNotification('email', email, emailContent, `EPV — Pré-inscription de ${prenomEnfant} reçue`);
     await logNotification('whatsapp', phone, waContent);
@@ -1347,23 +1317,6 @@ app.patch('/api/prospects/:id/status', requireAdmin, async (req, res) => {
     } else if (statut === StatutProspect.INSCRIT) {
       emailContent = `Félicitations ! L'inscription de ${p.prenomEnfant} ${p.nomEnfant} pour l'année 2026/2027 est confirmée ! 🎓\n\nL'équipe EPV Horizons Savants`;
       waContent = `🎉 EPV : L'inscription de ${p.prenomEnfant} est confirmée pour Septembre 2026 !`;
-
-      // Valider le parrainage
-      const { rows: parr } = await q(
-        "SELECT * FROM parrainages WHERE prospect_id_filleul = $1 AND statut = 'en_attente'", [id]
-      );
-      if (parr.length > 0) {
-        await q("UPDATE parrainages SET statut = 'valide' WHERE id = $1", [parr[0].id]);
-        const { rows: sponsors } = await q('SELECT * FROM prospects WHERE id = $1', [parr[0].prospect_id_parrain]);
-        if (sponsors.length > 0) {
-          const sp = rowToObj(sponsors[0]) as Prospect;
-          await logNotification('email', sp.email,
-            `Félicitations ${sp.prenomParent} ! L'inscription de votre filleul ${p.prenomEnfant} est confirmée. 10% de réduction appliquée !`,
-            'EPV — Réduction Parrainage Validée !');
-          await logNotification('whatsapp', sp.telephone,
-            `🎉 EPV Parrainage Validé ! ${p.prenomEnfant} est officiellement inscrit. 10% de réduction sur votre scolarité !`);
-        }
-      }
 
       // Message Espace Parent
       await q(
@@ -1505,41 +1458,6 @@ app.get('/api/parrainages', requireAdmin, async (_req, res) => {
   res.json(rowsToObjs(rows));
 });
 
-// Parent — liste de ses filleuls (personnes ayant utilisé son code)
-app.get('/api/parent/mes-filleuls', requireAuth, async (req: any, res) => {
-  const { prospectId } = req.query;
-  if (!prospectId) return res.status(400).json({ error: 'prospectId requis.' });
-  try {
-    const { rows: pRows } = await q('SELECT code_parrainage_personnel FROM prospects WHERE id = $1', [prospectId]);
-    if (pRows.length === 0) return res.status(404).json({ error: 'Prospect introuvable.' });
-    const code = pRows[0].code_parrainage_personnel;
-    if (!code) return res.json([]);
-    const { rows } = await q(`
-      SELECT p.id, p.prenom_parent, p.nom_parent, p.prenom_enfant, p.nom_enfant,
-             p.section_visee, p.statut, p.created_at,
-             par.statut AS parrainage_statut, par.reduction_appliquee
-      FROM prospects p
-      LEFT JOIN parrainages par ON par.prospect_id_filleul = p.id AND UPPER(par.code_parrain) = UPPER($1)
-      WHERE UPPER(p.code_parrainage_utilise) = UPPER($1)
-      ORDER BY p.created_at DESC
-    `, [code]);
-    res.json(rows.map(r => ({
-      id: r.id,
-      prenomParent: r.prenom_parent,
-      nomParent: r.nom_parent,
-      prenomEnfant: r.prenom_enfant,
-      nomEnfant: r.nom_enfant,
-      sectionVisee: r.section_visee,
-      statut: r.statut,
-      createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at,
-      parrainageStatut: r.parrainage_statut || 'en_attente',
-      reductionAppliquee: r.reduction_appliquee || 0,
-    })));
-  } catch (e: any) {
-    console.error('[mes-filleuls]', e);
-    res.status(500).json({ error: 'Erreur serveur.' });
-  }
-});
 
 // ─── Notifications ────────────────────────────────────────────────────────────
 

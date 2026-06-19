@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, MotionValue, useMotionValue, useSpring, useTransform } from 'motion/react';
@@ -20,14 +16,8 @@ const CARD_W      = 275;              // largeur d'une carte en px
 const CARD_GAP    = 24;               // espace entre cartes en px
 const CARD_STRIDE = CARD_W + CARD_GAP; // 299px par slot
 
-const TESTIMONIALS = [
-  { id: 1, parent: "Mme Carine Kouamé",     role: "Mère d'Ariel · Grande Section",       initials: "CK", color: "from-blue-500 to-blue-700",      quote: "Une école d'excellence d'une qualité rare en Côte d'Ivoire. L'accent mis sur le bilinguisme dès la maternelle est un vrai atout d'avenir.", stars: 5 },
-  { id: 2, parent: "M. Ibrahim Touré",       role: "Père de Maya · CP",                   initials: "IT", color: "from-emerald-500 to-green-700",   quote: "Un encadrement bienveillant qui ne sacrifie pas la rigueur académique. EPV Horizons Savants réunit le meilleur des deux mondes.", stars: 5 },
-  { id: 3, parent: "Dr. Sandrine N'Guessan", role: "Mère de Marc-Aurèle · Petite Section",initials: "SN", color: "from-violet-500 to-purple-700",   quote: "Les effectifs limités à 25 élèves par classe garantissent une attention personnalisée quotidienne. Je suis extrêmement sereine pour la rentrée 2026.", stars: 5 },
-  { id: 4, parent: "M. Kofi Asante",         role: "Père de Léa · CE1",                   initials: "KA", color: "from-amber-500 to-orange-600",    quote: "L'approche bilingue est remarquable. Ma fille parle anglais couramment après un an seulement. Une équipe pédagogique exceptionnelle.", stars: 5 },
-  { id: 5, parent: "Mme Fatoumata Diallo",   role: "Mère de Kévin · CM1",                 initials: "FD", color: "from-rose-500 to-pink-700",       quote: "Le suivi personnalisé et les projets scientifiques ont éveillé chez mon fils une vraie passion pour les mathématiques. Bravo !", stars: 5 },
-  { id: 6, parent: "M. Jean-Claude Bamba",   role: "Père d'Amara · Moyenne Section",      initials: "JB", color: "from-teal-500 to-cyan-700",       quote: "L'environnement sécurisé, les petits effectifs, la pédagogie active... EPV Horizons Savants est exactement l'école que je cherchais.", stars: 5 },
-  { id: 7, parent: "Mme Aya Coulibaly",      role: "Mère de Ryan · CP",                   initials: "AC", color: "from-indigo-500 to-blue-700",     quote: "La méthode Singapour pour les maths a transformé la relation de mon fils avec les chiffres. Des résultats époustouflants dès le premier trimestre.", stars: 5 },
+const TESTIMONIALS: { id: number; parent: string; role: string; initials: string; color: string; quote: string; stars: number }[] = [
+  // Témoignages à renseigner avec de vrais avis parents
 ];
 
 /** Wrapper déclenchant une animation CSS au scroll */
@@ -277,7 +267,6 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                      pt-10 pb-10 lg:py-0 min-h-[78vh] sm:min-h-[85vh] lg:min-h-[92vh]"
         >
           {/* Lueur ambiante subtile */}
-          <div className="absolute inset-0 pattern-sunburst opacity-[0.04] pointer-events-none" />
           <div className="absolute top-1/3 -left-16 w-72 h-72 bg-brand-blue-medium/15 blur-[110px] rounded-full pointer-events-none" />
 
           <div className="relative z-10">
@@ -671,7 +660,6 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
 
       {/* ══ 4. PROJET PÉDAGOGIQUE · Style Aiglon : dark + collage ══ */}
       <section className="relative overflow-hidden" style={{ background: '#0b1d3a' }}>
-        <div className="absolute inset-0 pattern-topo pointer-events-none" />
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 items-stretch relative z-10">
 
           {/* ── Collage deux photos ── */}
@@ -754,8 +742,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       </section>
 
       {/* ══ 6. TÉMOIGNAGES · Infinite Marquee ══ */}
-      <section className="relative py-20 overflow-hidden" style={{ background: '#0b1d3a' }}>
-        <div className="absolute inset-0 pattern-topo pointer-events-none" />
+      {TESTIMONIALS.length > 0 && <section className="relative py-20 overflow-hidden" style={{ background: '#0b1d3a' }}>
 
         {/* En-tête centré */}
         <Reveal animation="bounceInUp" className="text-center mb-12 px-4 relative z-10">
@@ -799,12 +786,11 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             ))}
           </motion.div>
         </div>
-      </section>
+      </section>}
 
       {/* ══ 7. CTA FINAL · Full Width, Interactive Tiles ══ */}
       <section className="relative py-24 px-4 md:px-8 overflow-hidden"
                style={{ background: 'linear-gradient(145deg,#06192e 0%,#0D2E5C 45%,#0a2550 100%)' }}>
-        <div className="absolute inset-0 pattern-sunburst opacity-8 pointer-events-none" />
         {/* Lueurs ambiantes */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-gold/6 blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-brand-blue-light/8 blur-[100px] rounded-full pointer-events-none" />

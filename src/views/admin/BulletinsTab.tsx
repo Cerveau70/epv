@@ -55,7 +55,7 @@ function noteColor(n?: number) {
   return '#dc2626';
 }
 function noteLabel(n?: any) {
-  if (n === undefined || n === null || n === '') return '—';
+  if (n === undefined || n === null || n === '') return '';
   return Number(n).toFixed(2);
 }
 function mentionClass(m: string) {
@@ -66,7 +66,7 @@ function mentionClass(m: string) {
   return 'bg-slate-50 text-slate-500 border-slate-300';
 }
 function fmtDate(d?: string) {
-  if (!d) return '—';
+  if (!d) return '';
   return new Date(d).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
 }
 
@@ -153,17 +153,17 @@ function printClasseList(eleves: Eleve[], section: string) {
       <td style="font-weight:800;color:#0D2E5C;font-size:9.5pt">${e.nomEnfant}</td>
       <td style="font-size:9pt">${e.prenomEnfant}</td>
       <td style="text-align:center;font-size:8.5pt;color:#334155">${fmtDate(e.dateNaissance)}</td>
-      <td style="font-size:8.5pt;color:#334155">${e.commune || '—'}</td>
+      <td style="font-size:8.5pt;color:#334155">${e.commune || ''}</td>
       <td style="font-size:8.5pt">${e.nomParent} ${e.prenomParent}</td>
-      <td style="text-align:center;font-size:8pt;color:#64748b">${e.lienParente || '—'}</td>
-      <td style="font-size:8.5pt;color:#334155">${e.telephone || '—'}</td>
+      <td style="text-align:center;font-size:8pt;color:#64748b">${e.lienParente || ''}</td>
+      <td style="font-size:8.5pt;color:#334155">${e.telephone || ''}</td>
       <td style="text-align:center">
         <span style="background:${e.statut==='Inscrit'?'#dcfce7':'#fef9c3'};color:${e.statut==='Inscrit'?'#15803d':'#a16207'};padding:2px 8px;border-radius:20px;font-size:7.5pt;font-weight:700;border:1px solid ${e.statut==='Inscrit'?'#86efac':'#fde68a'}">${e.statut}</span>
       </td>
     </tr>`).join('');
 
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-  <title>Liste de classe — ${SECTION_LABEL[section]} 2026-2027</title>
+  <title>Liste de classe ${SECTION_LABEL[section]} 2026-2027</title>
   <style>
     @page { size: A4 landscape; margin: 10mm; }
     ${PDF_COMMON_CSS}
@@ -216,8 +216,8 @@ function printClasseList(eleves: Eleve[], section: string) {
 function printBulletinsClasse(bulletins: Bulletin[], section: string, trimestre: string) {
   const logo = LOGO_URL();
   const matieres = getMatieres(section);
-  const moyClasse = bulletins.length ? (bulletins.reduce((s,b) => s+(Number(b.moyenneGenerale)||0),0)/bulletins.length).toFixed(2) : '—';
-  const meilleure = bulletins.length ? Math.max(...bulletins.map(b=>Number(b.moyenneGenerale)||0)).toFixed(2) : '—';
+  const moyClasse = bulletins.length ? (bulletins.reduce((s,b) => s+(Number(b.moyenneGenerale)||0),0)/bulletins.length).toFixed(2) : '';
+  const meilleure = bulletins.length ? Math.max(...bulletins.map(b=>Number(b.moyenneGenerale)||0)).toFixed(2) : '';
   const tauxReussite = bulletins.length ? Math.round(bulletins.filter(b=>b.moyenneGenerale>=10).length/bulletins.length*100) : 0;
 
   const nc = (n: number) => n>=16?'#16a34a':n>=12?'#2563eb':n>=10?'#d97706':'#dc2626';
@@ -227,20 +227,20 @@ function printBulletinsClasse(bulletins: Bulletin[], section: string, trimestre:
   const rows = bulletins.map((b,i) => {
     const noteCells = matieres.map(mat => {
       const n = (b.notesDetail||[]).find((x:any) => x.matiere===mat);
-      return `<td style="text-align:center;font-weight:700;color:${n?.note!=null?nc(Number(n.note)):'#94a3b8'};font-size:8.5pt">${n?.note!=null?Number(n.note).toFixed(2):'—'}</td>`;
+      return `<td style="text-align:center;font-weight:700;color:${n?.note!=null?nc(Number(n.note)):'#94a3b8'};font-size:8.5pt">${n?.note!=null?Number(n.note).toFixed(2):''}</td>`;
     }).join('');
     return `<tr style="background:${i%2===0?'#ffffff':'#F8FAFF'}">
-      <td style="text-align:center;font-weight:900;color:${b.rang<=3?'#d97706':'#0D2E5C'};font-size:10pt">${b.rang??'—'}</td>
+      <td style="text-align:center;font-weight:900;color:${b.rang<=3?'#d97706':'#0D2E5C'};font-size:10pt">${b.rang??''}</td>
       <td style="font-weight:800;color:#0D2E5C;font-size:9.5pt">${b.nomEnfant}</td>
       <td style="font-size:9pt">${b.prenomEnfant}</td>
       ${noteCells}
-      <td style="text-align:center;font-weight:900;font-size:11pt;color:${nc(b.moyenneGenerale)}">${b.moyenneGenerale!=null?Number(b.moyenneGenerale).toFixed(2):'—'}</td>
-      <td style="text-align:center"><span style="background:${mentionBg(b.mention)};color:${mentionFg(b.mention)};padding:3px 8px;border-radius:12px;font-size:7.5pt;font-weight:700">${b.mention||'—'}</span></td>
+      <td style="text-align:center;font-weight:900;font-size:11pt;color:${nc(b.moyenneGenerale)}">${b.moyenneGenerale!=null?Number(b.moyenneGenerale).toFixed(2):''}</td>
+      <td style="text-align:center"><span style="background:${mentionBg(b.mention)};color:${mentionFg(b.mention)};padding:3px 8px;border-radius:12px;font-size:7.5pt;font-weight:700">${b.mention||''}</span></td>
     </tr>`;
   }).join('');
 
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-  <title>Tableau des Notes — ${section} ${trimestre} 2026-2027</title>
+  <title>Tableau des Notes ${section} ${trimestre} 2026-2027</title>
   <style>
     @page { size: A4 landscape; margin: 10mm; }
     ${PDF_COMMON_CSS}
@@ -297,7 +297,7 @@ function printBulletinIndividuel(b: Bulletin, eleve?: Eleve) {
   const mentionFg = b.mention==='Félicitations'?'#92400E':b.mention==='Très bien'?'#1E40AF':b.mention==='Bien'?'#14532D':'#475569';
 
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-  <title>Bulletin ${b.prenomEnfant} ${b.nomEnfant} — ${b.trimestre}</title>
+  <title>Bulletin ${b.prenomEnfant} ${b.nomEnfant} ${b.trimestre}</title>
   <style>
     @page { size: A4 portrait; margin: 0; }
     @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
@@ -321,7 +321,7 @@ function printBulletinIndividuel(b: Bulletin, eleve?: Eleve) {
     </div>
     <div style="text-align:right">
       <div style="background:#F5A623;color:#0D2E5C;font-size:11pt;font-weight:900;padding:7px 16px;border-radius:8px">BULLETIN SCOLAIRE</div>
-      <div style="color:rgba(255,255,255,0.7);font-size:9pt;margin-top:5px;font-weight:700">${b.trimestre} — Année 2026 / 2027</div>
+      <div style="color:rgba(255,255,255,0.7);font-size:9pt;margin-top:5px;font-weight:700">${b.trimestre} Année 2026 / 2027</div>
     </div>
   </div>
 
@@ -333,30 +333,30 @@ function printBulletinIndividuel(b: Bulletin, eleve?: Eleve) {
     </div>
     <div>
       <div style="font-size:7pt;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Classe</div>
-      <div style="font-size:10pt;font-weight:700;color:#0D2E5C">${SECTION_LABEL[eleve?.sectionVisee||'']||'—'}</div>
+      <div style="font-size:10pt;font-weight:700;color:#0D2E5C">${SECTION_LABEL[eleve?.sectionVisee||'']||''}</div>
     </div>
     <div>
       <div style="font-size:7pt;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Date de naissance</div>
-      <div style="font-size:9.5pt;font-weight:700;color:#0D2E5C">${eleve?fmtDate(eleve.dateNaissance):'—'}</div>
+      <div style="font-size:9.5pt;font-weight:700;color:#0D2E5C">${eleve?fmtDate(eleve.dateNaissance):''}</div>
     </div>
     <div>
       <div style="font-size:7pt;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Effectif classe</div>
-      <div style="font-size:10pt;font-weight:700;color:#0D2E5C">${b.effectifClasse??'—'} élèves</div>
+      <div style="font-size:10pt;font-weight:700;color:#0D2E5C">${b.effectifClasse??''} élèves</div>
     </div>
   </div>
   ${eleve?`
   <div style="background:#F8FAFF;border-bottom:1px solid #e2e8f0;padding:8px 16mm;display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px">
     <div>
       <div style="font-size:7pt;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1px">Parent / Tuteur légal</div>
-      <div style="font-size:9.5pt;font-weight:700;color:#334155">${eleve.prenomParent} ${eleve.nomParent} <span style="color:#94a3b8;font-weight:400">(${eleve.lienParente||'—'})</span></div>
+      <div style="font-size:9.5pt;font-weight:700;color:#334155">${eleve.prenomParent} ${eleve.nomParent} <span style="color:#94a3b8;font-weight:400">(${eleve.lienParente||''})</span></div>
     </div>
     <div>
       <div style="font-size:7pt;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1px">Commune</div>
-      <div style="font-size:9.5pt;font-weight:700;color:#334155">${eleve.commune||'—'}</div>
+      <div style="font-size:9.5pt;font-weight:700;color:#334155">${eleve.commune||''}</div>
     </div>
     <div>
       <div style="font-size:7pt;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1px">Téléphone</div>
-      <div style="font-size:9.5pt;font-weight:700;color:#334155">${eleve.telephone||'—'}</div>
+      <div style="font-size:9.5pt;font-weight:700;color:#334155">${eleve.telephone||''}</div>
     </div>
   </div>`:''}
 
@@ -364,20 +364,20 @@ function printBulletinIndividuel(b: Bulletin, eleve?: Eleve) {
     <!-- STATS GLOBALES -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 2fr;gap:10px;margin-bottom:16px">
       <div style="border:2px solid ${noteColor(b.moyenneGenerale)};border-radius:10px;padding:12px;text-align:center">
-        <div style="font-size:26pt;font-weight:900;color:${nc(b.moyenneGenerale)};line-height:1">${b.moyenneGenerale!=null?Number(b.moyenneGenerale).toFixed(2):'—'}</div>
+        <div style="font-size:26pt;font-weight:900;color:${nc(b.moyenneGenerale)};line-height:1">${b.moyenneGenerale!=null?Number(b.moyenneGenerale).toFixed(2):''}</div>
         <div style="font-size:7.5pt;color:#64748b;text-transform:uppercase;margin-top:4px">Moyenne / 20</div>
       </div>
       <div style="border:2px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center">
-        <div style="font-size:26pt;font-weight:900;color:#0D2E5C;line-height:1">${b.rang??'—'}</div>
+        <div style="font-size:26pt;font-weight:900;color:#0D2E5C;line-height:1">${b.rang??''}</div>
         <div style="font-size:7.5pt;color:#64748b;text-transform:uppercase;margin-top:4px">Rang / ${b.effectifClasse??'?'}</div>
       </div>
       <div style="border:2px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center">
-        <div style="font-size:26pt;font-weight:900;color:#0D2E5C;line-height:1">${b.effectifClasse??'—'}</div>
+        <div style="font-size:26pt;font-weight:900;color:#0D2E5C;line-height:1">${b.effectifClasse??''}</div>
         <div style="font-size:7.5pt;color:#64748b;text-transform:uppercase;margin-top:4px">Effectif</div>
       </div>
       <div style="border:2px solid ${mentionBg};border-radius:10px;padding:12px;background:${mentionBg};display:flex;flex-direction:column;align-items:center;justify-content:center">
         <div style="font-size:7.5pt;color:#64748b;text-transform:uppercase;margin-bottom:6px">Mention obtenue</div>
-        <div style="font-size:16pt;font-weight:900;color:${mentionFg}">${b.mention||'—'}</div>
+        <div style="font-size:16pt;font-weight:900;color:${mentionFg}">${b.mention||''}</div>
       </div>
     </div>
 
@@ -393,7 +393,7 @@ function printBulletinIndividuel(b: Bulletin, eleve?: Eleve) {
         ${detail.map((n,i) => `
           <tr style="background:${i%2===0?'white':'#F8FAFF'}">
             <td style="font-weight:700;font-size:9.5pt">${n.matiere}</td>
-            <td style="text-align:center;font-size:11pt;font-weight:900;color:${nc(n.note)}">${n.note!=null?Number(n.note).toFixed(2):'—'}</td>
+            <td style="text-align:center;font-size:11pt;font-weight:900;color:${nc(n.note)}">${n.note!=null?Number(n.note).toFixed(2):''}</td>
             <td style="text-align:center;color:#64748b">${n.coef}</td>
             <td style="color:#475569;font-style:italic;font-size:9pt">${n.appreciation||''}</td>
           </tr>`).join('')}
@@ -690,9 +690,9 @@ export function BulletinsTab({ onToast, onSelectEleve }: { onToast: (m: string) 
                         </td>
                         <td className="px-4 py-3 text-sm text-slate-700">{e.prenomEnfant}</td>
                         <td className="px-4 py-3 text-xs font-mono text-slate-600">{fmtDate(e.dateNaissance)}</td>
-                        <td className="px-4 py-3 text-xs text-slate-600">{e.commune || '—'}</td>
+                        <td className="px-4 py-3 text-xs text-slate-600">{e.commune || ''}</td>
                         <td className="px-4 py-3 text-xs text-slate-700 font-medium">{e.prenomParent} {e.nomParent}</td>
-                        <td className="px-4 py-3 text-xs text-slate-500">{e.lienParente || '—'}</td>
+                        <td className="px-4 py-3 text-xs text-slate-500">{e.lienParente || ''}</td>
                         <td className="px-4 py-3 text-xs font-mono text-slate-600">{e.telephone}</td>
                         <td className="px-4 py-3">
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
@@ -788,7 +788,7 @@ export function BulletinsTab({ onToast, onSelectEleve }: { onToast: (m: string) 
                                 ...prev,
                                 [p.id]: { ...prev[p.id], [mat]: e.target.value==='' ? undefined : parseFloat(e.target.value) }
                               }))}
-                              placeholder="—"
+                              placeholder=""
                               style={{ color: noteColor(notesEdit[p.id]?.[mat]) }}
                               className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-sm font-bold text-center focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold/30"
                             />
@@ -886,7 +886,7 @@ export function BulletinsTab({ onToast, onSelectEleve }: { onToast: (m: string) 
                               b.rang===1?'bg-amber-100 text-amber-700':b.rang===2?'bg-slate-200 text-slate-700':'bg-orange-100 text-orange-700'
                             }`}>{b.rang}</span>
                           ) : (
-                            <span className="text-xs text-slate-500 font-semibold">{b.rang ?? '—'}</span>
+                            <span className="text-xs text-slate-500 font-semibold">{b.rang ?? ''}</span>
                           )}
                         </td>
                         <td className="px-4 py-3">
@@ -902,19 +902,19 @@ export function BulletinsTab({ onToast, onSelectEleve }: { onToast: (m: string) 
                           return (
                             <td key={mat} className="px-2 py-3 text-center">
                               <span className="text-xs font-bold" style={{ color: noteColor(n?.note) }}>
-                                {n ? noteLabel(n.note) : '—'}
+                                {n ? noteLabel(n.note) : ''}
                               </span>
                             </td>
                           );
                         })}
                         <td className="px-4 py-3 text-center">
                           <span className="text-sm font-black" style={{ color: noteColor(b.moyenneGenerale) }}>
-                            {b.moyenneGenerale!=null?Number(b.moyenneGenerale).toFixed(2):'—'}
+                            {b.moyenneGenerale!=null?Number(b.moyenneGenerale).toFixed(2):''}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-center">
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${mentionClass(b.mention)}`}>
-                            {b.mention || '—'}
+                            {b.mention || ''}
                           </span>
                         </td>
                         <td className="px-4 py-3">
@@ -976,14 +976,14 @@ export function BulletinsTab({ onToast, onSelectEleve }: { onToast: (m: string) 
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-1">Titre *</label>
                     <input value={newComp.titre} onChange={e => setNewComp(p=>({...p,titre:e.target.value}))}
-                      placeholder="ex: Composition N°1 — Trimestre 1"
+                      placeholder="ex: Composition N°1 Trimestre 1"
                       className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-gold" />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-1">Section *</label>
                     <select value={newComp.section} onChange={e => setNewComp(p=>({...p,section:e.target.value}))}
                       className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-gold">
-                      {SECTIONS.map(s => <option key={s} value={s}>{s} — {SECTION_LABEL[s]}</option>)}
+                      {SECTIONS.map(s => <option key={s} value={s}>{s} {SECTION_LABEL[s]}</option>)}
                     </select>
                   </div>
                   <div>
@@ -1034,7 +1034,7 @@ export function BulletinsTab({ onToast, onSelectEleve }: { onToast: (m: string) 
                     <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">{c.trimestre}</span>
                   </div>
                   <p className="text-xs text-slate-400">
-                    📅 {c.dateDebut ? new Date(c.dateDebut).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) : '—'}
+                    📅 {c.dateDebut ? new Date(c.dateDebut).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) : ''}
                     {c.matieres?.length > 0 && ` · ${c.matieres.join(', ')}`}
                   </p>
                   {c.notifEnvoye && (

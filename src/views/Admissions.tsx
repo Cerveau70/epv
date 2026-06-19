@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
@@ -14,8 +10,8 @@ import { Stepper } from '../components/ui/Stepper.tsx';
 import { Toast } from '../components/ui/Toast.tsx';
 import { useLang } from '../lib/LanguageContext.tsx';
 import {
-  CheckCircle, ShieldAlert, FileText, Gift, Calendar, Phone,
-  Award, HelpCircle, Download, AlertCircle, Sparkles, Clock, FilePlus,
+  CheckCircle, ShieldAlert, FileText, Calendar, Phone,
+  Award, HelpCircle, Download, AlertCircle, Sparkles, FilePlus,
   ChevronRight, Lock, Mail
 } from 'lucide-react';
 import { Baby, Books, Student } from '@phosphor-icons/react';
@@ -39,33 +35,12 @@ export const Admissions: React.FC = () => {
   const [showRdvBooking, setShowRdvBooking] = useState(false);
   const [rdvBooked, setRdvBooked] = useState(false);
   const [places, setPlaces] = useState<any[]>([]);
-  const [timeLeft, setTimeLeft] = useState({ days: 14, hours: 6, minutes: 5, seconds: 50 });
   const [selectedDocTab, setSelectedDocTab] = useState("maternelle");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleDownloadStub = (fileName: string) => {
     setToastMessage(`Le téléchargement du document "${fileName}" a commencé (Dépôt d'Abidjan).`);
   };
-
-  useEffect(() => {
-    const targetDate = new Date("2026-07-01T08:00:00").getTime();
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const difference = targetDate - now;
-      if (difference <= 0) {
-        clearInterval(interval);
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      } else {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((difference % (1000 * 60)) / 1000),
-        });
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     fetch("/api/places")
@@ -142,10 +117,6 @@ export const Admissions: React.FC = () => {
       content: "Le test d'évaluation est gratuit et bienveillant. Pour la maternelle, il s'agit d'observer la motricité, le langage spontané, et de vérifier sa socialisation collective. Pour le primaire, il évalue le niveau de lecture phonique et d'écriture en français ainsi que les bases logiques des mathématiques. Ce test n'est pas éliminatoire, mais permet à notre équipe d'harmoniser le suivi individuel.",
     },
     {
-      title: "Comment fonctionne l'avantage de parrainage de 10% ?",
-      content: "Chaque parent dispose à la pré-inscription d'un code unique (ex : EPV-AKA01). Lorsque vous partagez ce code avec des proches, et qu'ils le saisissent dans leur formulaire, vous êtes lié. Dès que l'inscription de votre filleul est confirmée physiquement et ses droits acquittés, vous bénéficiez de 10% de réduction immédiate sur la scolarité de vos enfants. L'avantage est cumulable jusqu'à 4 filleuls (soit 40% de réduction) !",
-    },
-    {
       title: "Le transport scolaire et la cantine d'Abidjan sont-ils fournis ?",
       content: "Oui, un service de cantine saine et équilibrée cuisinée sur place est proposé individuellement aux parents (facturé séparément). Nous desservons également un circuit de transport scolaire sécurisé et climatisé couvrant en priorité les zones d'Abidjan : Cocody, Riviera Palmeraie, M'Pouto, Bingerville, Marcory et Plateau.",
     },
@@ -176,7 +147,7 @@ export const Admissions: React.FC = () => {
     },
     {
       title: "How can tuition fees be paid?",
-      content: "For convenience, EPV Horizons Savants tuition is payable in 3 quarterly installments: a first payment at physical enrollment confirmation in August, a second in December, and the final installment in March. Transactions are currently processed by certified bank cheque or physical bank transfer — no direct online payment is processed.",
+      content: "For convenience, EPV Horizons Savants tuition is payable in 3 quarterly installments: a first payment at physical enrollment confirmation in August, a second in December, and the final installment in March. Transactions are currently processed by certified bank cheque or physical bank transfer no direct online payment is processed.",
     },
     {
       title: "What does the child evaluation test involve?",
@@ -231,7 +202,7 @@ export const Admissions: React.FC = () => {
         {/* Radial glow */}
         <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[700px] h-[400px] bg-[radial-gradient(ellipse_at_center,rgba(245,166,35,0.18),transparent_70%)]" />
 
-        <div className="relative max-w-4xl mx-auto text-center space-y-6">
+        <div className="relative max-w-4xl mx-auto text-left space-y-6">
           {/* Animated badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.85 }}
@@ -261,7 +232,7 @@ export const Admissions: React.FC = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.28 }}
-            className="font-serif text-slate-300 text-sm md:text-base leading-relaxed max-w-2xl mx-auto"
+            className="font-serif text-slate-300 text-sm md:text-base leading-relaxed max-w-2xl"
           >
             {fr
               ? "Découvrez notre processus d'admissions rigoureux, la grille tarifaire complète pour la rentrée 2026, et déposez votre dossier en ligne depuis Abidjan."
@@ -272,7 +243,7 @@ export const Admissions: React.FC = () => {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-wrap gap-3 justify-center pt-2"
+            className="flex flex-wrap gap-3 justify-start pt-2"
           >
             <a
               href="#inscription-anchor"
@@ -304,7 +275,7 @@ export const Admissions: React.FC = () => {
         >
           <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-10 items-start">
 
-            {/* ── Colonne gauche — contexte & chiffres ── */}
+            {/* ── Colonne gauche contexte & chiffres ── */}
             <div className="space-y-5 lg:sticky lg:top-28">
               <div className="rounded-3xl bg-[#0b1d3a] text-white p-7 space-y-1">
                 <h2 className="font-sans font-extrabold text-xl md:text-2xl text-white leading-tight">
@@ -339,7 +310,7 @@ export const Admissions: React.FC = () => {
               </div>
             </div>
 
-            {/* ── Colonne droite — stepper ── */}
+            {/* ── Colonne droite stepper ── */}
             <div className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.08)] bg-white p-8 md:p-12 border border-brand-border/40">
               <Stepper steps={stepsAdmissions} currentStep={0} />
             </div>
@@ -348,7 +319,217 @@ export const Admissions: React.FC = () => {
         </motion.section>
 
         {/* ══════════════════════════════════════════════════════
-            2. TARIFS · Bento Cards (pas de table HTML)
+            2. FORMULAIRE PRÉ-INSCRIPTION layout horizontal
+        ══════════════════════════════════════════════════════ */}
+        <motion.section
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          id="inscription-anchor"
+          className="scroll-mt-20"
+        >
+          {!successCode ? (
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-10 items-start">
+              {/* ── Gauche : contexte ── */}
+              <div className="space-y-6 lg:sticky lg:top-28">
+                <div>
+                  <h2 className="font-sans font-extrabold text-2xl md:text-3xl text-brand-blue-deep tracking-tight">
+                    {fr ? 'Pré-inscription' : 'Pre-enrollment'}
+                  </h2>
+                  <div className="h-1 w-14 bg-brand-gold mt-3 rounded-full" />
+                  <p className="font-serif text-sm text-brand-muted mt-4 leading-relaxed">
+                    {fr
+                      ? "Remplissez le formulaire en quelques minutes. Votre dossier sera traité rapidement."
+                      : "Fill in the form in a few minutes. Your file will be processed quickly."}
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { step: '01', title: fr ? 'Pré-inscription en ligne' : 'Online pre-enrollment', desc: fr ? 'Formulaire rapide, 2 minutes.' : 'Quick form, 2 minutes.' },
+                    { step: '02', title: fr ? 'Évaluation de l\'enfant' : 'Child assessment', desc: fr ? 'Test gratuit sur rendez-vous.' : 'Free test by appointment.' },
+                    { step: '03', title: fr ? 'Dépôt du dossier' : 'File submission', desc: fr ? 'Documents au secrétariat.' : 'Documents at secretariat.' },
+                    { step: '04', title: fr ? 'Confirmation' : 'Confirmation', desc: fr ? 'Règlement & validation.' : 'Payment & validation.' },
+                  ].map((s) => (
+                    <div key={s.step} className="flex items-start gap-3">
+                      <span className="font-mono font-extrabold text-sm text-brand-gold shrink-0 mt-0.5">{s.step}</span>
+                      <div>
+                        <p className="font-sans font-bold text-xs text-brand-blue-deep">{s.title}</p>
+                        <p className="font-serif text-xs text-brand-muted">{s.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* ── Droite : formulaire ── */}
+              <div>
+                <PreInscriptionForm onSuccess={handleFormSuccess} />
+              </div>
+            </div>
+          ) : (
+            <div className="animate-fade-in max-w-2xl mx-auto">
+              {!showRdvBooking ? (
+                <div className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.10)] bg-white border border-emerald-200 overflow-hidden">
+                  {/* Success header stripe */}
+                  <div className="bg-gradient-to-r from-emerald-500 to-green-600 py-6 px-8 text-center text-white">
+                    <CheckCircle size={48} className="mx-auto mb-3 stroke-[2]" />
+                    <h2 className="font-sans font-extrabold text-2xl">
+                      {fr ? 'Pré-inscription Enregistrée avec Succès !' : 'Pre-enrollment Successfully Registered!'}
+                    </h2>
+                  </div>
+
+                  <div className="p-8 space-y-6 text-center">
+                    <p className="font-serif text-sm text-brand-dark/90 max-w-xl mx-auto leading-relaxed">
+                      {fr
+                        ? <>Félicitations parent <strong>{createdProspect?.prenomParent} {createdProspect?.nomParent}</strong>, le dossier de{' '}<strong>{createdProspect?.prenomEnfant} {createdProspect?.nomEnfant}</strong> est inscrit sous le statut <strong>Prospect</strong>.</>
+                        : <>Congratulations <strong>{createdProspect?.prenomParent} {createdProspect?.nomParent}</strong>, the file for{' '}<strong>{createdProspect?.prenomEnfant} {createdProspect?.nomEnfant}</strong> has been registered with <strong>Prospect</strong> status.</>}
+                    </p>
+
+
+                    {/* Identifiants Espace Parent */}
+                    <div className="rounded-2xl bg-[#0D2E5C]/5 border border-[#0D2E5C]/20 p-6 space-y-3 text-left">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Lock size={14} className="text-[#0D2E5C]" />
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#0D2E5C] font-sans">
+                          {fr ? 'Vos identifiants Espace Parent' : 'Your Parent Space credentials'}
+                        </span>
+                      </div>
+                      <div className="bg-white border border-brand-border/60 rounded-xl p-4 space-y-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <div>
+                            <p className="text-[9px] font-semibold text-brand-muted uppercase tracking-widest mb-0.5">{fr ? 'Identifiant (email)' : 'Login (email)'}</p>
+                            <p className="text-xs font-mono font-semibold text-brand-blue-deep">{createdProspect?.email}</p>
+                          </div>
+                          <Mail size={16} className="text-slate-300 shrink-0" />
+                        </div>
+                        <div className="border-t border-brand-border/40" />
+                        <div className="flex items-center justify-between gap-2">
+                          <div>
+                            <p className="text-[9px] font-semibold text-brand-muted uppercase tracking-widest mb-0.5">{fr ? 'Mot de passe initial' : 'Initial password'}</p>
+                            <p className="text-xs font-mono font-semibold text-brand-blue-deep">{createdProspect?.telephone}</p>
+                          </div>
+                          <Phone size={16} className="text-slate-300 shrink-0" />
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-brand-muted leading-relaxed">
+                        {fr
+                          ? "Conservez ces informations. Vous pouvez changer votre mot de passe depuis l'Espace Parent après connexion."
+                          : "Keep this information safe. You can change your password from the Parent Space after logging in."}
+                      </p>
+                    </div>
+
+                    <p className="font-serif text-xs text-brand-muted leading-normal">
+                      {fr
+                        ? "Une notification email et un rappel WhatsApp ont été envoyés à votre destination."
+                        : "An email notification and a WhatsApp reminder have been sent to your contact."}
+                    </p>
+
+                    <div className="flex justify-center pt-2">
+                      <Button variant="cta" className="px-6 font-bold" onClick={() => setShowRdvBooking(true)}>
+                        <Calendar size={14} /> {fr ? 'Planifier mon Entretien Physique' : 'Schedule my In-Person Interview'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="animate-fade-in space-y-4">
+                  {!rdvBooked ? (
+                    <div className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.10)] bg-white border border-brand-border/40 p-8 md:p-12 space-y-6">
+                      <div className="text-center">
+                        <h2 className="font-sans font-extrabold text-xl md:text-2xl text-brand-blue-deep">
+                          {fr ? "Planifier votre entretien d'évaluation" : 'Schedule your evaluation interview'}
+                        </h2>
+                        <p className="font-serif text-xs text-brand-muted max-w-md mx-auto mt-2 leading-normal">
+                          {fr
+                            ? "Les dates d'évaluation et de visite des locaux d'Abidjan sont attribuées sous 30 minutes."
+                            : "Evaluation and campus visit dates in Abidjan are confirmed within 30 minutes."}
+                        </p>
+                      </div>
+                      <AppointmentForm initialProspect={createdProspect} onSuccess={handleRdvSuccess} />
+                    </div>
+                  ) : (
+                    <div className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.10)] bg-white border border-emerald-200 overflow-hidden">
+                      <div className="bg-gradient-to-r from-emerald-500 to-green-600 py-6 px-8 text-center text-white">
+                        <CheckCircle size={48} className="mx-auto mb-3 stroke-[2]" />
+                        <h2 className="font-sans font-extrabold text-xl">
+                          {fr ? 'Rendez-vous Planifié avec Succès !' : 'Appointment Successfully Scheduled!'}
+                        </h2>
+                      </div>
+                      <div className="p-8 text-center space-y-4">
+                        <p className="font-serif text-xs text-brand-dark/90 max-w-md mx-auto leading-relaxed">
+                          {fr
+                            ? "Votre entretien d'excellence physique d'Abidjan est officiellement réservé. Le secrétariat vous envoie les coordonnées par SMS/WhatsApp."
+                            : "Your in-person excellence interview in Abidjan is officially booked. The secretariat will send you the details by SMS/WhatsApp."}
+                        </p>
+                        <Button variant="primary" onClick={() => setSuccessCode(null)}>
+                          {fr ? 'Faire un nouveau dépôt de dossier parent' : 'Submit a new parent application'}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </motion.section>
+
+        {/* ══════════════════════════════════════════════════════
+            3. RENDEZ-VOUS / RÉSERVATION layout horizontal
+        ══════════════════════════════════════════════════════ */}
+        <motion.section
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          id="rdv-anchor"
+          className="scroll-mt-20"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-10 items-start">
+            {/* ── Gauche : contexte ── */}
+            <div className="space-y-6 lg:sticky lg:top-28">
+              <div>
+                <h2 className="font-sans font-extrabold text-2xl md:text-3xl text-brand-blue-deep tracking-tight">
+                  {fr ? 'Rendez-vous / Réservation' : 'Appointment / Booking'}
+                </h2>
+                <div className="h-1 w-14 bg-brand-gold mt-3 rounded-full" />
+                <p className="font-serif text-sm text-brand-muted mt-4 leading-relaxed">
+                  {fr
+                    ? "Planifiez une visite ou un entretien sans passer par la pré-inscription. Créneaux disponibles du lundi au samedi."
+                    : "Schedule a visit or interview without pre-enrollment. Slots available Monday to Saturday."}
+                </p>
+              </div>
+              <div className="space-y-3">
+                {[
+                  { title: fr ? 'Visite des locaux' : 'Campus tour', desc: fr ? 'Salles, jardin pédagogique, espaces de vie.' : 'Classrooms, ecological garden, living spaces.' },
+                  { title: fr ? 'Entretien pédagogique' : 'Academic interview', desc: fr ? 'Échangez avec notre directrice académique.' : 'Meet our academic director.' },
+                  { title: fr ? 'Évaluation de l\'enfant' : 'Child assessment', desc: fr ? 'Test gratuit et bienveillant.' : 'Free and caring assessment test.' },
+                ].map((item) => (
+                  <div key={item.title} className="flex items-start gap-3 p-3 rounded-xl bg-white shadow-[0_2px_12px_rgba(13,46,92,0.06)]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-gold shrink-0 mt-1.5" />
+                    <div>
+                      <p className="font-sans font-bold text-xs text-brand-blue-deep">{item.title}</p>
+                      <p className="font-serif text-xs text-brand-muted">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="font-serif text-xs text-brand-muted italic">
+                {fr
+                  ? '* Confirmation par SMS/WhatsApp dans les 30 min.'
+                  : '* Confirmed by SMS/WhatsApp within 30 min.'}
+              </p>
+            </div>
+            {/* ── Droite : formulaire ── */}
+            <div>
+              <AppointmentForm onSuccess={() => {}} />
+            </div>
+          </div>
+        </motion.section>
+
+        {/* ══════════════════════════════════════════════════════
+            4. TARIFS · Bento Cards (pas de table HTML)
         ══════════════════════════════════════════════════════ */}
         <motion.section
           variants={fadeUp}
@@ -413,7 +594,7 @@ export const Admissions: React.FC = () => {
                     ))}
                   </div>
 
-                  <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wide ${fee.badgeColor}`}>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wide bg-amber-50 text-amber-700 border-amber-200">
                     <Award size={10} /> {fr ? 'Places limitées' : 'Limited spots'}
                   </div>
                 </div>
@@ -433,11 +614,9 @@ export const Admissions: React.FC = () => {
             <ShieldAlert size={18} className="text-brand-gold shrink-0 mt-0.5" />
             <p className="font-serif text-xs text-brand-dark/90 leading-relaxed">
               {fr ? (
-                <><strong>Remarque :</strong> Les droits d'inscription comprennent l'assurance scolaire obligatoire, l'accès permanent aux plateformes numériques et l'infirmerie d'Abidjan.
-                Une réduction de <strong>10% cumulable</strong> est appliquée sur la scolarité pour chaque enfant d'un parrainage confirmé.</>
+                <><strong>Remarque :</strong> Les droits d'inscription comprennent l'assurance scolaire obligatoire, l'accès permanent aux plateformes numériques et l'infirmerie d'Abidjan.</>
               ) : (
-                <><strong>Note:</strong> Enrollment fees include mandatory school insurance, permanent access to digital platforms, and the Abidjan campus infirmary.
-                A <strong>cumulative 10% discount</strong> is applied to tuition for each child enrolled through a confirmed referral.</>
+                <><strong>Note:</strong> Enrollment fees include mandatory school insurance, permanent access to digital platforms, and the Abidjan campus infirmary.</>
               )}
             </p>
           </motion.div>
@@ -592,420 +771,6 @@ export const Admissions: React.FC = () => {
                   : "All original physical documents must be presented in a cardboard folder (Kindergarten: Blue, Primary: Yellow)."}
                 </span>
               </div>
-            </div>
-          </div>
-        </motion.section>
-
-        {/* ══════════════════════════════════════════════════════
-            4. COUNTDOWN + JAUGES DE PLACES
-        ══════════════════════════════════════════════════════ */}
-        <motion.section
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="text-center mb-10">
-            <span className="inline-flex items-center gap-1.5 text-red-600 text-[10px] font-bold uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping shrink-0" />
-              {fr ? 'Places extrêmement limitées' : 'Extremely limited spots'}
-            </span>
-            <h2 className="font-sans font-extrabold text-2xl md:text-4xl text-brand-blue-deep mt-3 tracking-tight">
-              {fr ? 'Compte à Rebours des Places' : 'Enrollment Countdown'}
-            </h2>
-            <p className="font-serif text-sm text-brand-muted mt-2 max-w-xl mx-auto">
-              {fr
-                ? <>Effectifs restreints à <strong>25 élèves max</strong> par classe, toutes sections confondues.</>
-                : <>Class sizes capped at <strong>25 students max</strong> per class across all levels.</>}
-            </p>
-          </div>
-
-          {/* Countdown clock · grand format, fond navy avec glow */}
-          <div className="relative max-w-3xl mx-auto mb-12 rounded-3xl overflow-hidden bg-[#0b1d3a] shadow-[0_20px_60px_rgba(11,29,58,0.40)] border border-white/5">
-            {/* Dot grid */}
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(245,166,35,0.12)_1px,transparent_1px)] [background-size:16px_16px]" />
-            {/* Gold glow center */}
-            <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-96 h-56 bg-[radial-gradient(ellipse_at_center,rgba(245,166,35,0.22),transparent_65%)]" />
-
-            <div className="relative py-10 px-6 text-center space-y-4">
-              <div className="flex items-center justify-center gap-2">
-                <Clock size={14} className="text-brand-gold" />
-              </div>
-
-              <p className="font-serif text-slate-300 text-xs max-w-sm mx-auto leading-relaxed">
-                {fr
-                  ? "Le traitement prioritaire des dossiers parentaux d'Abidjan s'achève automatiquement à la fin de ce décompte."
-                  : "Priority processing of parent applications in Abidjan ends automatically when this countdown reaches zero."}
-              </p>
-
-              {/* Digits */}
-              <div className="flex justify-center items-end gap-3 md:gap-5 select-none py-3">
-                {[
-                  { val: timeLeft.days, label: fr ? "Jours" : "Days", gold: true },
-                  { val: timeLeft.hours, label: fr ? "Heures" : "Hours", gold: false },
-                  { val: timeLeft.minutes, label: "Min", gold: false },
-                  { val: timeLeft.seconds, label: "Sec", gold: false },
-                ].map((unit, i) => (
-                  <React.Fragment key={unit.label}>
-                    {i > 0 && (
-                      <span className="text-brand-gold font-extrabold text-3xl md:text-5xl pb-5 animate-pulse">:</span>
-                    )}
-                    <div className="flex flex-col items-center gap-2">
-                      <div className={`relative px-4 py-3 md:px-6 md:py-4 rounded-2xl border min-w-[60px] md:min-w-[80px] text-center ${
-                        unit.gold
-                          ? "bg-brand-gold/20 border-brand-gold/40 shadow-[0_0_24px_rgba(245,166,35,0.25)]"
-                          : "bg-white/8 border-white/10"
-                      }`}>
-                        <span className={`font-mono font-extrabold text-3xl md:text-5xl block leading-none ${
-                          unit.gold ? "text-brand-gold" : "text-white"
-                        }`}>
-                          {String(unit.val).padStart(2, '0')}
-                        </span>
-                      </div>
-                      <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">{unit.label}</span>
-                    </div>
-                  </React.Fragment>
-                ))}
-              </div>
-
-              <div className="pt-2 flex items-center justify-center gap-2 text-[9px] text-slate-400 uppercase font-mono tracking-wider">
-                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-ping shrink-0" />
-                {fr ? 'Attribution en flux continu à Abidjan' : 'Rolling allocation in Abidjan'}
-              </div>
-            </div>
-          </div>
-
-          {/* Gauge cards */}
-          {places.length > 0 ? (
-            <motion.div
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto"
-            >
-              {places.map((item: any, idx: number) => {
-                const specName =
-                  item.section === "PS" ? "Petite Section (PS)" :
-                  item.section === "MS" ? "Moyenne Section (MS)" :
-                  item.section === "GS" ? "Grande Section (GS)" :
-                  item.section === "CP1" ? "CP1 — CPI" :
-                  item.section === "CP2" ? "CP2 — CPII" :
-                  item.section === "CE1" ? "CE1" :
-                  item.section === "CE2" ? "CE2" :
-                  item.section === "CM1" ? "CM1" : "CM2";
-
-                const remaining = item.capaciteMax - item.inscritsConfirmes;
-                const filledRatio = Math.round((item.inscritsConfirmes / item.capaciteMax) * 100);
-
-                let gaugeColor = "bg-brand-green";
-                let badgeStyle = "bg-green-50 text-brand-green border-green-200";
-                let dotColor = "bg-brand-green";
-                let alertLabel = fr ? `${remaining} places disponibles` : `${remaining} spots available`;
-                let statusLabel = fr ? "Dispo" : "Open";
-
-                if (remaining <= 3) {
-                  gaugeColor = "bg-red-500";
-                  badgeStyle = "bg-red-50 text-red-600 border-red-200";
-                  dotColor = "bg-red-500 animate-ping";
-                  alertLabel = remaining === 0
-                    ? (fr ? "Complet" : "Full")
-                    : (fr ? `Plus que ${remaining} places !` : `Only ${remaining} spots left!`);
-                  statusLabel = remaining === 0 ? (fr ? "Complet" : "Full") : (fr ? "Tension" : "Urgent");
-                } else if (remaining <= 6) {
-                  gaugeColor = "bg-brand-gold";
-                  badgeStyle = "bg-amber-50 text-amber-700 border-amber-200";
-                  dotColor = "bg-brand-gold";
-                  alertLabel = fr ? `Remplissage rapide : ${remaining} places` : `Filling fast: ${remaining} spots`;
-                  statusLabel = fr ? "Rapide" : "Fast";
-                }
-
-                return (
-                  <motion.div
-                    key={idx}
-                    variants={fadeUp}
-                    transition={{ duration: 0.45 }}
-                    className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.08)] bg-white border border-brand-border/40 p-5 space-y-4 hover:shadow-[0_8px_40px_rgba(13,46,92,0.14)] transition-shadow"
-                  >
-                    <div className="flex justify-between items-start gap-2">
-                      <div>
-                        <strong className="text-brand-blue-deep font-sans text-sm font-bold block leading-tight">{specName}</strong>
-                        <span className="text-[10px] text-brand-muted font-mono">{item.capaciteMax} élèves max</span>
-                      </div>
-                      <span className={`px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase shrink-0 ${badgeStyle}`}>
-                        {statusLabel}
-                      </span>
-                    </div>
-
-                    {/* Animated gauge bar */}
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-[10px] font-mono text-brand-muted">
-                        <span>{item.inscritsConfirmes} confirmés</span>
-                        <span>{filledRatio}%</span>
-                      </div>
-                      <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                        <motion.div
-                          className={`h-full rounded-full ${gaugeColor}`}
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${filledRatio}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 1, ease: "easeOut", delay: idx * 0.1 }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-[10px] font-serif text-brand-dark/80 font-semibold">
-                      <span className={`w-2 h-2 rounded-full shrink-0 ${dotColor}`} />
-                      {alertLabel}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          ) : (
-            <div className="text-center text-xs text-brand-muted font-sans py-8">
-              {fr ? 'Mise à jour en temps réel des quotas académiques...' : 'Real-time update of academic quotas...'}
-            </div>
-          )}
-        </motion.section>
-
-        {/* ══════════════════════════════════════════════════════
-            5. FORMULAIRE PRÉ-INSCRIPTION · Card premium
-        ══════════════════════════════════════════════════════ */}
-        <motion.section
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          id="inscription-anchor"
-          className="scroll-mt-20"
-        >
-          {!successCode ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-              {/* Colonne gauche — contexte */}
-              <div className="space-y-6">
-                <div>
-                  <h2 className="font-sans font-extrabold text-2xl md:text-3xl text-brand-blue-deep tracking-tight">
-                    {fr ? 'Commencer ma Pré-inscription' : 'Start my Pre-enrollment'}
-                  </h2>
-                  <p className="font-serif text-sm text-brand-muted mt-3 leading-relaxed">
-                    {fr
-                      ? "Remplissez le formulaire en quelques minutes. Un code parrainage unique vous sera alloué après validation."
-                      : "Fill in the form in a few minutes. A unique referral code will be assigned after validation."}
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  {[
-                    { step: '01', title: fr ? 'Pré-inscription en ligne' : 'Online pre-enrollment', desc: fr ? 'Formulaire rapide, 2 minutes chrono.' : 'Quick form, 2 minutes.' },
-                    { step: '02', title: fr ? 'Évaluation de l\'enfant' : 'Child assessment', desc: fr ? 'Test gratuit et bienveillant sur rendez-vous.' : 'Free caring test by appointment.' },
-                    { step: '03', title: fr ? 'Validation du dossier' : 'File validation', desc: fr ? 'Dépôt des pièces physiques au secrétariat.' : 'Physical documents submitted at secretariat.' },
-                    { step: '04', title: fr ? 'Confirmation' : 'Confirmation', desc: fr ? 'Règlement et validation définitive.' : 'Payment and final validation.' },
-                  ].map((s) => (
-                    <div key={s.step} className="flex items-start gap-4">
-                      <span className="font-mono font-extrabold text-sm text-brand-gold shrink-0 mt-0.5">{s.step}</span>
-                      <div>
-                        <p className="font-sans font-bold text-xs text-brand-blue-deep">{s.title}</p>
-                        <p className="font-serif text-xs text-brand-muted leading-relaxed">{s.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="p-5 rounded-2xl bg-brand-gold/8 border border-brand-gold/20">
-                  <p className="font-sans font-bold text-xs text-brand-blue-deep mb-1">
-                    {fr ? 'Avantage parrainage 10%' : '10% referral benefit'}
-                  </p>
-                  <p className="font-serif text-xs text-brand-muted leading-relaxed">
-                    {fr
-                      ? "À la validation, vous recevez un code parrainage personnel. Pour chaque filleul inscrit, obtenez 10% de réduction cumulable sur la scolarité."
-                      : "Upon validation, you receive a personal referral code. For each referred family enrolled, earn a cumulative 10% tuition discount."}
-                  </p>
-                </div>
-              </div>
-
-              {/* Colonne droite — formulaire */}
-              <div className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.10)] bg-white border border-brand-border/40 p-6 md:p-10 sticky top-24">
-                <PreInscriptionForm onSuccess={handleFormSuccess} />
-              </div>
-            </div>
-          ) : (
-            <div className="animate-fade-in max-w-4xl mx-auto">
-              {!showRdvBooking ? (
-                <div className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.10)] bg-white border border-emerald-200 overflow-hidden">
-                  {/* Success header stripe */}
-                  <div className="bg-gradient-to-r from-emerald-500 to-green-600 py-6 px-8 text-center text-white">
-                    <CheckCircle size={48} className="mx-auto mb-3 stroke-[2]" />
-                    <h2 className="font-sans font-extrabold text-2xl">
-                      {fr ? 'Pré-inscription Enregistrée avec Succès !' : 'Pre-enrollment Successfully Registered!'}
-                    </h2>
-                  </div>
-
-                  <div className="p-8 space-y-6 text-center">
-                    <p className="font-serif text-sm text-brand-dark/90 max-w-xl mx-auto leading-relaxed">
-                      {fr
-                        ? <>Félicitations parent <strong>{createdProspect?.prenomParent} {createdProspect?.nomParent}</strong>, le dossier de{' '}<strong>{createdProspect?.prenomEnfant} {createdProspect?.nomEnfant}</strong> est inscrit sous le statut <strong>Prospect</strong>.</>
-                        : <>Congratulations <strong>{createdProspect?.prenomParent} {createdProspect?.nomParent}</strong>, the file for{' '}<strong>{createdProspect?.prenomEnfant} {createdProspect?.nomEnfant}</strong> has been registered with <strong>Prospect</strong> status.</>}
-                    </p>
-
-                    {/* Parrainage showcase */}
-                    <div className="rounded-2xl bg-[#F4F8FF] border border-brand-border/50 p-6 max-w-lg mx-auto space-y-4">
-                      <p className="flex items-center gap-1.5 text-brand-blue-deep text-xs font-bold uppercase tracking-wider">
-                        <Gift size={12} />
-                        {fr ? 'Votre avantage parrainage' : 'Your referral benefit'}
-                      </p>
-                      <p className="font-serif text-xs text-brand-muted leading-relaxed">
-                        {fr
-                          ? <>Partagez votre code personnel avec vos proches. Pour chaque enfant inscrit avec votre code, vous obtenez <strong>10% de réduction cumulable</strong> sur la scolarité !</>
-                          : <>Share your personal code with family and friends. For each child enrolled with your code, you receive a <strong>cumulative 10% discount</strong> on tuition!</>}
-                      </p>
-                      <div className="bg-white border border-brand-border/80 rounded-xl p-4 text-center">
-                        <span className="text-[10px] text-brand-muted uppercase tracking-widest block font-sans mb-1">{fr ? 'Votre code personnel' : 'Your personal code'}</span>
-                        <strong className="font-mono text-3xl text-brand-blue-deep font-extrabold tracking-widest">{successCode}</strong>
-                      </div>
-                    </div>
-
-                    {/* Identifiants Espace Parent */}
-                    <div className="rounded-2xl bg-[#0D2E5C]/5 border border-[#0D2E5C]/20 p-6 max-w-lg mx-auto space-y-3 text-left">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Lock size={14} className="text-[#0D2E5C]" />
-                        <span className="text-xs font-bold uppercase tracking-wider text-[#0D2E5C] font-sans">
-                          {fr ? 'Vos identifiants Espace Parent' : 'Your Parent Space credentials'}
-                        </span>
-                      </div>
-                      <div className="bg-white border border-brand-border/60 rounded-xl p-4 space-y-3">
-                        <div className="flex items-center justify-between gap-2">
-                          <div>
-                            <p className="text-[9px] font-semibold text-brand-muted uppercase tracking-widest mb-0.5">{fr ? 'Identifiant (email)' : 'Login (email)'}</p>
-                            <p className="text-xs font-mono font-semibold text-brand-blue-deep">{createdProspect?.email}</p>
-                          </div>
-                          <Mail size={16} className="text-slate-300 shrink-0" />
-                        </div>
-                        <div className="border-t border-brand-border/40" />
-                        <div className="flex items-center justify-between gap-2">
-                          <div>
-                            <p className="text-[9px] font-semibold text-brand-muted uppercase tracking-widest mb-0.5">{fr ? 'Mot de passe initial' : 'Initial password'}</p>
-                            <p className="text-xs font-mono font-semibold text-brand-blue-deep">{createdProspect?.telephone}</p>
-                          </div>
-                          <Phone size={16} className="text-slate-300 shrink-0" />
-                        </div>
-                      </div>
-                      <p className="text-[10px] text-brand-muted leading-relaxed">
-                        {fr
-                          ? "Conservez ces informations. Vous pouvez changer votre mot de passe depuis l'Espace Parent après connexion."
-                          : "Keep this information safe. You can change your password from the Parent Space after logging in."}
-                      </p>
-                    </div>
-
-                    <p className="font-serif text-xs text-brand-muted max-w-md mx-auto leading-normal">
-                      {fr
-                        ? "Une notification email et un rappel WhatsApp ont été envoyés à votre destination."
-                        : "An email notification and a WhatsApp reminder have been sent to your contact."}
-                    </p>
-
-                    <div className="flex justify-center pt-2">
-                      <Button variant="cta" className="px-6 font-bold" onClick={() => setShowRdvBooking(true)}>
-                        <Calendar size={14} /> {fr ? 'Planifier mon Entretien Physique' : 'Schedule my In-Person Interview'}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="animate-fade-in space-y-4">
-                  {!rdvBooked ? (
-                    <div className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.10)] bg-white border border-brand-border/40 p-8 md:p-12 space-y-6">
-                      <div className="text-center">
-                        <h2 className="font-sans font-extrabold text-xl md:text-2xl text-brand-blue-deep">
-                          {fr ? "Planifier votre entretien d'évaluation" : 'Schedule your evaluation interview'}
-                        </h2>
-                        <p className="font-serif text-xs text-brand-muted max-w-md mx-auto mt-2 leading-normal">
-                          {fr
-                            ? "Les dates d'évaluation et de visite des locaux d'Abidjan sont attribuées sous 30 minutes."
-                            : "Evaluation and campus visit dates in Abidjan are confirmed within 30 minutes."}
-                        </p>
-                      </div>
-                      <AppointmentForm initialProspect={createdProspect} onSuccess={handleRdvSuccess} />
-                    </div>
-                  ) : (
-                    <div className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.10)] bg-white border border-emerald-200 overflow-hidden">
-                      <div className="bg-gradient-to-r from-emerald-500 to-green-600 py-6 px-8 text-center text-white">
-                        <CheckCircle size={48} className="mx-auto mb-3 stroke-[2]" />
-                        <h2 className="font-sans font-extrabold text-xl">
-                          {fr ? 'Rendez-vous Planifié avec Succès !' : 'Appointment Successfully Scheduled!'}
-                        </h2>
-                      </div>
-                      <div className="p-8 text-center space-y-4">
-                        <p className="font-serif text-xs text-brand-dark/90 max-w-md mx-auto leading-relaxed">
-                          {fr
-                            ? "Votre entretien d'excellence physique d'Abidjan est officiellement réservé. Le secrétariat vous envoie les coordonnées par SMS/WhatsApp."
-                            : "Your in-person excellence interview in Abidjan is officially booked. The secretariat will send you the details by SMS/WhatsApp."}
-                        </p>
-                        <Button variant="primary" onClick={() => setSuccessCode(null)}>
-                          {fr ? 'Faire un nouveau dépôt de dossier parent' : 'Submit a new parent application'}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </motion.section>
-
-        {/* ══════════════════════════════════════════════════════
-            6. RENDEZ-VOUS DIRECT · sans pré-inscription
-        ══════════════════════════════════════════════════════ */}
-        <motion.section
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          id="rdv-anchor"
-          className="scroll-mt-20"
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Colonne gauche — contexte */}
-            <div className="space-y-6">
-              <div>
-                <h2 className="font-sans font-extrabold text-2xl md:text-3xl text-brand-blue-deep tracking-tight">
-                  {fr ? 'Planifier une Visite ou un Entretien' : 'Schedule a Visit or an Interview'}
-                </h2>
-                <p className="font-serif text-sm text-brand-muted mt-3 leading-relaxed">
-                  {fr
-                    ? "Visitez nos locaux ou rencontrez notre équipe pédagogique sans passer par la pré-inscription. Créneaux disponibles du lundi au samedi."
-                    : "Visit our premises or meet our academic team without going through pre-enrollment. Slots available Monday to Saturday."}
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                {[
-                  { title: fr ? 'Visite des locaux' : 'Campus tour', desc: fr ? 'Découvrez nos salles, le jardin pédagogique et les espaces de vie.' : 'Discover our classrooms, ecological garden and living spaces.' },
-                  { title: fr ? 'Entretien pédagogique' : 'Pedagogical interview', desc: fr ? 'Échangez avec notre directrice académique sur le projet éducatif.' : 'Meet our academic director about our educational project.' },
-                  { title: fr ? 'Évaluation de l\'enfant' : 'Child assessment', desc: fr ? 'Test gratuit et bienveillant pour placer votre enfant dans la bonne section.' : 'Free caring test to place your child in the right class.' },
-                ].map((item) => (
-                  <div key={item.title} className="flex items-start gap-3 p-4 rounded-2xl bg-white shadow-[0_2px_12px_rgba(13,46,92,0.06)]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-brand-gold shrink-0 mt-1.5" />
-                    <div>
-                      <p className="font-sans font-bold text-xs text-brand-blue-deep">{item.title}</p>
-                      <p className="font-serif text-xs text-brand-muted leading-relaxed">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <p className="font-serif text-xs text-brand-muted italic">
-                {fr
-                  ? '* Les créneaux sont confirmés par SMS/WhatsApp dans les 30 minutes suivant votre demande.'
-                  : '* Slots are confirmed by SMS/WhatsApp within 30 minutes of your request.'}
-              </p>
-            </div>
-
-            {/* Colonne droite — formulaire */}
-            <div className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.10)] bg-white border border-brand-border/40 p-6 md:p-10 sticky top-24">
-              <AppointmentForm onSuccess={() => {}} />
             </div>
           </div>
         </motion.section>

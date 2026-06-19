@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState } from 'react';
 import { Card } from '../ui/Card.tsx';
@@ -205,8 +201,8 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
                 <option value="PS">{fr ? 'Petite Section' : 'Nursery (PS)'}</option>
                 <option value="MS">{fr ? 'Moyenne Section' : 'Middle Kindergarten (MS)'}</option>
                 <option value="GS">{fr ? 'Grande Section' : 'Senior Kindergarten (GS)'}</option>
-                <option value="CP1">{fr ? 'CP1 — CPI' : 'Grade 1 (CP1)'}</option>
-                <option value="CP2">{fr ? 'CP2 — CPII' : 'Grade 2 (CP2)'}</option>
+                <option value="CP1">{fr ? 'CP1 CPI' : 'Grade 1 (CP1)'}</option>
+                <option value="CP2">{fr ? 'CP2 CPII' : 'Grade 2 (CP2)'}</option>
                 <option value="CE1">{fr ? 'Classe de CE1' : 'Grade 3 (CE1)'}</option>
                 <option value="CE2">{fr ? 'Classe de CE2' : 'Grade 3 (CE2)'}</option>
                 <option value="CM1">{fr ? 'Classe de CM1' : 'Grade 4 (CM1)'}</option>

@@ -312,7 +312,7 @@ export const Tenues: React.FC = () => {
             </motion.div>
           </AnimatePresence>
 
-          {/* Nav arrows — plus petites sur mobile */}
+          {/* Nav arrows plus petites sur mobile */}
           {[{ fn: prev, Icon: ChevronLeft, side: 'left-0 lg:-left-2' },
             { fn: next, Icon: ChevronRight, side: 'right-0 lg:-right-2' }].map(({ fn, Icon, side }) => (
             <motion.button
@@ -428,7 +428,7 @@ export const Tenues: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* ── Bottom tabs — scrollables sur mobile ── */}
+      {/* ── Bottom tabs scrollables sur mobile ── */}
       <div className="relative z-10 pb-8 pt-6 flex justify-center px-4">
         <div className="flex gap-1.5 lg:gap-2 p-1 lg:p-1.5 rounded-xl lg:rounded-2xl overflow-x-auto max-w-full"
              style={{

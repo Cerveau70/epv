@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -34,8 +30,8 @@ const LEVELS_FR = [
   { value: 'PS',  label: 'Petite Section (2-3 ans)' },
   { value: 'MS',  label: 'Moyenne Section (3-4 ans)' },
   { value: 'GS',  label: 'Grande Section (5-6 ans)' },
-  { value: 'CP1', label: 'CP1 — CPI (6-7 ans)' },
-  { value: 'CP2', label: 'CP2 — CPII (7-8 ans)' },
+  { value: 'CP1', label: 'CP1 CPI (6-7 ans)' },
+  { value: 'CP2', label: 'CP2 CPII (7-8 ans)' },
   { value: 'CE1', label: 'CE1 (8-9 ans)' },
   { value: 'CE2', label: 'CE2 (9-10 ans)' },
   { value: 'CM1', label: 'CM1 (10-11 ans)' },
@@ -100,7 +96,6 @@ export const PreInscriptionForm: React.FC<PreInscriptionFormProps> = ({ onSucces
   /* ── Finalisation ── */
   const [commune,               setCommune]               = useState('Cocody');
   const [source,                setSource]                = useState(SOURCES[0]);
-  const [codeParrainageUtilise, setCodeParrainageUtilise] = useState('');
   const [messageLibre,          setMessageLibre]          = useState('');
   const [rgpdAccepted,          setRgpdAccepted]          = useState(false);
 
@@ -205,7 +200,6 @@ export const PreInscriptionForm: React.FC<PreInscriptionFormProps> = ({ onSucces
               dateNaissance: child.dateNaissance,
               sectionVisee:  child.sectionVisee,
               prenomParent, nomParent, lienParente, telephone, email, commune, source,
-              codeParrainageUtilise: codeParrainageUtilise || undefined,
               messageLibre: messageLibre || undefined,
             }),
           }).then(r => r.json())
@@ -251,7 +245,7 @@ export const PreInscriptionForm: React.FC<PreInscriptionFormProps> = ({ onSucces
 
         <AnimatePresence mode="wait">
 
-          {/* ══ ÉTAPE 0 — Sélection du nombre d'enfants ══ */}
+          {/* ══ ÉTAPE 0 Sélection du nombre d'enfants ══ */}
           {step === 0 && (
             <motion.div key="step-0"
               initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-20 }}
@@ -313,14 +307,14 @@ export const PreInscriptionForm: React.FC<PreInscriptionFormProps> = ({ onSucces
               <div className="p-3.5 bg-blue-50 border border-blue-100 rounded-lg">
                 <p className="text-[11px] text-brand-blue-deep leading-relaxed font-sans">
                   <strong>{fr ? 'Important :' : 'Note:'}</strong> {fr
-                    ? "Un dossier distinct sera créé pour chaque enfant, avec les mêmes informations parentales. Chaque enfant bénéficiera de son propre code de parrainage."
-                    : "A separate file will be created for each child with the same parental information. Each child will receive their own referral code."}
+                    ? "Un dossier distinct sera créé pour chaque enfant, avec les mêmes informations parentales."
+                    : "A separate file will be created for each child with the same parental information."}
                 </p>
               </div>
             </motion.div>
           )}
 
-          {/* ══ ÉTAPES 1..N — Infos de chaque enfant ══ */}
+          {/* ══ ÉTAPES 1..N Infos de chaque enfant ══ */}
           {step >= 1 && step <= nbEnfants && (
             <motion.div key={`step-child-${step}`}
               initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-20 }}
@@ -464,7 +458,7 @@ export const PreInscriptionForm: React.FC<PreInscriptionFormProps> = ({ onSucces
               initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-20 }}
               transition={{ duration:0.22 }} className="space-y-4">
               <h4 className="font-sans font-semibold text-brand-blue-deep text-sm flex items-center gap-1.5 border-b border-brand-border/40 pb-2">
-                <Landmark size={16} className="text-brand-gold" /> Informations géographiques & Parrainage
+                <Landmark size={16} className="text-brand-gold" /> Informations géographiques
               </h4>
 
               {/* Récap enfants */}
@@ -496,12 +490,6 @@ export const PreInscriptionForm: React.FC<PreInscriptionFormProps> = ({ onSucces
                     {SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
-              </div>
-
-              <div>
-                <label className={labelCls}>Code Parrainage (Optionnel — format EPV-XXXXX)</label>
-                <input type="text" value={codeParrainageUtilise} onChange={e => setCodeParrainageUtilise(e.target.value)}
-                  placeholder="ex: EPV-KONE01 — 10% de réduction" className={`${inputCls} uppercase`} />
               </div>
 
               <div>

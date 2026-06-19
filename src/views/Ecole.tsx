@@ -1,15 +1,10 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLang } from '../lib/LanguageContext.tsx';
 import { Card } from '../components/ui/Card.tsx';
 import { Button } from '../components/ui/Button.tsx';
-import { Toast } from '../components/ui/Toast.tsx';
-import { Award, Heart, Users, Clock, ShieldAlert, Download, Sparkles } from 'lucide-react';
+import { Award, Heart, Users, Clock, ShieldAlert, Download, Sparkles, FileDown, X, Phone } from 'lucide-react';
 import { Buildings, Translate } from '@phosphor-icons/react';
 
 const containerVariants = {
@@ -42,12 +37,47 @@ export const Ecole: React.FC = () => {
   const { lang } = useLang();
   const fr = lang === 'fr';
   const [activeRegTab, setActiveRegTab] = useState("horaires");
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [showPdfModal, setShowPdfModal]     = useState(false);
+  const [dlProgress,   setDlProgress]       = useState(0);     // 0-100
+  const [dlDone,       setDlDone]           = useState(false);
+  const [dlError,      setDlError]          = useState(false);
 
-  const handleDownloadReglement = () => {
-    setToastMessage(fr
-      ? "Le téléchargement du Règlement Intérieur d'EPV Horizons Savants (format PDF) a débuté."
-      : "The download of the EPV Horizons Savants Internal Regulations (PDF format) has started.");
+  const handleDownloadReglement = async () => {
+    setDlProgress(0);
+    setDlDone(false);
+    setDlError(false);
+    setShowPdfModal(true);
+
+    try {
+      const res = await fetch('/docs/REGLEMENT%20INTERIEUR.pdf');
+      if (!res.ok) throw new Error('fetch failed');
+      const total = parseInt(res.headers.get('Content-Length') || '0', 10);
+      const reader = res.body!.getReader();
+      const chunks: Uint8Array[] = [];
+      let received = 0;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        received += value.length;
+        if (total > 0) setDlProgress(Math.min(99, Math.round((received / total) * 100)));
+      }
+
+      setDlProgress(100);
+      const blob = new Blob(chunks, { type: 'application/pdf' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'Reglement-Interieur-EPV-Horizons-Savants.pdf';
+      a.click();
+      URL.revokeObjectURL(url);
+
+      setDlDone(true);
+      setTimeout(() => setShowPdfModal(false), 1800);
+    } catch {
+      setDlError(true);
+    }
   };
 
   const leadershipTeam = [
@@ -115,14 +145,14 @@ export const Ecole: React.FC = () => {
   return (
     <div className="relative select-none bg-gradient-to-br from-[#F4F8FF] to-white min-h-screen">
 
-      {/* ── HERO HEADER — Navy Dark ── */}
+      {/* ── HERO HEADER Navy Dark ── */}
       <section className="bg-[#0D2E5C] relative overflow-hidden py-20 px-4 md:px-8">
         {/* Decorative radial glow */}
         <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(ellipse_at_60%_40%,#F5A62355,transparent_70%)]" />
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 
         <motion.div
-          className="relative z-10 max-w-4xl mx-auto text-center"
+          className="relative z-10 max-w-4xl mx-auto text-left"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: 'easeOut' }}
@@ -137,12 +167,12 @@ export const Ecole: React.FC = () => {
               <span className="absolute inset-x-0 bottom-1 h-3 bg-[#F5A623]/20 rounded -z-0" />
             </span>
           </h1>
-          <p className="mt-6 text-sm md:text-base text-white/70 font-serif leading-relaxed max-w-2xl mx-auto">
+          <p className="mt-6 text-sm md:text-base text-white/70 font-serif leading-relaxed max-w-2xl">
             {fr
               ? "EPV Horizons Savants est née de l'ambition d'offrir à la jeunesse ivoirienne une éducation de standing international, enracinée dans les valeurs d'éthique, de travail et d'humanisme."
               : "EPV Horizons Savants was born from the ambition to offer Ivorian youth an internationally-standard education, rooted in the values of ethics, hard work and humanism."}
           </p>
-          <div className="mt-8 flex items-center justify-center gap-3">
+          <div className="mt-8 flex items-center justify-start gap-3">
             <div className="h-px w-16 bg-[#F5A623]/40" />
             <div className="w-2 h-2 rounded-full bg-[#F5A623]" />
             <div className="h-px w-16 bg-[#F5A623]/40" />
@@ -226,7 +256,7 @@ export const Ecole: React.FC = () => {
           </div>
         </motion.section>
 
-        {/* ── PILIERS DE VALEURS — Bento Grid ── */}
+        {/* ── PILIERS DE VALEURS Bento Grid ── */}
         <section>
           <motion.div
             className="text-center mb-12"
@@ -418,7 +448,7 @@ export const Ecole: React.FC = () => {
                             <span className="text-brand-muted font-serif">
                               {fr
                                 ? "08h00 – 12h30 et 14h30 – 16h30. Pas de classe le Mercredi après-midi pour les activités sportives d'Abidjan."
-                                : '08:00 – 12:30 and 14:30 – 16:30. No afternoon classes on Wednesday — reserved for sports and enrichment activities.'}
+                                : '08:00 – 12:30 and 14:30 – 16:30. No afternoon classes on Wednesday reserved for sports and enrichment activities.'}
                             </span>
                           </div>
                         </div>
@@ -444,7 +474,7 @@ export const Ecole: React.FC = () => {
                               { label: "Éducation Physique (EPS) :", text: "Tenue de sport officielle de l'école obligatoire durant les sessions sportives." },
                               { label: "Exigences comportementales :", text: "Coiffure décente et soignée, perçages et tatouages visibles strictement interdits, débardeurs et foulards extravagants proscrits." },
                             ] : [
-                              { label: "Monday, Tuesday, Thursday, Friday:", text: "Wearing the official uniform is mandatory — provided at enrollment at the secretariat." },
+                              { label: "Monday, Tuesday, Thursday, Friday:", text: "Wearing the official uniform is mandatory provided at enrollment at the secretariat." },
                               { label: "Wednesday:", text: "Mandatory wearing of the official Horizons Savants polo shirt for community-building activities." },
                               { label: "Physical Education (PE):", text: "Official school sports attire is mandatory during all sports sessions." },
                               { label: "Behavioral requirements:", text: "Neat and tidy hair; visible piercings and tattoos strictly prohibited; extravagant tank tops and scarves banned." },
@@ -529,9 +559,157 @@ export const Ecole: React.FC = () => {
 
       </div>
 
-      {toastMessage && (
-        <Toast message={toastMessage} type="info" onClose={() => setToastMessage(null)} />
-      )}
+      {/* ══ MODAL PDF ══════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {showPdfModal && (
+          <motion.div
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => !dlDone && setShowPdfModal(false)}
+          >
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+
+            <motion.div
+              className="relative z-10 w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden"
+              initial={{ scale: 0.85, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.85, opacity: 0, y: 30 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="bg-[#0D2E5C] px-6 pt-6 pb-5 flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-[#F5A623]/20 flex items-center justify-center shrink-0">
+                    <AnimatePresence mode="wait">
+                      {dlDone ? (
+                        <motion.div key="done"
+                          initial={{ scale: 0 }} animate={{ scale: 1 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                               stroke="#F5A623" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        </motion.div>
+                      ) : (
+                        <motion.div key="loading">
+                          <FileDown size={20} className="text-[#F5A623]" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  <div>
+                    <AnimatePresence mode="wait">
+                      {dlDone ? (
+                        <motion.p key="done-title"
+                          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                          className="font-sans font-extrabold text-white text-sm leading-tight">
+                          {fr ? 'Téléchargement terminé !' : 'Download complete!'}
+                        </motion.p>
+                      ) : dlError ? (
+                        <motion.p key="err-title"
+                          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                          className="font-sans font-extrabold text-white text-sm leading-tight">
+                          {fr ? 'Erreur de téléchargement' : 'Download error'}
+                        </motion.p>
+                      ) : (
+                        <motion.p key="dl-title"
+                          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                          className="font-sans font-extrabold text-white text-sm leading-tight">
+                          {fr ? `Téléchargement… ${dlProgress}%` : `Downloading… ${dlProgress}%`}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                    <p className="font-serif text-white/50 text-[11px] mt-0.5">
+                      {fr ? 'Règlement Intérieur · Format PDF' : 'Internal Regulations · PDF'}
+                    </p>
+                  </div>
+                </div>
+                {(dlError || !dlDone) && (
+                  <button onClick={() => setShowPdfModal(false)}
+                    className="text-white/50 hover:text-white transition-colors p-1 rounded-lg cursor-pointer">
+                    <X size={18} />
+                  </button>
+                )}
+              </div>
+
+              {/* Body */}
+              <div className="px-6 py-5 space-y-4">
+
+                {/* Barre de progression */}
+                {!dlError && (
+                  <div className="space-y-2">
+                    <div className="w-full h-2.5 bg-[#F4F8FF] rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full rounded-full"
+                        style={{ background: dlDone ? '#2D8C3C' : 'linear-gradient(90deg, #0D2E5C, #F5A623)' }}
+                        animate={{ width: `${dlProgress}%` }}
+                        transition={{ duration: 0.3, ease: 'easeOut' }}
+                      />
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-sans text-[10px] text-[#6B7280]">
+                        {dlDone
+                          ? (fr ? 'Fichier enregistré' : 'File saved')
+                          : (fr ? 'En cours…' : 'In progress…')}
+                      </span>
+                      <span className="font-sans font-bold text-[10px] text-[#0D2E5C]">{dlProgress}%</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Erreur */}
+                {dlError && (
+                  <div className="rounded-2xl bg-red-50 border border-red-100 p-4 flex gap-3 items-start">
+                    <Phone size={16} className="text-red-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-sans font-bold text-xs text-red-700">
+                        {fr ? 'Échec du téléchargement' : 'Download failed'}
+                      </p>
+                      <p className="font-serif text-[11px] text-red-500 mt-1 leading-relaxed">
+                        {fr
+                          ? "Contactez le secrétariat au 07 78 98 14 56 pour recevoir le document par email."
+                          : 'Contact the secretariat at 07 78 98 14 56 to receive the document by email.'}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Info secrétariat (pendant et après) */}
+                {!dlError && (
+                  <div className="rounded-2xl bg-[#F4F8FF] border border-[#0D2E5C]/10 p-4 flex gap-3 items-start">
+                    <Phone size={16} className="text-[#0D2E5C] shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-sans font-bold text-xs text-[#0D2E5C]">
+                        {fr ? 'Une question sur le règlement ?' : 'A question about the regulations?'}
+                      </p>
+                      <p className="font-serif text-[11px] text-gray-500 mt-1 leading-relaxed">
+                        {fr
+                          ? "Notre secrétariat est disponible au 07 78 98 14 56 ou 05 85 41 51 51."
+                          : 'Our secretariat is available at 07 78 98 14 56 or 05 85 41 51 51.'}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => setShowPdfModal(false)}
+                  className="w-full py-3 rounded-2xl text-white font-sans font-bold text-sm transition-colors cursor-pointer"
+                  style={{ background: dlDone ? '#2D8C3C' : '#0D2E5C' }}
+                >
+                  {dlDone
+                    ? (fr ? 'Parfait, merci !' : 'Great, thank you!')
+                    : dlError
+                      ? (fr ? 'Fermer' : 'Close')
+                      : (fr ? 'Téléchargement en cours…' : 'Downloading…')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

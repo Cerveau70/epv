@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React from 'react';
 import { ArrowLeft, ArrowRight, UserPlus, FileText, Phone, MapPin, Layers } from 'lucide-react';
@@ -105,11 +101,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ prospects, onStatusCha
                           <MapPin size={10} className="text-brand-green shrink-0" />
                           <span>{prospect.commune}</span>
                         </p>
-                        {prospect.codeParrainageUtilise && (
-                          <p className="text-[9px] text-[#D97706] font-bold">
-                            Filleul de : {prospect.codeParrainageUtilise}
-                          </p>
-                        )}
                         {prospect.notesAdmin && (
                           <div className="bg-brand-pale p-1.5 rounded text-[9px] text-brand-dark/80 italic font-sans max-h-12 overflow-hidden text-ellipsis">
                             {prospect.notesAdmin}
@@ -127,9 +118,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ prospects, onStatusCha
                         >
                           <ArrowLeft size={12} />
                         </button>
-                        <span className="text-[8px] uppercase tracking-wider text-brand-blue-light/60 font-sans font-bold">
-                          DE RÉF : {prospect.codeParrainagePersonnel}
-                        </span>
+                        <span />
                         <button
                           title="Faire avancer le dossier"
                           disabled={column.key === StatutProspect.ARCHIVE}

@@ -1,3 +1,7 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { checkSession, signOutNeon, apiFetch as authFetch } from '../lib/auth.ts';
@@ -27,12 +31,12 @@ import {
 
 type AdminTab =
   | 'dashboard'    | 'statistiques'
-  | 'annuaire'     | 'inscriptions' | 'classes'    | 'assiduite' | 'bulletins'
+  | 'annuaire'     | 'parents'      | 'inscriptions' | 'classes'    | 'assiduite' | 'bulletins'
   | 'enseignants'  | 'rh'
   | 'scolarites'   | 'facturation'  | 'depenses'
   | 'newsletters'  | 'messages'     | 'notif-log'
   | 'blog'         | 'faq'          | 'galerie'    | 'temoignages'
-  | 'configuration'| 'qrmarketing'  | 'logs';
+  | 'configuration'| 'contenu'      | 'qrmarketing'  | 'logs';
 
 type SortDir = 'asc' | 'desc' | null;
 
@@ -66,6 +70,7 @@ const NAV_GROUPS: { group: string; items: { id: AdminTab; label: string; Icon: R
     group: 'GESTION ÉLÈVES',
     items: [
       { id: 'annuaire',     label: 'Annuaire',           Icon: Users          },
+      { id: 'parents',      label: 'Parents',            Icon: Users          },
       { id: 'inscriptions', label: 'Inscriptions',     Icon: FileText       },
       { id: 'classes',      label: 'Classes & Quotas', Icon: GraduationCap  },
       { id: 'bulletins',    label: 'Notes & Bulletins', Icon: BookMarked    },
@@ -107,6 +112,7 @@ const NAV_GROUPS: { group: string; items: { id: AdminTab; label: string; Icon: R
   {
     group: 'PARAMÈTRES',
     items: [
+      { id: 'contenu',        label: 'Contenu du site', Icon: Globe    },
       { id: 'configuration', label: 'Configuration', Icon: Settings  },
       { id: 'qrmarketing',   label: 'QR Marketing',  Icon: Scan      },
       { id: 'logs',          label: 'Logs système',  Icon: Terminal  },
@@ -195,7 +201,7 @@ function CardHeader({ title, sub, action }: { title: string; sub?: string; actio
   return (
     <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 shrink-0">
       <div>
-        <h3 className="text-sm font-semibold text-[#2C2C2C]">{title}</h3>
+        <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
         {sub && <p className="text-[11px] text-slate-400 mt-0.5">{sub}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
@@ -211,7 +217,7 @@ function StatBadge({ label, statut }: { label: string; statut: string }) {
   );
 }
 
-function MiniChart({ values, color = '#0D2E5C', fill = false }: { values: number[]; color?: string; fill?: boolean }) {
+function MiniChart({ values, color = '#0F172A', fill = false }: { values: number[]; color?: string; fill?: boolean }) {
   if (values.length < 2) return null;
   const W = 80; const H = 28; const P = 3;
   const min = Math.min(...values); const max = Math.max(...values);
@@ -234,7 +240,7 @@ function MiniChart({ values, color = '#0D2E5C', fill = false }: { values: number
 function KpiCard({ label, value, sub, trend, Icon, chart }: {
   label: string; value: string | number; sub?: string;
   trend?: { val: string; up: boolean | null };
-  Icon: React.FC<any>; chart?: number[];
+  Icon: React.FC<any>; chart?: number[]; accent?: boolean;
 }) {
   return (
     <Card className="p-5">
@@ -242,10 +248,10 @@ function KpiCard({ label, value, sub, trend, Icon, chart }: {
         <div className="w-8 h-8 rounded-md bg-slate-50 border border-slate-100 flex items-center justify-center">
           <Icon size={15} className="text-slate-400" />
         </div>
-        {chart && <MiniChart values={chart} color="#0D2E5C" fill />}
+        {chart && <MiniChart values={chart} color="#0F172A" fill />}
       </div>
       <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{label}</p>
-      <p className="text-2xl font-bold text-[#2C2C2C] mt-1">{value}</p>
+      <p className="text-2xl font-bold text-slate-900 mt-1">{value}</p>
       <div className="flex items-center gap-2 mt-1.5">
         {trend && (
           <span className={`flex items-center gap-0.5 text-[10px] font-semibold ${
@@ -297,7 +303,7 @@ function PageLayout({ title, sub, actions, children }: {
     <div className="p-6 space-y-5 max-w-screen-xl mx-auto">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-base font-semibold text-[#2C2C2C]">{title}</h1>
+          <h1 className="text-base font-semibold text-slate-900">{title}</h1>
           {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
         </div>
         {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
@@ -418,13 +424,13 @@ function ProspectDrawer({ prospect, appointments, onClose, onStatus, onToast, on
                   <React.Fragment key={step.s}>
                     <div className="flex flex-col items-center gap-1">
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all
-                        ${done ? 'bg-[#0D2E5C] border-[#0D2E5C]' : 'bg-white border-slate-200'}`}>
+                        ${done ? 'bg-slate-900 border-slate-900' : 'bg-white border-slate-200'}`}>
                         {done && <CheckCircle size={12} className="text-white" />}
                       </div>
-                      <span className={`text-[9px] font-semibold ${done ? 'text-[#0D2E5C]' : 'text-slate-300'}`}>{step.label}</span>
+                      <span className={`text-[9px] font-semibold ${done ? 'text-slate-800' : 'text-slate-300'}`}>{step.label}</span>
                     </div>
                     {i < STEPS.length - 1 && (
-                      <div className={`flex-1 h-px mb-4 ${i < stepIdx ? 'bg-[#0D2E5C]' : 'bg-slate-200'}`} />
+                      <div className={`flex-1 h-px mb-4 ${i < stepIdx ? 'bg-slate-900' : 'bg-slate-200'}`} />
                     )}
                   </React.Fragment>
                 );
@@ -476,8 +482,7 @@ function ProspectDrawer({ prospect, appointments, onClose, onStatus, onToast, on
                 { l: 'Téléphone', v: prospect.telephone },
                 { l: 'Email', v: prospect.email },
                 { l: 'Commune', v: `${prospect.commune}, Abidjan` },
-                { l: 'Source', v: prospect.source || '—' },
-                { l: 'Code parrainage', v: prospect.codeParrainagePersonnel },
+                { l: 'Source', v: prospect.source || '' },
               ].map(r => (
                 <div key={r.l} className="flex items-start justify-between py-1.5 border-b border-slate-50 gap-3">
                   <span className="text-[11px] text-slate-400 shrink-0">{r.l}</span>
@@ -589,7 +594,7 @@ function SaisiePedagogique({ prospect, onToast, onRefresh }: {
         {[['note','Note'],['devoir','Devoir']].map(([v,l]) => (
           <button key={v} onClick={() => setSub(v as any)}
             className={`px-3 py-1.5 rounded-md text-[10px] font-semibold border cursor-pointer transition-colors
-              ${sub===v?'bg-[#0D2E5C] text-white border-[#0D2E5C]':'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+              ${sub===v?'bg-slate-900 text-white border-slate-900':'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
             {l}
           </button>
         ))}
@@ -625,7 +630,7 @@ function SaisiePedagogique({ prospect, onToast, onRefresh }: {
           </>
         )}
         <button onClick={sub === 'note' ? submitNote : submitDevoir}
-          className="w-full py-2 rounded-md bg-[#0D2E5C] text-white text-[10px] font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors flex items-center justify-center gap-1.5">
+          className="w-full py-2 rounded-md bg-slate-900 text-white text-[10px] font-semibold cursor-pointer hover:bg-slate-700 transition-colors flex items-center justify-center gap-1.5">
           <CheckCircle size={12} /> Enregistrer {sub === 'note' ? 'la note' : 'le devoir'}
         </button>
       </div>
@@ -691,9 +696,9 @@ function NotesSection({ prospectId }: { prospectId: string }) {
   if (loading) return <p className="text-[11px] text-slate-400 text-center py-3">Chargement…</p>;
   if (!notes.length) return <p className="text-[11px] text-slate-400 text-center py-3">Aucune note enregistrée pour cet élève.</p>;
 
-  const fmtNote = (v: any) => v != null && v !== '' ? Number(v).toFixed(1) : '—';
+  const fmtNote = (v: number | null) => v != null ? v.toFixed(1) : '—';
   const moy = (n: any) => {
-    const vals = [n.t1, n.t2, n.t3].filter(v => v != null && v !== '').map(Number);
+    const vals = [n.t1, n.t2, n.t3].filter(v => v != null) as number[];
     return vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : '—';
   };
 
@@ -915,7 +920,7 @@ function DashboardTab({ prospects, appointments, quotas, contacts, tarifs, onTab
               <p className="text-xs text-slate-400 text-center py-6">Aucun dossier</p>
             ) : recent.map(p => (
               <div key={p.id} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 transition-colors">
-                <div className="w-7 h-7 rounded-md bg-[#0D2E5C] flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                <div className="w-7 h-7 rounded-md bg-slate-900 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                   {p.sectionVisee}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -1033,8 +1038,8 @@ function AnnuaireTab({ prospects, appointments, onProspectStatus, onToast, onRef
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
   const paginated  = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
 
-  const thClass = "px-4 py-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap";
-  const tdClass = "px-4 py-3.5 text-xs";
+  const thClass = "px-4 py-3 text-[10px] font-semibold text-slate-600 uppercase tracking-wide whitespace-nowrap bg-[#F1F5F9] border border-slate-200 text-left";
+  const tdClass = "px-4 py-3 text-xs border border-slate-200";
 
   return (
     <PageLayout title="Annuaire des dossiers"
@@ -1046,7 +1051,7 @@ function AnnuaireTab({ prospects, appointments, onProspectStatus, onToast, onRef
           'Prénom parent': p.prenomParent, 'Nom parent': p.nomParent,
           'Lien': p.lienParente, 'Téléphone': p.telephone, 'Email': p.email,
           'Commune': p.commune, 'Source': p.source || '', 'Statut': p.statut,
-          'Code parrainage': p.codeParrainagePersonnel, 'Date dossier': fmtDate(p.createdAt),
+          'Date dossier': fmtDate(p.createdAt),
         })), `prospects_epv_${new Date().toISOString().slice(0,10)}.csv`)}
           className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 cursor-pointer transition-colors">
           <Download size={13} /> Exporter CSV ({filtered.length})
@@ -1085,7 +1090,7 @@ function AnnuaireTab({ prospects, appointments, onProspectStatus, onToast, onRef
       {/* Data grid */}
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px]">
+          <table className="w-full min-w-[900px] border-collapse">
             <thead className="border-b border-slate-100 bg-slate-50">
               <tr>
                 <th className={thClass}>
@@ -1108,22 +1113,22 @@ function AnnuaireTab({ prospects, appointments, onProspectStatus, onToast, onRef
                 <th className={`${thClass} text-right`}>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody>
               {paginated.length === 0 ? (
                 <tr><td colSpan={8} className="text-center py-12 text-sm text-slate-400">
                   <Users size={24} className="mx-auto mb-2 text-slate-300" />
                   Aucun dossier correspondant aux critères
                 </td></tr>
-              ) : paginated.map(p => (
+              ) : paginated.map((p, idx) => (
                 <tr key={p.id}
                   onClick={() => setSelected(p)}
-                  className="hover:bg-slate-50 cursor-pointer transition-colors">
+                  className={idx % 2 === 0 ? "bg-white hover:bg-[#F8FAFF] cursor-pointer transition-colors" : "bg-[#FAFBFF] hover:bg-[#F8FAFF] cursor-pointer transition-colors"}>
                   <td className={tdClass}>
                     <p className="font-semibold text-slate-800">{p.prenomEnfant} {p.nomEnfant}</p>
                     <p className="text-[10px] text-slate-400 mt-0.5">{fmtDate(p.dateNaissance)}</p>
                   </td>
                   <td className={tdClass}>
-                    <span className="inline-flex items-center justify-center w-9 h-6 rounded bg-[#0D2E5C] text-white text-[10px] font-bold">
+                    <span className="inline-flex items-center justify-center w-9 h-6 rounded bg-slate-900 text-white text-[10px] font-bold">
                       {p.sectionVisee}
                     </span>
                   </td>
@@ -1176,7 +1181,7 @@ function AnnuaireTab({ prospects, appointments, onProspectStatus, onToast, onRef
               {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => (
                 <button key={i} onClick={() => setPage(i)}
                   className={`w-7 h-7 rounded border text-[11px] font-semibold cursor-pointer transition-colors
-                    ${page === i ? 'bg-[#0D2E5C] text-white border-[#0D2E5C]' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+                    ${page === i ? 'bg-slate-900 text-white border-slate-900' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
                   {i + 1}
                 </button>
               ))}
@@ -1253,7 +1258,7 @@ function InscriptionsTab({ appointments, prospects, onRdvStatus, onToast }: Data
           {[{id:'calendar',label:'Calendrier'},{id:'kanban',label:'Kanban'}].map(v => (
             <button key={v.id} onClick={() => setView(v.id as any)}
               className={`px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer
-                ${view === v.id ? 'bg-[#0D2E5C] text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
+                ${view === v.id ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
               {v.label}
             </button>
           ))}
@@ -1294,8 +1299,8 @@ function InscriptionsTab({ appointments, prospects, onRdvStatus, onToast }: Data
                   return (
                     <button key={i} onClick={() => setSelectedDay(active ? null : d)}
                       className={`relative aspect-square flex flex-col items-center justify-center rounded-md text-xs font-semibold cursor-pointer transition-all
-                        ${active  ? 'bg-[#0D2E5C] text-white' :
-                          isToday(d) ? 'border-2 border-[#0D2E5C] text-[#0D2E5C]' :
+                        ${active  ? 'bg-slate-900 text-white' :
+                          isToday(d) ? 'border-2 border-slate-900 text-slate-900' :
                           hasRdv ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' :
                           'hover:bg-slate-50 text-slate-600'}`}>
                       {d}
@@ -1389,16 +1394,16 @@ function ClassesTab({ quotas, prospects, appointments, onProspectStatus, onToast
       <Card>
         <CardHeader title="Détail par section" sub="Cliquez sur une ligne pour voir les élèves" />
         <div className="overflow-x-auto">
-          <table className="w-full text-xs">
+          <table className="w-full text-xs border-collapse">
             <thead className="border-b border-slate-100 bg-slate-50">
               <tr>
                 {['Section','Niveau','Inscrits','Pré-inscrits','Capacité max','Places libres','Occupation',''].map(h => (
-                  <th key={h} className="px-5 py-3 text-left font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                  <th key={h} className="px-5 py-3 text-left font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
-              {quotas.map(q => {
+            <tbody>
+              {quotas.map((q, idx) => {
                 const pct    = Math.round((q.inscritsConfirmes / q.capaciteMax) * 100);
                 const dispo  = q.capaciteMax - q.inscritsConfirmes;
                 const status = pct >= 80 ? 'text-red-600' : pct >= 60 ? 'text-amber-600' : 'text-emerald-600';
@@ -1408,19 +1413,19 @@ function ClassesTab({ quotas, prospects, appointments, onProspectStatus, onToast
                   <React.Fragment key={q.section}>
                     <tr
                       onClick={() => setExpandedSection(open ? null : q.section)}
-                      className="hover:bg-slate-50 cursor-pointer transition-colors">
-                      <td className="px-5 py-4 font-bold text-slate-900 flex items-center gap-2">
+                      className={idx % 2 === 0 ? "bg-white hover:bg-[#F8FAFF] cursor-pointer transition-colors" : "bg-[#FAFBFF] hover:bg-[#F8FAFF] cursor-pointer transition-colors"}>
+                      <td className="px-5 py-4 font-bold text-slate-900 flex items-center gap-2 border border-slate-200">
                         <span className={`transition-transform ${open ? 'rotate-90' : ''}`}>
                           <ChevronRight size={13} className="text-slate-400" />
                         </span>
                         {q.section}
                       </td>
-                      <td className="px-5 py-4 text-slate-500">{SECTION_LABEL[q.section] || q.section}</td>
-                      <td className="px-5 py-4 font-mono font-semibold text-slate-800">{q.inscritsConfirmes}</td>
-                      <td className="px-5 py-4 font-mono text-slate-500">{q.preInscrits}</td>
-                      <td className="px-5 py-4 font-mono text-slate-400">{q.capaciteMax}</td>
-                      <td className={`px-5 py-4 font-mono font-semibold ${dispo <= 3 ? 'text-red-600' : 'text-slate-700'}`}>{dispo}</td>
-                      <td className="px-5 py-4">
+                      <td className="px-5 py-4 text-slate-500 border border-slate-200">{SECTION_LABEL[q.section] || q.section}</td>
+                      <td className="px-5 py-4 font-mono font-semibold text-slate-800 border border-slate-200">{q.inscritsConfirmes}</td>
+                      <td className="px-5 py-4 font-mono text-slate-500 border border-slate-200">{q.preInscrits}</td>
+                      <td className="px-5 py-4 font-mono text-slate-400 border border-slate-200">{q.capaciteMax}</td>
+                      <td className={`px-5 py-4 font-mono font-semibold border border-slate-200 ${dispo <= 3 ? 'text-red-600' : 'text-slate-700'}`}>{dispo}</td>
+                      <td className="px-5 py-4 border border-slate-200">
                         <div className="flex items-center gap-2.5">
                           <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden min-w-[60px]">
                             <div className={`h-full rounded-full ${pct>=80?'bg-red-500':pct>=60?'bg-amber-400':'bg-emerald-500'}`} style={{ width:`${pct}%` }} />
@@ -1428,7 +1433,7 @@ function ClassesTab({ quotas, prospects, appointments, onProspectStatus, onToast
                           <span className={`font-mono font-semibold text-[11px] ${status}`}>{pct}%</span>
                         </div>
                       </td>
-                      <td className="px-5 py-4 text-right">
+                      <td className="px-5 py-4 text-right border border-slate-200">
                         <span className="text-[10px] text-slate-400">{students.length} élève{students.length > 1 ? 's' : ''}</span>
                       </td>
                     </tr>
@@ -1530,7 +1535,7 @@ function StatistiquesTab({ prospects }: DataProps) {
                   <span className="font-mono text-slate-500 shrink-0">{count} ({total>0?Math.round((count/total)*100):0}%)</span>
                 </div>
                 <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                  <motion.div className="h-full rounded-full bg-[#0D2E5C]"
+                  <motion.div className="h-full rounded-full bg-slate-900"
                     initial={{ width:0 }} animate={{ width:`${Math.round((count/maxSrc)*100)}%` }} transition={{ duration:0.6 }} />
                 </div>
               </div>
@@ -1543,10 +1548,10 @@ function StatistiquesTab({ prospects }: DataProps) {
           <div className="p-5 space-y-3.5">
             {sectionData.map(({ s, count }) => (
               <div key={s} className="flex items-center gap-3">
-                <span className="w-9 h-6 rounded bg-[#0D2E5C] text-white text-[10px] font-bold flex items-center justify-center shrink-0">{s}</span>
+                <span className="w-9 h-6 rounded bg-slate-900 text-white text-[10px] font-bold flex items-center justify-center shrink-0">{s}</span>
                 <div className="flex-1">
                   <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <motion.div className="h-full rounded-full bg-[#1A4F8B]"
+                    <motion.div className="h-full rounded-full bg-slate-700"
                       initial={{ width:0 }} animate={{ width:`${Math.round((count/maxSec)*100)}%` }} transition={{ duration:0.6 }} />
                   </div>
                 </div>
@@ -1627,7 +1632,7 @@ function MessagerieTab({ contacts, notifications, prospects, onContactStatus, on
       sub="Communication avec les familles et journal des notifications"
       actions={
         <button onClick={() => setShowCompose(v => !v)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold hover:bg-[#1A4F8B] cursor-pointer transition-colors">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold hover:bg-slate-700 cursor-pointer transition-colors">
           {showCompose ? <><X size={13} /> Annuler</> : <><Send size={13} /> Nouveau message</>}
         </button>
       }
@@ -1636,7 +1641,7 @@ function MessagerieTab({ contacts, notifications, prospects, onContactStatus, on
       <AnimatePresence>
         {showCompose && (
           <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}>
-            <Card className="p-5 border-2 border-[#0D2E5C]">
+            <Card className="p-5 border-2 border-slate-900">
               <p className="text-sm font-semibold text-slate-800 mb-4">Envoyer un message groupé aux parents</p>
               <div className="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
@@ -1668,7 +1673,7 @@ function MessagerieTab({ contacts, notifications, prospects, onContactStatus, on
               </div>
               <div className="flex gap-2">
                 <button onClick={handleBroadcast} disabled={sending || !msgContenu.trim()}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors disabled:opacity-50">
                   {sending
                     ? <><div className="w-3 h-3 rounded-full border-2 border-white/40 border-t-white animate-spin" /> Envoi…</>
                     : <><Send size={13} /> Envoyer à {nbDest} parent{nbDest > 1 ? 's' : ''}</>}
@@ -1690,7 +1695,7 @@ function MessagerieTab({ contacts, notifications, prospects, onContactStatus, on
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id as any)}
             className={`px-4 py-2.5 text-xs font-semibold border-b-2 -mb-px transition-colors cursor-pointer
-              ${tab === t.id ? 'border-[#0D2E5C] text-[#0D2E5C]' : 'border-transparent text-slate-400 hover:text-slate-700'}`}>
+              ${tab === t.id ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-700'}`}>
             {t.label}
           </button>
         ))}
@@ -1715,7 +1720,7 @@ function MessagerieTab({ contacts, notifications, prospects, onContactStatus, on
                         <button onClick={() => setActiveId(isOpen ? null : msg.id)}
                           className="w-full px-5 py-3.5 text-left flex items-start gap-4 hover:bg-slate-50 cursor-pointer transition-colors">
                           <div className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 text-xs font-bold
-                            ${treated ? 'bg-slate-100 text-slate-400' : 'bg-[#0D2E5C] text-white'}`}>
+                            ${treated ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white'}`}>
                             {(msg.nom || '?')[0].toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -1802,7 +1807,7 @@ function QRTab({ onToast }: DataProps) {
   const [nom,      setNom]      = useState('');
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const fullUrl = `${qrUrl}?utm_source=${qrSource}`;
-  const qrSrc   = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=0D2E5C&data=${encodeURIComponent(fullUrl)}`;
+  const qrSrc   = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=0F172A&data=${encodeURIComponent(fullUrl)}`;
 
   useEffect(() => {
     apiFetch('/api/qr_campaigns').then(setCampaigns).catch(() => {});
@@ -1857,7 +1862,7 @@ function QRTab({ onToast }: DataProps) {
                 <p className="text-[11px] font-mono text-slate-700 break-all leading-relaxed">{fullUrl}</p>
               </div>
               <button onClick={handleSave}
-                className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold hover:bg-[#1A4F8B] cursor-pointer transition-colors">
+                className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md bg-slate-900 text-white text-xs font-semibold hover:bg-slate-700 cursor-pointer transition-colors">
                 <CheckCircle size={13} /> Enregistrer la campagne
               </button>
             </div>
@@ -1869,7 +1874,7 @@ function QRTab({ onToast }: DataProps) {
               </div>
               <div className="flex gap-2">
                 <a href={qrSrc} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold hover:bg-[#1A4F8B] cursor-pointer transition-colors">
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold hover:bg-slate-700 cursor-pointer transition-colors">
                   <Download size={12} /> Télécharger
                 </a>
                 <button onClick={() => onToast('Lien copié dans le presse-papiers.')}
@@ -1884,22 +1889,22 @@ function QRTab({ onToast }: DataProps) {
         {campaigns.length > 0 && (
           <Card>
             <CardHeader title="Historique des campagnes" sub={`${campaigns.length} campagne${campaigns.length > 1 ? 's' : ''} enregistrée${campaigns.length > 1 ? 's' : ''}`} />
-            <table className="w-full text-xs">
+            <table className="w-full text-xs border-collapse">
               <thead className="border-b border-slate-100 bg-slate-50">
                 <tr>
                   {['Nom','UTM source','URL','Créée le','Actions'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                    <th key={h} className="px-4 py-3 text-left font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
-                {campaigns.map((c: any) => (
-                  <tr key={c.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 font-semibold text-slate-800">{c.nom}</td>
-                    <td className="px-4 py-3 font-mono text-[11px] text-slate-500">{c.utmSource}</td>
-                    <td className="px-4 py-3 text-slate-400 truncate max-w-[180px]" title={c.fullUrl}>{c.url}</td>
-                    <td className="px-4 py-3 text-slate-400">{fmtDate(c.createdAt, { day:'numeric', month:'short', year:'numeric' })}</td>
-                    <td className="px-4 py-3">
+              <tbody>
+                {campaigns.map((c: any, idx: number) => (
+                  <tr key={c.id} className={idx % 2 === 0 ? "bg-white hover:bg-[#F8FAFF] transition-colors" : "bg-[#FAFBFF] hover:bg-[#F8FAFF] transition-colors"}>
+                    <td className="px-4 py-3 font-semibold text-slate-800 border border-slate-200">{c.nom}</td>
+                    <td className="px-4 py-3 font-mono text-[11px] text-slate-500 border border-slate-200">{c.utmSource}</td>
+                    <td className="px-4 py-3 text-slate-400 truncate max-w-[180px] border border-slate-200" title={c.fullUrl}>{c.url}</td>
+                    <td className="px-4 py-3 text-slate-400 border border-slate-200">{fmtDate(c.createdAt, { day:'numeric', month:'short', year:'numeric' })}</td>
+                    <td className="px-4 py-3 border border-slate-200">
                       <button onClick={() => handleDelete(c.id)}
                         className="p-1.5 rounded hover:bg-red-50 text-slate-300 hover:text-red-500 cursor-pointer transition-colors">
                         <Trash2 size={13} />
@@ -1928,8 +1933,6 @@ function AdminDocuments({ onToast }: { onToast: (m: string) => void }) {
   const [docs,    setDocs]    = useState<any[]>([]);
   const [form,    setForm]    = useState<any | null>(null);
   const [saving,  setSaving]  = useState(false);
-  const [docFile, setDocFile] = useState<File | null>(null);
-  const docFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     apiFetch('/api/documents').then(setDocs).catch(console.error);
@@ -1940,52 +1943,17 @@ function AdminDocuments({ onToast }: { onToast: (m: string) => void }) {
     setSaving(true);
     try {
       if (form.id) {
-        // Mise à jour : si nouveau fichier → upload R2 d'abord
-        if (docFile) {
-          const fd = new FormData();
-          fd.append('fichier', docFile);
-          fd.append('titre', form.titre);
-          fd.append('cat', form.cat ?? 'Général');
-          fd.append('ordre', String(form.ordre ?? 0));
-          const r = await authFetch('/api/documents/upload', { method: 'POST', body: fd });
-          const data = await r.json();
-          if (r.ok) {
-            await apiDelete(`/api/documents/${form.id}`);
-            setDocs(prev => prev.filter(d => d.id !== form.id).concat(data));
-          }
-        } else {
-          await apiPatch(`/api/documents/${form.id}`, form);
-          setDocs(prev => prev.map(d => d.id === form.id ? { ...d, ...form } : d));
-        }
+        await apiPatch(`/api/documents/${form.id}`, form);
+        setDocs(prev => prev.map(d => d.id === form.id ? { ...d, ...form } : d));
         onToast('Document mis à jour.');
       } else {
-        if (docFile) {
-          // Upload fichier vers R2
-          const fd = new FormData();
-          fd.append('fichier', docFile);
-          fd.append('titre', form.titre);
-          fd.append('cat', form.cat ?? 'Général');
-          fd.append('ordre', String(form.ordre ?? docs.length + 1));
-          const r = await authFetch('/api/documents/upload', { method: 'POST', body: fd });
-          const data = await r.json();
-          if (r.ok) setDocs(prev => [...prev, data]);
-          onToast('Document uploadé dans R2.');
-        } else if (form.fichier?.trim()) {
-          // URL externe (Google Drive, etc.)
-          const r = await apiPost('/api/documents', { ...form, actif: true });
-          let data: any = {};
-          try { data = await r.json(); } catch {}
-          if (r.ok) setDocs(prev => [...prev, data]);
-          onToast('Document ajouté (URL externe).');
-        } else {
-          onToast('Sélectionnez un fichier ou entrez une URL.');
-          setSaving(false);
-          return;
-        }
+        const r = await apiPost('/api/documents', { ...form, actif: true });
+        let data: any = {};
+        try { data = await r.json(); } catch {}
+        if (r.ok) setDocs(prev => [...prev, data]);
+        onToast('Document ajouté.');
       }
       setForm(null);
-      setDocFile(null);
-      if (docFileRef.current) docFileRef.current.value = '';
     } catch { onToast('Erreur lors de la sauvegarde.'); }
     finally { setSaving(false); }
   };
@@ -2009,8 +1977,8 @@ function AdminDocuments({ onToast }: { onToast: (m: string) => void }) {
       <CardHeader title="Bibliothèque de documents"
         sub="Documents téléchargeables par les parents dans leur Espace"
         action={
-          <button onClick={() => setForm({ titre: '', fichier: '', cat: 'Administratif', ordre: docs.length + 1 })}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-[#0D2E5C] text-white text-[11px] font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
+          <button onClick={() => setForm({ titre: '', fichier: '', url: '', cat: 'Administratif', ordre: docs.length + 1 })}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-slate-900 text-white text-[11px] font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
             <Plus size={12} /> Ajouter
           </button>
         }
@@ -2028,18 +1996,10 @@ function AdminDocuments({ onToast }: { onToast: (m: string) => void }) {
                     className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-slate-400" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-[9px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Uploader un fichier vers R2 (PDF, Word, etc. — max 20 Mo)</label>
-                  <input ref={docFileRef} type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg"
-                    onChange={e => setDocFile(e.target.files?.[0] ?? null)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none bg-white file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-[#0D2E5C] file:text-white cursor-pointer" />
-                  {docFile && <p className="text-[10px] text-[#2D8C3C] mt-1 font-semibold">✓ {docFile.name} ({(docFile.size/1024).toFixed(0)} Ko)</p>}
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-[9px] font-semibold text-slate-400 uppercase tracking-wide mb-1">— ou — URL externe (Google Drive, Dropbox…)</label>
-                  <input value={form.fichier || ''} onChange={e => setForm((f: any) => ({...f, fichier: e.target.value}))}
+                  <label className="block text-[9px] font-semibold text-slate-400 uppercase tracking-wide mb-1">URL du fichier PDF (lien Google Drive, Dropbox, etc.)</label>
+                  <input value={form.url || ''} onChange={e => setForm((f: any) => ({...f, url: e.target.value}))}
                     placeholder="https://drive.google.com/file/d/..."
-                    disabled={!!docFile}
-                    className="w-full px-3 py-2 text-xs font-mono border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 disabled:opacity-40 disabled:bg-slate-50" />
+                    className="w-full px-3 py-2 text-xs font-mono border border-slate-200 rounded-md focus:outline-none focus:border-slate-400" />
                 </div>
                 <div>
                   <label className="block text-[9px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Catégorie</label>
@@ -2056,7 +2016,7 @@ function AdminDocuments({ onToast }: { onToast: (m: string) => void }) {
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSave} disabled={saving}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors disabled:opacity-50">
                   <CheckCircle size={12} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
                 </button>
                 <button onClick={() => setForm(null)}
@@ -2070,34 +2030,34 @@ function AdminDocuments({ onToast }: { onToast: (m: string) => void }) {
       </AnimatePresence>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-xs">
+        <table className="w-full text-xs border-collapse">
           <thead className="border-b border-slate-100 bg-slate-50">
             <tr>
               {['#','Titre','Catégorie','URL','Visible','Actions'].map(h => (
-                <th key={h} className="px-4 py-3 text-left font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                <th key={h} className="px-4 py-3 text-left font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200">{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
+          <tbody>
             {docs.length === 0 && (
               <tr><td colSpan={6} className="px-5 py-6 text-center text-slate-400 text-xs">Aucun document.</td></tr>
             )}
-            {[...docs].sort((a,b)=>(a.ordre||0)-(b.ordre||0)).map(d => (
-              <tr key={d.id} className={`hover:bg-slate-50 transition-colors ${!d.actif ? 'opacity-50' : ''}`}>
-                <td className="px-4 py-3 font-mono text-slate-400">{d.ordre || '—'}</td>
-                <td className="px-4 py-3 font-medium text-slate-800 max-w-[200px] truncate">{d.titre}</td>
-                <td className="px-4 py-3">
+            {[...docs].sort((a,b)=>(a.ordre||0)-(b.ordre||0)).map((d, idx) => (
+              <tr key={d.id} className={`${idx % 2 === 0 ? 'bg-white hover:bg-[#F8FAFF]' : 'bg-[#FAFBFF] hover:bg-[#F8FAFF]'} transition-colors ${!d.actif ? 'opacity-50' : ''}`}>
+                <td className="px-4 py-3 font-mono text-slate-400 border border-slate-200">{d.ordre || '—'}</td>
+                <td className="px-4 py-3 font-medium text-slate-800 max-w-[200px] truncate border border-slate-200">{d.titre}</td>
+                <td className="px-4 py-3 border border-slate-200">
                   <span className="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{d.cat}</span>
                 </td>
-                <td className="px-4 py-3">
-                  {d.fichier ? (
-                    <a href={d.fichier} target="_blank" rel="noreferrer"
+                <td className="px-4 py-3 border border-slate-200">
+                  {d.url ? (
+                    <a href={d.url} target="_blank" rel="noreferrer"
                       className="text-blue-600 hover:underline text-[10px] font-mono flex items-center gap-1">
                       <ExternalLink size={11} /> Voir
                     </a>
                   ) : <span className="text-slate-300 text-[10px]">Non définie</span>}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 border border-slate-200">
                   <button onClick={() => toggleActif(d.id)}
                     className="cursor-pointer">
                     {d.actif
@@ -2105,7 +2065,7 @@ function AdminDocuments({ onToast }: { onToast: (m: string) => void }) {
                       : <ToggleLeft  size={18} className="text-slate-300" />}
                   </button>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 border border-slate-200">
                   <div className="flex gap-1">
                     <button onClick={() => setForm({ ...d })}
                       className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 cursor-pointer transition-colors">
@@ -2180,7 +2140,7 @@ function ConfigurationTab({ onToast, onRefresh, config, tarifs }: DataProps) {
         <Card className="p-5">
           <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-4">Compte administrateur</p>
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-md bg-[#0D2E5C] flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-10 h-10 rounded-md bg-slate-900 flex items-center justify-center text-white font-bold text-sm">
               {adminNom[0] || 'A'}
             </div>
             <div>
@@ -2211,7 +2171,7 @@ function ConfigurationTab({ onToast, onRefresh, config, tarifs }: DataProps) {
             editTarifs ? (
               <div className="flex gap-2">
                 <button onClick={handleSaveTarifs} disabled={savingT}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-[#0D2E5C] text-white text-[11px] font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors disabled:opacity-50">
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-slate-900 text-white text-[11px] font-semibold cursor-pointer hover:bg-slate-700 transition-colors disabled:opacity-50">
                   <CheckCircle size={12} /> {savingT ? 'Enregistrement…' : 'Enregistrer'}
                 </button>
                 <button onClick={() => { setLocalTarifs(tarifs); setEditTarifs(false); }}
@@ -2228,25 +2188,25 @@ function ConfigurationTab({ onToast, onRefresh, config, tarifs }: DataProps) {
           }
         />
         <div className="overflow-x-auto">
-          <table className="w-full text-xs">
+          <table className="w-full text-xs border-collapse">
             <thead className="border-b border-slate-100 bg-slate-50">
               <tr>
                 {['Section','Cycle','Scolarité annuelle (FCFA)','Trimestre (÷3)'].map(h => (
-                  <th key={h} className="px-5 py-3 text-left font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                  <th key={h} className="px-5 py-3 text-left font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
-              {SECTIONS_ORDER.map(s => {
+            <tbody>
+              {SECTIONS_ORDER.map((s, idx) => {
                 const val = editTarifs ? (localTarifs[s] || 0) : (tarifs[s] || 0);
                 const cycle = ['PS','MS','GS'].includes(s) ? 'Maternelle' : ['CP1','CP2','CE1','CE2'].includes(s) ? 'Primaire C1' : 'Primaire C2';
                 return (
-                  <tr key={s} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-5 py-3.5">
+                  <tr key={s} className={idx % 2 === 0 ? "bg-white hover:bg-[#F8FAFF] transition-colors" : "bg-[#FAFBFF] hover:bg-[#F8FAFF] transition-colors"}>
+                    <td className="px-5 py-3.5 border border-slate-200">
                       <span className="font-bold text-[10px] bg-[#0D2E5C] text-white px-2 py-0.5 rounded">{s}</span>
                     </td>
-                    <td className="px-5 py-3.5 text-slate-500">{cycle}</td>
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-3.5 text-slate-500 border border-slate-200">{cycle}</td>
+                    <td className="px-5 py-3.5 border border-slate-200">
                       {editTarifs ? (
                         <input type="number" value={localTarifs[s] || 0}
                           onChange={e => setLocalTarifs(t => ({...t, [s]: parseInt(e.target.value) || 0}))}
@@ -2255,7 +2215,7 @@ function ConfigurationTab({ onToast, onRefresh, config, tarifs }: DataProps) {
                         <span className="font-mono font-semibold text-slate-800">{val.toLocaleString('fr-FR')} F</span>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 font-mono text-slate-500">{Math.round(val / 3).toLocaleString('fr-FR')} F</td>
+                    <td className="px-5 py-3.5 font-mono text-slate-500 border border-slate-200">{Math.round(val / 3).toLocaleString('fr-FR')} F</td>
                   </tr>
                 );
               })}
@@ -2371,7 +2331,7 @@ function AssiduiteTab({ prospects, appointments, onProspectStatus, onToast, onRe
           'Responsable': `${s.prenomParent} ${s.nomParent}`,
           'Téléphone': s.telephone,
         })), `assiduite_${selectedSection}_${selectedDate}.csv`)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
           <Download size={13} /> Exporter CSV
         </button>
       }
@@ -2416,29 +2376,29 @@ function AssiduiteTab({ prospects, appointments, onProspectStatus, onToast, onRe
           <CardHeader title={`${SECTION_LABEL[selectedSection] || selectedSection} — ${new Date(selectedDate).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })}`}
             sub={`${total} élève${total > 1 ? 's' : ''} inscrits`}
           />
-          <div className="overflow-x-auto"><table className="w-full text-xs min-w-[540px]">
+          <div className="overflow-x-auto"><table className="w-full text-xs min-w-[540px] border-collapse">
             <thead className="border-b border-slate-100 bg-slate-50">
               <tr>
                 {['Élève','Date de naissance','Responsable','Présence'].map(h => (
-                  <th key={h} className="px-5 py-3 text-left font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                  <th key={h} className="px-5 py-3 text-left font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
-              {students.map(p => {
+            <tbody>
+              {students.map((p, idx) => {
                 const a = attendance[p.id];
                 return (
-                  <tr key={p.id} className={`transition-colors ${a === 'absent' ? 'bg-red-50/40' : a === 'retard' ? 'bg-amber-50/40' : ''}`}>
-                    <td className="px-5 py-3.5">
+                  <tr key={p.id} className={`transition-colors ${a === 'absent' ? 'bg-red-50/40' : a === 'retard' ? 'bg-amber-50/40' : idx % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFF]'} hover:bg-[#F8FAFF]`}>
+                    <td className="px-5 py-3.5 border border-slate-200">
                       <button onClick={() => setSelectedStudent(p)}
                         className="font-semibold text-slate-800 hover:text-brand-blue-medium cursor-pointer text-left flex items-center gap-1.5 group">
                         {p.prenomEnfant} {p.nomEnfant}
                         <Eye size={11} className="text-slate-300 group-hover:text-brand-blue-medium transition-colors" />
                       </button>
                     </td>
-                    <td className="px-5 py-3.5 text-slate-500">{fmtDate(p.dateNaissance)}</td>
-                    <td className="px-5 py-3.5 text-slate-500">{p.prenomParent} {p.nomParent}</td>
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-3.5 text-slate-500 border border-slate-200">{fmtDate(p.dateNaissance)}</td>
+                    <td className="px-5 py-3.5 text-slate-500 border border-slate-200">{p.prenomParent} {p.nomParent}</td>
+                    <td className="px-5 py-3.5 border border-slate-200">
                       <div className="flex gap-1.5">
                         <button onClick={() => mark(p.id, 'present')} className={btnCls(a==='present', 'bg-emerald-50 border-emerald-300 text-emerald-700')}>Présent</button>
                         <button onClick={() => mark(p.id, 'absent')}  className={btnCls(a==='absent',  'bg-red-50 border-red-300 text-red-600')}>Absent</button>
@@ -2452,7 +2412,7 @@ function AssiduiteTab({ prospects, appointments, onProspectStatus, onToast, onRe
           </table></div>
           <div className="px-5 py-3 border-t border-slate-100 flex justify-end">
             <button onClick={handleSave} disabled={saving}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors disabled:opacity-50">
+              className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors disabled:opacity-50">
               <CheckCircle size={13} /> {saving ? 'Enregistrement…' : 'Enregistrer le pointage'}
             </button>
           </div>
@@ -2529,7 +2489,7 @@ function EnseignantsTab({ onToast }: DataProps) {
     <PageLayout title="Enseignants" sub={`${teachers.length} membres du corps enseignant — Année 2025/2026`}
       actions={
         <button onClick={() => setForm({ ...EMPTY_TEACHER })}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
           <Plus size={13} /> Ajouter un enseignant
         </button>
       }
@@ -2537,7 +2497,7 @@ function EnseignantsTab({ onToast }: DataProps) {
       <AnimatePresence>
         {form && (
           <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}>
-            <Card className="p-5 border-2 border-[#0D2E5C]">
+            <Card className="p-5 border-2 border-slate-900">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm font-semibold text-slate-800">{form.id ? 'Modifier l\'enseignant' : 'Nouvel enseignant'}</p>
                 <button onClick={() => setForm(null)} className="p-1.5 rounded hover:bg-slate-100 cursor-pointer"><X size={15} className="text-slate-400" /></button>
@@ -2574,7 +2534,7 @@ function EnseignantsTab({ onToast }: DataProps) {
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSave} disabled={saving}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors disabled:opacity-50">
                   <CheckCircle size={13} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
                 </button>
                 <button onClick={() => setForm(null)}
@@ -2605,23 +2565,23 @@ function EnseignantsTab({ onToast }: DataProps) {
       </Card>
 
       <Card>
-        <div className="overflow-x-auto"><table className="w-full text-xs min-w-[600px]">
+        <div className="overflow-x-auto"><table className="w-full text-xs min-w-[600px] border-collapse">
           <thead className="border-b border-slate-100 bg-slate-50">
             <tr>
               {['Enseignant','Matières','Classes','Contact','Entrée','Statut','Actions'].map(h => (
-                <th key={h} className="px-5 py-3 text-left font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                <th key={h} className="px-5 py-3 text-left font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200">{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
+          <tbody>
             {filtered.length === 0 && (
               <tr><td colSpan={7} className="text-center py-8 text-sm text-slate-400">Aucun enseignant enregistré.</td></tr>
             )}
-            {filtered.map(t => (
-              <tr key={t.id} className="hover:bg-slate-50 transition-colors">
-                <td className="px-5 py-3.5 font-semibold text-slate-800">{t.prenom} {t.nom}</td>
-                <td className="px-5 py-3.5 text-slate-600 max-w-[160px]">{(t.matieres||[]).join(', ')}</td>
-                <td className="px-5 py-3.5">
+            {filtered.map((t, idx) => (
+              <tr key={t.id} className={idx % 2 === 0 ? "bg-white hover:bg-[#F8FAFF] transition-colors" : "bg-[#FAFBFF] hover:bg-[#F8FAFF] transition-colors"}>
+                <td className="px-5 py-3.5 font-semibold text-slate-800 border border-slate-200">{t.prenom} {t.nom}</td>
+                <td className="px-5 py-3.5 text-slate-600 max-w-[160px] border border-slate-200">{(t.matieres||[]).join(', ')}</td>
+                <td className="px-5 py-3.5 border border-slate-200">
                   <div className="flex flex-wrap gap-1">
                     {(t.classes||[]).slice(0, 4).map((c: string) => (
                       <span key={c} className="text-[9px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">{c}</span>
@@ -2629,17 +2589,17 @@ function EnseignantsTab({ onToast }: DataProps) {
                     {(t.classes||[]).length > 4 && <span className="text-[9px] text-slate-400">+{t.classes.length - 4}</span>}
                   </div>
                 </td>
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 border border-slate-200">
                   <p className="font-mono text-[11px] text-slate-600">{t.tel}</p>
                   <p className="text-[10px] text-slate-400">{t.email}</p>
                 </td>
-                <td className="px-5 py-3.5 text-slate-400">{t.entree ? fmtDate(t.entree, { month:'short', year:'numeric' }) : '—'}</td>
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 text-slate-400 border border-slate-200">{t.entree ? fmtDate(t.entree, { month:'short', year:'numeric' }) : '—'}</td>
+                <td className="px-5 py-3.5 border border-slate-200">
                   <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${t.statut === 'actif' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
                     {t.statut === 'actif' ? 'Actif' : 'En congé'}
                   </span>
                 </td>
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 border border-slate-200">
                   <div className="flex gap-1">
                     <button onClick={() => setForm({ ...t, matieres: (t.matieres||[]).join(', '), classes: (t.classes||[]).join(', ') })}
                       className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 cursor-pointer transition-colors">
@@ -2705,7 +2665,7 @@ function RhTab({ onToast }: DataProps) {
     <PageLayout title="Personnel administratif" sub={`${staff.length} membres du personnel non-enseignant`}
       actions={
         <button onClick={() => setForm({ ...EMPTY_STAFF })}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
           <Plus size={13} /> Ajouter un membre
         </button>
       }
@@ -2713,7 +2673,7 @@ function RhTab({ onToast }: DataProps) {
       <AnimatePresence>
         {form && (
           <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}>
-            <Card className="p-5 border-2 border-[#0D2E5C]">
+            <Card className="p-5 border-2 border-slate-900">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm font-semibold text-slate-800">{form.id ? 'Modifier le membre' : 'Nouveau membre du personnel'}</p>
                 <button onClick={() => setForm(null)} className="p-1.5 rounded hover:bg-slate-100 cursor-pointer"><X size={15} className="text-slate-400" /></button>
@@ -2747,7 +2707,7 @@ function RhTab({ onToast }: DataProps) {
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSave} disabled={saving}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors disabled:opacity-50">
                   <CheckCircle size={13} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
                 </button>
                 <button onClick={() => setForm(null)}
@@ -2771,29 +2731,29 @@ function RhTab({ onToast }: DataProps) {
 
       <Card>
         <CardHeader title="Annuaire du personnel" />
-        <div className="overflow-x-auto"><table className="w-full text-xs min-w-[600px]">
+        <div className="overflow-x-auto"><table className="w-full text-xs min-w-[600px] border-collapse">
           <thead className="border-b border-slate-100 bg-slate-50">
             <tr>
               {['Poste','Nom complet','Téléphone','Email','Date d\'entrée','Statut','Actions'].map(h => (
-                <th key={h} className="px-5 py-3 text-left font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                <th key={h} className="px-5 py-3 text-left font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200">{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
+          <tbody>
             {staff.length === 0 && (
               <tr><td colSpan={7} className="text-center py-8 text-sm text-slate-400">Aucun membre enregistré.</td></tr>
             )}
-            {staff.map(s => (
-              <tr key={s.id} className="hover:bg-slate-50 transition-colors">
-                <td className="px-5 py-3.5 font-semibold text-slate-800">{s.poste}</td>
-                <td className="px-5 py-3.5 text-slate-700">{s.prenom} {s.nom}</td>
-                <td className="px-5 py-3.5 font-mono text-[11px] text-slate-600">{s.tel}</td>
-                <td className="px-5 py-3.5 text-slate-500">{s.email}</td>
-                <td className="px-5 py-3.5 text-slate-400">{s.entree ? fmtDate(s.entree) : '—'}</td>
-                <td className="px-5 py-3.5">
+            {staff.map((s, idx) => (
+              <tr key={s.id} className={idx % 2 === 0 ? "bg-white hover:bg-[#F8FAFF] transition-colors" : "bg-[#FAFBFF] hover:bg-[#F8FAFF] transition-colors"}>
+                <td className="px-5 py-3.5 font-semibold text-slate-800 border border-slate-200">{s.poste}</td>
+                <td className="px-5 py-3.5 text-slate-700 border border-slate-200">{s.prenom} {s.nom}</td>
+                <td className="px-5 py-3.5 font-mono text-[11px] text-slate-600 border border-slate-200">{s.tel}</td>
+                <td className="px-5 py-3.5 text-slate-500 border border-slate-200">{s.email}</td>
+                <td className="px-5 py-3.5 text-slate-400 border border-slate-200">{s.entree ? fmtDate(s.entree) : '—'}</td>
+                <td className="px-5 py-3.5 border border-slate-200">
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded border bg-emerald-50 text-emerald-700 border-emerald-200">Actif</span>
                 </td>
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 border border-slate-200">
                   <div className="flex gap-1">
                     <button onClick={() => setForm({ ...s })}
                       className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 cursor-pointer transition-colors">
@@ -2863,7 +2823,7 @@ function ScolaritesTab({ prospects, tarifs, appointments, onProspectStatus, onTo
         {[['ALL','Tous'],['solde','Avec solde'],['ok','À jour']].map(([v,l]) => (
           <button key={v} onClick={() => setFilter(v)}
             className={`px-3 py-1.5 rounded-md text-xs font-semibold border cursor-pointer transition-colors
-              ${filter === v ? 'bg-[#0D2E5C] text-white border-[#0D2E5C]' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+              ${filter === v ? 'bg-slate-900 text-white border-slate-900' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
             {l}
           </button>
         ))}
@@ -2872,39 +2832,39 @@ function ScolaritesTab({ prospects, tarifs, appointments, onProspectStatus, onTo
 
       <Card>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] text-xs">
+          <table className="w-full min-w-[700px] text-xs border-collapse">
             <thead className="border-b border-slate-100 bg-slate-50">
               <tr>
                 {['Élève','Classe','T1','T2','T3','Total annuel','Solde','Actions'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filtered.map(({ p, t1, t2, t3, paiements, annuel, solde }) => (
+            <tbody>
+              {filtered.map(({ p, t1, t2, t3, paiements, annuel, solde }, idx) => (
                 <tr key={p.id}
                   onClick={() => setSelected(p)}
-                  className={`hover:bg-slate-50 cursor-pointer transition-colors ${solde > 0 ? 'bg-amber-50/20' : ''}`}>
-                  <td className="px-4 py-3.5">
+                  className={`cursor-pointer transition-colors ${solde > 0 ? 'bg-amber-50/30 hover:bg-amber-50/50' : idx % 2 === 0 ? 'bg-white hover:bg-[#F8FAFF]' : 'bg-[#FAFBFF] hover:bg-[#F8FAFF]'}`}>
+                  <td className="px-4 py-3.5 border border-slate-200">
                     <p className="font-semibold text-slate-800">{p.prenomEnfant} {p.nomEnfant}</p>
                     <p className="text-[10px] text-slate-400 mt-0.5">{p.prenomParent} {p.nomParent}</p>
                   </td>
-                  <td className="px-4 py-3.5">
+                  <td className="px-4 py-3.5 border border-slate-200">
                     <span className="font-bold text-[10px] bg-[#0D2E5C] text-white px-2 py-0.5 rounded">{p.sectionVisee}</span>
                   </td>
                   {[{v:t1,s:paiements.t1},{v:t2,s:paiements.t2},{v:t3,s:paiements.t3}].map((tr,i) => (
-                    <td key={i} className="px-4 py-3.5">
+                    <td key={i} className="px-4 py-3.5 border border-slate-200">
                       <p className="font-mono text-[11px] text-slate-700">{fmtF(tr.v)}</p>
                       <span className={`text-[9px] font-semibold ${tr.s==='payé'?'text-emerald-600':tr.s==='en_attente'?'text-amber-600':'text-slate-300'}`}>
                         {tr.s==='payé'?'Payé':tr.s==='en_attente'?'En attente':'Non dû'}
                       </span>
                     </td>
                   ))}
-                  <td className="px-4 py-3.5 font-mono font-semibold text-slate-800">{fmtF(annuel)}</td>
-                  <td className={`px-4 py-3.5 font-mono font-bold ${solde > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
+                  <td className="px-4 py-3.5 font-mono font-semibold text-slate-800 border border-slate-200">{fmtF(annuel)}</td>
+                  <td className={`px-4 py-3.5 font-mono font-bold border border-slate-200 ${solde > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
                     {solde > 0 ? fmtF(solde) : 'À jour'}
                   </td>
-                  <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
+                  <td className="px-4 py-3.5 border border-slate-200" onClick={e => e.stopPropagation()}>
                     <button className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 cursor-pointer transition-colors" title="Imprimer">
                       <Printer size={13} />
                     </button>
@@ -2972,7 +2932,7 @@ function FacturationTab({ prospects, tarifs, onToast }: DataProps) {
     <PageLayout title="Facturation" sub="Historique et état des factures — Toutes classes"
       actions={
         <button onClick={() => onToast('Génération de facture groupée...')}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
           <Plus size={13} /> Émettre factures
         </button>
       }
@@ -2987,7 +2947,7 @@ function FacturationTab({ prospects, tarifs, onToast }: DataProps) {
         {[['ALL','Toutes'],['payée','Payées'],['en_attente','En attente'],['non_émise','Non émises']].map(([v,l]) => (
           <button key={v} onClick={() => setFilterStatut(v)}
             className={`px-3 py-1.5 rounded-md text-xs font-semibold border cursor-pointer transition-colors
-              ${filterStatut === v ? 'bg-[#0D2E5C] text-white border-[#0D2E5C]' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+              ${filterStatut === v ? 'bg-slate-900 text-white border-slate-900' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
             {l}
           </button>
         ))}
@@ -2996,29 +2956,29 @@ function FacturationTab({ prospects, tarifs, onToast }: DataProps) {
 
       <Card>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] text-xs">
+          <table className="w-full min-w-[700px] text-xs border-collapse">
             <thead className="border-b border-slate-100 bg-slate-50">
               <tr>
                 {['Référence','Élève','Classe','Libellé','Montant','Date','Statut','Actions'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filtered.slice(0, 30).map(f => (
-                <tr key={f.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-3 font-mono text-[10px] text-slate-500">{f.ref}</td>
-                  <td className="px-4 py-3 font-semibold text-slate-800">{f.nom}</td>
-                  <td className="px-4 py-3"><span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">{f.classe}</span></td>
-                  <td className="px-4 py-3 text-slate-600">{f.libelle}</td>
-                  <td className="px-4 py-3 font-mono font-semibold text-slate-800">{fmtF(f.montant)}</td>
-                  <td className="px-4 py-3 text-slate-400">{fmtDate(f.date, { day:'numeric', month:'short' })}</td>
-                  <td className="px-4 py-3">
+            <tbody>
+              {filtered.slice(0, 30).map((f, idx) => (
+                <tr key={f.id} className={idx % 2 === 0 ? "bg-white hover:bg-[#F8FAFF] transition-colors" : "bg-[#FAFBFF] hover:bg-[#F8FAFF] transition-colors"}>
+                  <td className="px-4 py-3 font-mono text-[10px] text-slate-500 border border-slate-200">{f.ref}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-800 border border-slate-200">{f.nom}</td>
+                  <td className="px-4 py-3 border border-slate-200"><span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">{f.classe}</span></td>
+                  <td className="px-4 py-3 text-slate-600 border border-slate-200">{f.libelle}</td>
+                  <td className="px-4 py-3 font-mono font-semibold text-slate-800 border border-slate-200">{fmtF(f.montant)}</td>
+                  <td className="px-4 py-3 text-slate-400 border border-slate-200">{fmtDate(f.date, { day:'numeric', month:'short' })}</td>
+                  <td className="px-4 py-3 border border-slate-200">
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${f.statut==='payée'?'bg-emerald-50 text-emerald-700 border-emerald-200':f.statut==='en_attente'?'bg-amber-50 text-amber-700 border-amber-200':'bg-slate-50 text-slate-400 border-slate-200'}`}>
                       {f.statut==='payée'?'Payée':f.statut==='en_attente'?'En attente':'Non émise'}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 border border-slate-200">
                     <button onClick={() => onToast(`Impression facture ${f.ref}`)}
                       className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 cursor-pointer transition-colors">
                       <Printer size={13} />
@@ -3086,7 +3046,7 @@ function DepensesTab({ onToast }: DataProps) {
     <PageLayout title="Dépenses" sub="Suivi des charges de l'établissement"
       actions={
         <button onClick={() => setForm({ ...EMPTY_DEPENSE })}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
           <Plus size={13} /> Enregistrer une dépense
         </button>
       }
@@ -3094,7 +3054,7 @@ function DepensesTab({ onToast }: DataProps) {
       <AnimatePresence>
         {form && (
           <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}>
-            <Card className="p-5 border-2 border-[#0D2E5C]">
+            <Card className="p-5 border-2 border-slate-900">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm font-semibold text-slate-800">Nouvelle dépense</p>
                 <button onClick={() => setForm(null)} className="p-1.5 rounded hover:bg-slate-100 cursor-pointer"><X size={15} className="text-slate-400" /></button>
@@ -3135,7 +3095,7 @@ function DepensesTab({ onToast }: DataProps) {
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSave} disabled={saving}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors disabled:opacity-50">
                   <CheckCircle size={13} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
                 </button>
                 <button onClick={() => setForm(null)}
@@ -3177,36 +3137,36 @@ function DepensesTab({ onToast }: DataProps) {
         {[['ALL','Toutes catégories'], ...cats.map(c=>[c,c])].map(([v,l]) => (
           <button key={v} onClick={() => setFilter(v)}
             className={`px-3 py-1.5 rounded-md text-xs font-semibold border cursor-pointer transition-colors
-              ${filter === v ? 'bg-[#0D2E5C] text-white border-[#0D2E5C]' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+              ${filter === v ? 'bg-slate-900 text-white border-slate-900' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
             {l}
           </button>
         ))}
       </Card>
 
       <Card>
-        <div className="overflow-x-auto"><table className="w-full text-xs min-w-[600px]">
+        <div className="overflow-x-auto"><table className="w-full text-xs min-w-[600px] border-collapse">
           <thead className="border-b border-slate-100 bg-slate-50">
             <tr>
               {['Date','Catégorie','Description','Montant','Statut','Actions'].map(h => (
-                <th key={h} className="px-5 py-3 text-left font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                <th key={h} className="px-5 py-3 text-left font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200">{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
-            {filtered.map(d => (
-              <tr key={d.id} className="hover:bg-slate-50 transition-colors">
-                <td className="px-5 py-3.5 text-slate-500">{fmtDate(d.date, { day:'numeric', month:'short' })}</td>
-                <td className="px-5 py-3.5">
+          <tbody>
+            {filtered.map((d, idx) => (
+              <tr key={d.id} className={idx % 2 === 0 ? "bg-white hover:bg-[#F8FAFF] transition-colors" : "bg-[#FAFBFF] hover:bg-[#F8FAFF] transition-colors"}>
+                <td className="px-5 py-3.5 text-slate-500 border border-slate-200">{fmtDate(d.date, { day:'numeric', month:'short' })}</td>
+                <td className="px-5 py-3.5 border border-slate-200">
                   <span className="text-[10px] font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">{d.categorie}</span>
                 </td>
-                <td className="px-5 py-3.5 text-slate-700 font-medium">{d.libelle}</td>
-                <td className="px-5 py-3.5 font-mono font-semibold text-slate-900">{fmtF(d.montant)}</td>
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 text-slate-700 font-medium border border-slate-200">{d.libelle}</td>
+                <td className="px-5 py-3.5 font-mono font-semibold text-slate-900 border border-slate-200">{fmtF(d.montant)}</td>
+                <td className="px-5 py-3.5 border border-slate-200">
                   <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${d.statut==='payée'?'bg-emerald-50 text-emerald-700 border-emerald-200':'bg-amber-50 text-amber-700 border-amber-200'}`}>
                     {d.statut === 'payée' ? 'Payée' : 'En attente'}
                   </span>
                 </td>
-                <td className="px-5 py-3.5 flex gap-1">
+                <td className="px-5 py-3.5 flex gap-1 border border-slate-200">
                   <button onClick={() => onToast(`Reçu : ${d.libelle}`)} className="p-1.5 rounded hover:bg-slate-100 text-slate-400 cursor-pointer transition-colors"><Printer size={13} /></button>
                   <button onClick={() => handleDelete(d.id)} className="p-1.5 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 cursor-pointer transition-colors"><Trash2 size={13} /></button>
                 </td>
@@ -3269,7 +3229,7 @@ function NewslettersTab({ prospects, onToast }: DataProps) {
     <PageLayout title="Newsletters" sub="Communication groupée vers les familles"
       actions={
         <button onClick={() => setView(v => v === 'list' ? 'compose' : 'list')}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
           {view === 'list' ? <><Plus size={13} /> Rédiger</> : <><X size={13} /> Annuler</>}
         </button>
       }
@@ -3303,7 +3263,7 @@ function NewslettersTab({ prospects, onToast }: DataProps) {
               </div>
               <div className="flex gap-2 pt-2">
                 <button onClick={handleSend} disabled={sending}
-                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors disabled:opacity-50">
                   {sending
                     ? <><div className="w-3 h-3 rounded-full border-2 border-white/40 border-t-white animate-spin" /> Envoi en cours…</>
                     : <><Send size={13} /> Envoyer à {nbDest} destinataire{nbDest>1?'s':''}</> }
@@ -3406,7 +3366,7 @@ function BlogTab({ onToast }: DataProps) {
     <PageLayout title="Blog — CMS" sub="Gestion des articles publiés sur le site public"
       actions={
         <button onClick={() => setForm({ ...EMPTY_ARTICLE })}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
           <Plus size={13} /> Nouvel article
         </button>
       }
@@ -3414,7 +3374,7 @@ function BlogTab({ onToast }: DataProps) {
       <AnimatePresence>
         {form && (
           <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}>
-            <Card className="p-5 border-2 border-[#0D2E5C]">
+            <Card className="p-5 border-2 border-slate-900">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm font-semibold text-slate-800">{form.id ? 'Modifier l\'article' : 'Nouvel article'}</p>
                 <button onClick={() => setForm(null)} className="p-1.5 rounded hover:bg-slate-100 cursor-pointer"><X size={15} className="text-slate-400" /></button>
@@ -3455,7 +3415,7 @@ function BlogTab({ onToast }: DataProps) {
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSave} disabled={saving}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors disabled:opacity-50">
                   <CheckCircle size={13} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
                 </button>
                 <button onClick={() => setForm(null)}
@@ -3573,7 +3533,7 @@ function FaqTab({ onToast }: DataProps) {
     <PageLayout title="FAQ — CMS" sub="Questions fréquentes affichées sur le site public"
       actions={
         <button onClick={() => setForm({ ...EMPTY_FAQ, ordre: faqs.length + 1 })}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
           <Plus size={13} /> Nouvelle question
         </button>
       }
@@ -3581,7 +3541,7 @@ function FaqTab({ onToast }: DataProps) {
       <AnimatePresence>
         {form && (
           <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}>
-            <Card className="p-5 border-2 border-[#0D2E5C]">
+            <Card className="p-5 border-2 border-slate-900">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm font-semibold text-slate-800">{form.id ? 'Modifier la question' : 'Nouvelle question'}</p>
                 <button onClick={() => setForm(null)} className="p-1.5 rounded hover:bg-slate-100 cursor-pointer"><X size={15} className="text-slate-400" /></button>
@@ -3613,7 +3573,7 @@ function FaqTab({ onToast }: DataProps) {
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSave} disabled={saving}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors disabled:opacity-50">
                   <CheckCircle size={13} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
                 </button>
                 <button onClick={() => setForm(null)}
@@ -3636,7 +3596,7 @@ function FaqTab({ onToast }: DataProps) {
         {[['ALL','Toutes'], ...cats.map(c=>[c,c])].map(([v,l]) => (
           <button key={v} onClick={() => setFilterCat(v)}
             className={`px-3 py-1.5 rounded-md text-xs font-semibold border cursor-pointer transition-colors
-              ${filterCat===v?'bg-[#0D2E5C] text-white border-[#0D2E5C]':'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+              ${filterCat===v?'bg-slate-900 text-white border-slate-900':'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
             {l}
           </button>
         ))}
@@ -3701,10 +3661,8 @@ function GalerieTab({ onToast }: DataProps) {
   const [galerie,   setGalerie]   = useState<any[]>([]);
   const [filterCat, setFilterCat] = useState('ALL');
   const [showForm,  setShowForm]  = useState(false);
-  const [form,      setForm]      = useState({ titre:'', cat:'Vie de classe', classe:'', date: new Date().toISOString().slice(0,10) });
-  const [galFile,   setGalFile]   = useState<File | null>(null);
+  const [form,      setForm]      = useState({ titre:'', url:'', cat:'Vie de classe', classe:'', date: new Date().toISOString().slice(0,10) });
   const [saving,    setSaving]    = useState(false);
-  const galFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { apiFetch('/api/galerie').then(setGalerie).catch(console.error); }, []);
 
@@ -3712,24 +3670,17 @@ function GalerieTab({ onToast }: DataProps) {
   const filtered = galerie.filter((g: any) => filterCat === 'ALL' || g.cat === filterCat);
 
   const handleAdd = async () => {
-    if (!form.titre.trim()) { onToast('Titre requis.'); return; }
-    if (!galFile) { onToast('Sélectionnez une photo à uploader.'); return; }
+    if (!form.titre.trim() || !form.url.trim()) { onToast('Titre et URL requis.'); return; }
     setSaving(true);
     try {
-      const fd = new FormData();
-      fd.append('photo', galFile);
-      fd.append('titre', form.titre);
-      fd.append('cat',   form.cat);
-      fd.append('classe', form.classe);
-      const r = await authFetch('/api/galerie/upload', { method: 'POST', body: fd });
-      const data = await r.json();
+      const r = await apiPost('/api/galerie', form);
+      let data: any = {};
+      try { data = await r.json(); } catch {}
       if (r.ok) setGalerie(prev => [data, ...prev]);
       setShowForm(false);
-      setForm({ titre:'', cat:'Vie de classe', classe:'', date: new Date().toISOString().slice(0,10) });
-      setGalFile(null);
-      if (galFileRef.current) galFileRef.current.value = '';
-      onToast('Photo uploadée dans R2 et ajoutée à la galerie.');
-    } catch { onToast('Erreur upload.'); }
+      setForm({ titre:'', url:'', cat:'Vie de classe', classe:'', date: new Date().toISOString().slice(0,10) });
+      onToast('Photo ajoutée à la galerie.');
+    } catch { onToast('Erreur lors de l\'ajout.'); }
     finally { setSaving(false); }
   };
 
@@ -3744,7 +3695,7 @@ function GalerieTab({ onToast }: DataProps) {
     <PageLayout title="Galerie — CMS" sub="Médiathèque photographique de l'établissement"
       actions={
         <button onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
           {showForm ? <><X size={13} /> Annuler</> : <><Plus size={13} /> Ajouter une photo</>}
         </button>
       }
@@ -3752,15 +3703,14 @@ function GalerieTab({ onToast }: DataProps) {
       <AnimatePresence>
         {showForm && (
           <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}>
-            <Card className="p-5 border-2 border-[#0D2E5C]">
-              <p className="text-sm font-semibold text-[#2C2C2C] mb-4">Uploader une photo vers R2</p>
+            <Card className="p-5 border-2 border-slate-900">
+              <p className="text-sm font-semibold text-slate-800 mb-4">Ajouter une photo par URL</p>
               <div className="grid md:grid-cols-2 gap-4 mb-4">
                 <div className="md:col-span-2">
-                  <label className="block text-[9px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Fichier image (JPG, PNG, WebP — max 20 Mo)</label>
-                  <input ref={galFileRef} type="file" accept="image/*"
-                    onChange={e => setGalFile(e.target.files?.[0] ?? null)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 bg-white file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-[#0D2E5C] file:text-white cursor-pointer" />
-                  {galFile && <p className="text-[10px] text-[#2D8C3C] mt-1 font-semibold">✓ {galFile.name} ({(galFile.size/1024).toFixed(0)} Ko)</p>}
+                  <label className="block text-[9px] font-semibold text-slate-400 uppercase tracking-wide mb-1">URL de l'image</label>
+                  <input value={form.url} onChange={e => setForm(f => ({...f, url:e.target.value}))}
+                    placeholder="https://example.com/photo.jpg"
+                    className="w-full px-3 py-2 text-xs font-mono border border-slate-200 rounded-md focus:outline-none focus:border-slate-400" />
                 </div>
                 <div>
                   <label className="block text-[9px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Titre</label>
@@ -3787,7 +3737,7 @@ function GalerieTab({ onToast }: DataProps) {
                 </div>
               </div>
               <button onClick={handleAdd} disabled={saving}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors disabled:opacity-50">
+                className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-700 transition-colors disabled:opacity-50">
                 <CheckCircle size={13} /> {saving ? 'Ajout…' : 'Ajouter à la galerie'}
               </button>
             </Card>
@@ -3805,7 +3755,7 @@ function GalerieTab({ onToast }: DataProps) {
         {[['ALL','Toutes'], ...cats.map(c=>[c,c])].map(([v,l]) => (
           <button key={v} onClick={() => setFilterCat(v)}
             className={`px-3 py-1.5 rounded-md text-xs font-semibold border cursor-pointer transition-colors
-              ${filterCat===v?'bg-[#0D2E5C] text-white border-[#0D2E5C]':'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+              ${filterCat===v?'bg-slate-900 text-white border-slate-900':'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
             {l}
           </button>
         ))}
@@ -3833,7 +3783,7 @@ function GalerieTab({ onToast }: DataProps) {
               <p className="text-[9px] text-white font-semibold truncate">{g.titre}</p>
               <span className="text-[8px] text-white/60">{g.cat}</span>
             </div>
-            <div className="absolute inset-0 bg-[#0D2E5C]/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               {g.url && (
                 <a href={g.url} target="_blank" rel="noreferrer"
                   className="p-1.5 rounded bg-white/20 text-white hover:bg-white/30 cursor-pointer transition-colors">
@@ -3887,7 +3837,7 @@ function TemoignagesTab({ onToast }: DataProps) {
         {temos.map(t => (
           <Card key={t.id} className={`p-5 ${t.statut==='refusé'?'opacity-50':''}`}>
             <div className="flex items-start gap-4">
-              <div className="w-9 h-9 rounded-md bg-[#0D2E5C] flex items-center justify-center text-white font-bold text-sm shrink-0">
+              <div className="w-9 h-9 rounded-md bg-slate-900 flex items-center justify-center text-white font-bold text-sm shrink-0">
                 {t.parent[0]}
               </div>
               <div className="flex-1 min-w-0">
@@ -3979,12 +3929,12 @@ function LogsTab({ onToast }: DataProps) {
 
       <Card className="p-3.5 flex gap-2 flex-wrap items-center">
         <button onClick={() => setFilterAction('ALL')}
-          className={`px-3 py-1.5 rounded-md text-xs font-semibold border cursor-pointer transition-colors ${filterAction==='ALL'?'bg-[#0D2E5C] text-white border-[#0D2E5C]':'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+          className={`px-3 py-1.5 rounded-md text-xs font-semibold border cursor-pointer transition-colors ${filterAction==='ALL'?'bg-slate-900 text-white border-slate-900':'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
           Toutes les actions
         </button>
         {actionTypes.map(a => (
           <button key={a} onClick={() => setFilterAction(a)}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold border cursor-pointer transition-colors ${filterAction===a?'bg-[#0D2E5C] text-white border-[#0D2E5C]':'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold border cursor-pointer transition-colors ${filterAction===a?'bg-slate-900 text-white border-slate-900':'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
             {a}
           </button>
         ))}
@@ -3992,30 +3942,30 @@ function LogsTab({ onToast }: DataProps) {
 
       <Card>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] text-xs">
+          <table className="w-full min-w-[700px] text-xs border-collapse">
             <thead className="border-b border-slate-100 bg-slate-50">
               <tr>
                 {['Horodatage','Utilisateur','Action','Module','Détail'].map(h => (
-                  <th key={h} className="px-5 py-3 text-left font-semibold text-slate-400 text-[10px] uppercase tracking-wide">{h}</th>
+                  <th key={h} className="px-5 py-3 text-left font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filtered.map(l => (
-                <tr key={l.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-5 py-3 font-mono text-[10px] text-slate-500 whitespace-nowrap">
+            <tbody>
+              {filtered.map((l, idx) => (
+                <tr key={l.id} className={idx % 2 === 0 ? "bg-white hover:bg-[#F8FAFF] transition-colors" : "bg-[#FAFBFF] hover:bg-[#F8FAFF] transition-colors"}>
+                  <td className="px-5 py-3 font-mono text-[10px] text-slate-500 whitespace-nowrap border border-slate-200">
                     {new Date(l.ts).toLocaleDateString('fr-FR', { day:'numeric', month:'short' })}
                     {' · '}
                     {new Date(l.ts).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit', second:'2-digit' })}
                   </td>
-                  <td className="px-5 py-3 text-slate-600">{l.user}</td>
-                  <td className="px-5 py-3">
+                  <td className="px-5 py-3 text-slate-600 border border-slate-200">{l.user}</td>
+                  <td className="px-5 py-3 border border-slate-200">
                     <span className={`text-[9px] font-bold px-2 py-0.5 rounded border ${actionStyle[l.action] || 'bg-slate-50 text-slate-500 border-slate-200'}`}>
                       {l.action}
                     </span>
                   </td>
-                  <td className="px-5 py-3 font-medium text-slate-700">{l.module}</td>
-                  <td className="px-5 py-3 text-slate-500 max-w-[320px] truncate">{l.detail}</td>
+                  <td className="px-5 py-3 font-medium text-slate-700 border border-slate-200">{l.module}</td>
+                  <td className="px-5 py-3 text-slate-500 max-w-[320px] truncate border border-slate-200">{l.detail}</td>
                 </tr>
               ))}
             </tbody>
@@ -4025,6 +3975,318 @@ function LogsTab({ onToast }: DataProps) {
           <p className="text-[11px] text-slate-400">Affichage des {filtered.length} derniers événements · Conservation : 90 jours</p>
         </div>
       </Card>
+    </PageLayout>
+  );
+}
+
+// ─── Onglet Parents ───────────────────────────────────────────────────────────
+
+function ParentsTab({ prospects }: DataProps) {
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<{ key: string; enfants: Prospect[] } | null>(null);
+
+  const families = useMemo(() => {
+    const map = new Map<string, Prospect[]>();
+    prospects.forEach(p => {
+      const key = `${p.nomParent}||${p.telephone}`;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(p);
+    });
+    return Array.from(map.entries()).map(([key, enfants]) => ({ key, enfants }));
+  }, [prospects]);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return families;
+    const q = search.toLowerCase();
+    return families.filter(f => {
+      const p = f.enfants[0];
+      return (
+        `${p.prenomParent} ${p.nomParent}`.toLowerCase().includes(q) ||
+        p.email.toLowerCase().includes(q) ||
+        p.telephone.includes(q)
+      );
+    });
+  }, [families, search]);
+
+  return (
+    <PageLayout title="Annuaire des parents"
+      sub={`${filtered.length} famille${filtered.length > 1 ? 's' : ''} · ${prospects.length} enfant${prospects.length > 1 ? 's' : ''}`}
+    >
+      <div className="flex gap-5">
+        {/* Table */}
+        <div className="flex-1 min-w-0">
+          <Card className="overflow-hidden">
+            <CardHeader title="Liste des familles" action={
+              <div className="relative">
+                <Search size={13} className="absolute left-3 top-2.5 text-slate-400" />
+                <input value={search} onChange={e => setSearch(e.target.value)}
+                  placeholder="Rechercher parent, email, tél..."
+                  className="w-64 pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 bg-white" />
+              </div>
+            } />
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[800px] border-collapse">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 text-[10px] font-semibold text-slate-600 uppercase tracking-wide whitespace-nowrap bg-[#F1F5F9] border border-slate-200 text-left">Nom du parent</th>
+                    <th className="px-4 py-3 text-[10px] font-semibold text-slate-600 uppercase tracking-wide whitespace-nowrap bg-[#F1F5F9] border border-slate-200 text-left">Lien</th>
+                    <th className="px-4 py-3 text-[10px] font-semibold text-slate-600 uppercase tracking-wide whitespace-nowrap bg-[#F1F5F9] border border-slate-200 text-left">Téléphone</th>
+                    <th className="px-4 py-3 text-[10px] font-semibold text-slate-600 uppercase tracking-wide whitespace-nowrap bg-[#F1F5F9] border border-slate-200 text-left">Email</th>
+                    <th className="px-4 py-3 text-[10px] font-semibold text-slate-600 uppercase tracking-wide whitespace-nowrap bg-[#F1F5F9] border border-slate-200 text-left">Commune</th>
+                    <th className="px-4 py-3 text-[10px] font-semibold text-slate-600 uppercase tracking-wide whitespace-nowrap bg-[#F1F5F9] border border-slate-200 text-left">Nb. enfants</th>
+                    <th className="px-4 py-3 text-[10px] font-semibold text-slate-600 uppercase tracking-wide whitespace-nowrap bg-[#F1F5F9] border border-slate-200 text-left">Statut(s)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 ? (
+                    <tr><td colSpan={7} className="text-center py-12 text-sm text-slate-400">
+                      <Users size={24} className="mx-auto mb-2 text-slate-300" />
+                      Aucune famille trouvée
+                    </td></tr>
+                  ) : filtered.map((f, idx) => {
+                    const p = f.enfants[0];
+                    const statuts = [...new Set(f.enfants.map(e => e.statut))];
+                    return (
+                      <tr key={f.key}
+                        onClick={() => setSelected(selected?.key === f.key ? null : f)}
+                        className={idx % 2 === 0 ? "bg-white hover:bg-[#F8FAFF] cursor-pointer transition-colors" : "bg-[#FAFBFF] hover:bg-[#F8FAFF] cursor-pointer transition-colors"}>
+                        <td className="px-4 py-3 text-xs border border-slate-200">
+                          <p className="font-semibold text-slate-800">{p.prenomParent} {p.nomParent}</p>
+                        </td>
+                        <td className="px-4 py-3 text-xs border border-slate-200 text-slate-500">{p.lienParente}</td>
+                        <td className="px-4 py-3 text-xs border border-slate-200 font-mono text-slate-600">{p.telephone}</td>
+                        <td className="px-4 py-3 text-xs border border-slate-200 text-slate-500 truncate max-w-[160px]">{p.email}</td>
+                        <td className="px-4 py-3 text-xs border border-slate-200 text-slate-500">{p.commune}</td>
+                        <td className="px-4 py-3 text-xs border border-slate-200 text-center">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#0D2E5C] text-white text-[10px] font-bold">
+                            {f.enfants.length}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-xs border border-slate-200">
+                          <div className="flex flex-wrap gap-1">
+                            {statuts.map(s => (
+                              <StatBadge key={s} label={s} statut={statutColor(s)} />
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+
+        {/* Drawer latéral */}
+        {selected && (
+          <div className="w-[340px] shrink-0">
+            <Card className="sticky top-0">
+              <CardHeader
+                title={`${selected.enfants[0].prenomParent} ${selected.enfants[0].nomParent}`}
+                sub="Fiche famille"
+                action={
+                  <button onClick={() => setSelected(null)}
+                    className="p-1.5 rounded hover:bg-slate-100 text-slate-400 cursor-pointer transition-colors">
+                    <X size={16} />
+                  </button>
+                }
+              />
+              <div className="p-4 space-y-4">
+                {/* Identité parent */}
+                <div className="space-y-2">
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Identité</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div><p className="text-slate-400 text-[10px]">Lien</p><p className="font-medium text-slate-700">{selected.enfants[0].lienParente}</p></div>
+                    <div><p className="text-slate-400 text-[10px]">Commune</p><p className="font-medium text-slate-700">{selected.enfants[0].commune}</p></div>
+                    <div className="col-span-2"><p className="text-slate-400 text-[10px]">Téléphone</p><p className="font-mono text-slate-700">{selected.enfants[0].telephone}</p></div>
+                    <div className="col-span-2"><p className="text-slate-400 text-[10px]">Email</p><p className="text-slate-700 truncate">{selected.enfants[0].email}</p></div>
+                  </div>
+                </div>
+
+                {/* Enfants */}
+                <div className="space-y-2">
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                    Enfant{selected.enfants.length > 1 ? 's' : ''} ({selected.enfants.length})
+                  </p>
+                  <div className="space-y-2">
+                    {selected.enfants.map(e => (
+                      <div key={e.id} className="p-3 rounded-md border border-slate-200 bg-slate-50">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="font-semibold text-slate-800 text-xs">{e.prenomEnfant} {e.nomEnfant}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">{fmtDate(e.dateNaissance)}</p>
+                          </div>
+                          <span className="inline-flex items-center justify-center w-9 h-6 rounded bg-[#0D2E5C] text-white text-[10px] font-bold shrink-0">
+                            {e.sectionVisee}
+                          </span>
+                        </div>
+                        <div className="mt-2">
+                          <StatBadge label={e.statut} statut={statutColor(e.statut)} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+      </div>
+    </PageLayout>
+  );
+}
+
+// ─── Onglet Contenu du site ───────────────────────────────────────────────────
+
+function ContenuTab({ onToast, config }: DataProps) {
+  const [saving, setSaving] = useState<string | null>(null);
+
+  // Logo & Identité
+  const [slogan, setSlogan] = useState<string>(config?.slogan || '');
+
+  // Réseaux sociaux
+  const [facebook, setFacebook] = useState<string>(config?.reseaux_sociaux?.facebook || '');
+  const [instagram, setInstagram] = useState<string>(config?.reseaux_sociaux?.instagram || '');
+  const [whatsapp, setWhatsapp] = useState<string>(config?.reseaux_sociaux?.whatsapp || '');
+  const [youtube, setYoutube] = useState<string>(config?.reseaux_sociaux?.youtube || '');
+
+  // Contacts publics
+  const [hero, setHero] = useState<string>(config?.contacts_publics?.hero || '');
+  const [adresse, setAdresse] = useState<string>(config?.contacts_publics?.adresse || '');
+  const [telPublic, setTelPublic] = useState<string>(config?.contacts_publics?.telephone || '');
+  const [emailPublic, setEmailPublic] = useState<string>(config?.contacts_publics?.email || '');
+
+  async function save(cle: string, valeur: any) {
+    setSaving(cle);
+    try {
+      const r = await authFetch(`/api/configuration/${cle}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ valeur }),
+      });
+      if (!r.ok) throw new Error('Erreur serveur');
+      onToast('Enregistré avec succès');
+    } catch {
+      onToast("Erreur lors de l'enregistrement");
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  return (
+    <PageLayout title="Contenu du site" sub="Gérez le contenu affiché sur votre site public">
+      <div className="space-y-5 max-w-2xl">
+
+        {/* Logo & Identité */}
+        <Card>
+          <CardHeader title="Logo & Identité" />
+          <div className="p-5 space-y-4">
+            <div>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Nom de l'école</p>
+              <p className="text-sm font-semibold text-slate-700 px-3 py-2 bg-slate-50 rounded-md border border-slate-200">EPV Horizons Savants</p>
+              <p className="text-[10px] text-slate-400 mt-1">Non modifiable ici.</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Slogan</p>
+              <input value={slogan} onChange={e => setSlogan(e.target.value)}
+                placeholder="Ex: Bienvenue à EPV Horizons Savants"
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-slate-400" />
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Logo</p>
+              <input type="file" accept="image/*"
+                onChange={async e => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setSaving('logo');
+                  try {
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    const r = await authFetch('/api/uploads/logo', { method: 'POST', body: fd });
+                    if (!r.ok) throw new Error('Erreur upload');
+                    onToast('Logo mis à jour');
+                  } catch {
+                    onToast("Erreur lors de l'upload");
+                  } finally {
+                    setSaving(null);
+                  }
+                }}
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none bg-white file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-[#0D2E5C] file:text-white cursor-pointer" />
+            </div>
+            <button onClick={() => save('slogan', slogan)}
+              disabled={saving === 'slogan'}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold hover:bg-[#1A4F8B] cursor-pointer transition-colors disabled:opacity-50">
+              {saving === 'slogan' ? <RefreshCw size={13} className="animate-spin" /> : null}
+              Enregistrer le slogan
+            </button>
+          </div>
+        </Card>
+
+        {/* Réseaux sociaux */}
+        <Card>
+          <CardHeader title="Réseaux sociaux" />
+          <div className="p-5 space-y-3">
+            {[
+              { label: 'Facebook URL', val: facebook, set: setFacebook, ph: 'https://facebook.com/...' },
+              { label: 'Instagram URL', val: instagram, set: setInstagram, ph: 'https://instagram.com/...' },
+              { label: 'WhatsApp (numéro)', val: whatsapp, set: setWhatsapp, ph: '+22500000000' },
+              { label: 'YouTube URL (optionnel)', val: youtube, set: setYoutube, ph: 'https://youtube.com/...' },
+            ].map(({ label, val, set, ph }) => (
+              <div key={label}>
+                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">{label}</p>
+                <input value={val} onChange={e => set(e.target.value)} placeholder={ph}
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-slate-400" />
+              </div>
+            ))}
+            <button onClick={() => save('reseaux_sociaux', { facebook, instagram, whatsapp, youtube })}
+              disabled={saving === 'reseaux_sociaux'}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold hover:bg-[#1A4F8B] cursor-pointer transition-colors disabled:opacity-50">
+              {saving === 'reseaux_sociaux' ? <RefreshCw size={13} className="animate-spin" /> : null}
+              Enregistrer les réseaux
+            </button>
+          </div>
+        </Card>
+
+        {/* Textes clés */}
+        <Card>
+          <CardHeader title="Textes clés du site" />
+          <div className="p-5 space-y-3">
+            <div>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Message d'accueil Hero</p>
+              <textarea value={hero} onChange={e => setHero(e.target.value)} maxLength={200} rows={3}
+                placeholder="Message affiché en haut de la page d'accueil..."
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 resize-none font-sans" />
+              <p className="text-[10px] text-slate-400 text-right">{hero.length}/200</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Adresse complète</p>
+              <input value={adresse} onChange={e => setAdresse(e.target.value)}
+                placeholder="Ex: Cocody, Abidjan, Côte d'Ivoire"
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-slate-400" />
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Téléphone public</p>
+              <input value={telPublic} onChange={e => setTelPublic(e.target.value)}
+                placeholder="+225 00 00 00 00 00"
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-slate-400" />
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Email de contact public</p>
+              <input value={emailPublic} onChange={e => setEmailPublic(e.target.value)}
+                placeholder="contact@epv-horizons-savants.ci"
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-slate-400" />
+            </div>
+            <button onClick={() => save('contacts_publics', { hero, adresse, telephone: telPublic, email: emailPublic })}
+              disabled={saving === 'contacts_publics'}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold hover:bg-[#1A4F8B] cursor-pointer transition-colors disabled:opacity-50">
+              {saving === 'contacts_publics' ? <RefreshCw size={13} className="animate-spin" /> : null}
+              Enregistrer les textes
+            </button>
+          </div>
+        </Card>
+
+      </div>
     </PageLayout>
   );
 }
@@ -4128,20 +4390,20 @@ export const AdminDashboard: React.FC = () => {
 
   if (isAdmin === null) {
     return (
-      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#0D2E5C] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#F1F5F9] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F1F5F9] flex items-center justify-center">
         <div className="w-full max-w-sm bg-white border border-slate-200 rounded-lg p-8 text-center">
           <p className="text-sm font-semibold text-slate-700 mb-1">Session expirée</p>
           <p className="text-xs text-slate-400 mb-5">Reconnectez-vous pour accéder à la console d'administration.</p>
           <button onClick={() => { window.location.hash='#/admin'; }}
-            className="w-full py-2.5 rounded-md bg-[#0D2E5C] text-white text-sm font-semibold cursor-pointer hover:bg-[#1A4F8B] transition-colors">
+            className="w-full py-2.5 rounded-md bg-slate-900 text-white text-sm font-semibold cursor-pointer hover:bg-slate-700 transition-colors">
             Se reconnecter
           </button>
         </div>
@@ -4152,14 +4414,14 @@ export const AdminDashboard: React.FC = () => {
   const currentLabel = NAV_GROUPS.flatMap(g => g.items).find(i => i.id === tab)?.label || tab;
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] flex">
+    <div className="min-h-screen bg-[#F1F5F9] flex">
 
       {/* ══ SIDEBAR ════════════════════════════════════════════════════════ */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <aside className={`fixed top-0 left-0 bottom-0 z-40 w-[220px] bg-[#0D2E5C] flex flex-col transition-transform duration-300
+      <aside className={`fixed top-0 left-0 bottom-0 z-40 w-[220px] bg-[#0F172A] flex flex-col transition-transform duration-300
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
 
         {/* Logo */}
@@ -4184,13 +4446,13 @@ export const AdminDashboard: React.FC = () => {
                     <button key={id} onClick={() => { setTab(id); setSidebarOpen(false); }}
                       className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-left text-[12px] font-medium transition-all cursor-pointer
                         ${active
-                          ? 'bg-[#F5A623]/15 text-white border-l-2 border-[#F5A623]'
-                          : 'text-white/50 hover:text-white hover:bg-white/8'}`}>
+                          ? 'bg-white/10 text-white border-l-2 border-[#F5A623]'
+                          : 'text-white/40 hover:text-white/75 hover:bg-white/5'}`}>
                       <Icon size={13} className="shrink-0" />
                       <span className="flex-1 truncate">{label}</span>
                       {badge !== undefined && badge > 0 && (
                         <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center
-                          ${active ? 'bg-[#F5A623] text-[#0D2E5C]' : 'bg-white/15 text-white'}`}>
+                          ${active ? 'bg-[#F5A623] text-[#0F172A]' : 'bg-white/15 text-white'}`}>
                           {badge}
                         </span>
                       )}
@@ -4266,7 +4528,7 @@ export const AdminDashboard: React.FC = () => {
               </button>
             )}
             <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-slate-200 text-[11px] font-medium text-slate-700">
-              <div className="w-5 h-5 rounded bg-[#0D2E5C] flex items-center justify-center text-white text-[9px] font-bold">A</div>
+              <div className="w-5 h-5 rounded bg-slate-900 flex items-center justify-center text-white text-[9px] font-bold">A</div>
               admin@epv.ci
             </div>
             <button onClick={handleLogout}
@@ -4312,6 +4574,8 @@ export const AdminDashboard: React.FC = () => {
               {tab === 'galerie'      && <GalerieTab      {...dataProps} />}
               {tab === 'temoignages'  && <TemoignagesTab  {...dataProps} />}
               {tab === 'logs'         && <LogsTab         {...dataProps} />}
+              {tab === 'parents'      && <ParentsTab      {...dataProps} />}
+              {tab === 'contenu'      && <ContenuTab      {...dataProps} />}
             </motion.div>
           </AnimatePresence>
         </main>

@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
@@ -44,7 +40,7 @@ const isProtected = (hash: string): hash is ProtectedRoute =>
 export default function App() {
   const [currentHash, setCurrentHash] = useState<string>(() => window.location.hash || '#');
 
-  /* Préchargement global — joue à l'ouverture du site */
+  /* Préchargement global joue à l'ouverture du site */
   const [showGlobalLoader, setShowGlobalLoader] = useState(true);
 
   /* Machine d'état pour les espaces protégés */
@@ -165,7 +161,7 @@ export default function App() {
           </main>
           <WhatsAppButton />
           {(currentHash === '#' || currentHash === '') && <Footer onNavigate={handleNavigate} />}
-          {/* Bottom nav mobile — toutes pages publiques */}
+          {/* Bottom nav mobile toutes pages publiques */}
           <MobileBottomNav
             currentHash={currentHash}
             onNavigate={handleNavigate}

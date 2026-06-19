@@ -4,7 +4,7 @@ import App from './App.tsx';
 import './index.css';
 import { LanguageProvider } from './lib/LanguageContext.tsx';
 
-// ── Intercepteur fetch global — ajoute le JWT Neon Auth sur toutes les requêtes /api ──
+// ── Intercepteur fetch global ajoute le JWT Neon Auth sur toutes les requêtes /api ──
 const _origFetch = window.fetch.bind(window);
 window.fetch = async (input: RequestInfo | URL, init: RequestInit = {}) => {
   const url = typeof input === 'string' ? input : input instanceof Request ? input.url : input.toString();

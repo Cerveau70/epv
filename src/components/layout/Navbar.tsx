@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -89,12 +85,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentHash, onNavigate, id }) =
                   EPV Horizons Savants
                 </span>
                 <span className="text-[9px] font-sans tracking-widest text-brand-gold-light font-medium block uppercase">
-                  {lang === 'fr' ? "École d'Excellence · Abidjan" : 'School of Excellence · Abidjan'}
                 </span>
               </div>
             </div>
 
-            {/* Nav desktop — visible seulement à xl (1280px+) */}
+            {/* Nav desktop visible seulement à xl (1280px+) */}
             <div className="hidden xl:flex items-center justify-center gap-0.5">
               {NAV.map(({ hash, Icon, short }) => {
                 const active = currentHash === hash || (hash === '#' && !currentHash);
@@ -134,7 +129,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentHash, onNavigate, id }) =
                 </button>
               </div>
 
-              {/* Burger — visible sous xl (< 1280px) */}
+              {/* Burger visible sous xl (< 1280px) */}
               <button className="header-burger xl:hidden" onClick={() => setIsOpen(v => !v)}
                 aria-label={isOpen ? 'Fermer' : 'Menu'}>
                 <AnimatePresence mode="wait" initial={false}>

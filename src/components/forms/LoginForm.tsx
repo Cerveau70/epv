@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState } from 'react';
 import { Card } from '../ui/Card.tsx';
@@ -96,7 +92,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, id }) => {
           {debug && (
             <div className="p-3 bg-slate-900 rounded-lg border border-slate-700 space-y-1">
               <p className="text-[9px] font-mono font-bold uppercase tracking-widest text-amber-400">
-                Debug — Réponse serveur
+                Debug Réponse serveur
               </p>
               {debug.status && (
                 <p className="text-[10px] font-mono text-slate-400">

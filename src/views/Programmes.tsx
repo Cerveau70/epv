@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React from 'react';
 import { motion } from 'motion/react';
@@ -113,7 +109,7 @@ export const Programmes: React.FC = () => {
     }
   ] : [
     {
-      title: "Nursery Class — PS (2-3 years)",
+      title: "Nursery Class PS (2-3 years)",
       content: (
         <div className="space-y-3 font-serif">
           <p><strong>Pedagogy & Awakening:</strong> Introduction to language acquisition, intensive caring socialization, fine motor skills and active manipulation inspired by Montessori methods.</p>
@@ -126,7 +122,7 @@ export const Programmes: React.FC = () => {
       )
     },
     {
-      title: "Middle Kindergarten — MS (3-4 years)",
+      title: "Middle Kindergarten MS (3-4 years)",
       content: (
         <div className="space-y-3 font-serif">
           <p><strong>Logic Structures & Autonomy:</strong> Handwriting learning, preparatory early alphabet exercises, spatial and logical awakening exploration.</p>
@@ -139,7 +135,7 @@ export const Programmes: React.FC = () => {
       )
     },
     {
-      title: "Senior Kindergarten — GS (5-6 years)",
+      title: "Senior Kindergarten GS (5-6 years)",
       content: (
         <div className="space-y-3 font-serif">
           <p><strong>Gateway to Active Writing:</strong> Intense handwriting consolidation, phonetic syllabic decoding preparing for primary school, full cursive writing and structured digital manipulations.</p>
@@ -152,7 +148,7 @@ export const Programmes: React.FC = () => {
       )
     },
     {
-      title: "Grade 1 — CP (6-7 years)",
+      title: "Grade 1 CP (6-7 years)",
       content: (
         <div className="space-y-3 font-serif">
           <p><strong>The Fundamental Cycle of Excellence:</strong> Full mastery of fluent reading decoding, structured cursive writing, and foundational mathematical memorization.</p>
@@ -165,7 +161,7 @@ export const Programmes: React.FC = () => {
       )
     },
     {
-      title: "Grades 2 & 3 — CE1 & CE2 (7-9 years)",
+      title: "Grades 2 & 3 CE1 & CE2 (7-9 years)",
       content: (
         <div className="space-y-3 font-serif">
           <p><strong>Consolidation & Critical Analysis:</strong> Rigorous spelling and grammar, complex multi-step math problem solving, structured geopolitical and geographical study.</p>
@@ -178,7 +174,7 @@ export const Programmes: React.FC = () => {
       )
     },
     {
-      title: "Grades 4 & 5 — CM1 & CM2 (9-11 years)",
+      title: "Grades 4 & 5 CM1 & CM2 (9-11 years)",
       content: (
         <div className="space-y-3 font-serif">
           <p><strong>Elite Preparation Cycle:</strong> Enriched literature, geometry, children's philosophy, African and World history, advanced algorithm programming.</p>
@@ -223,7 +219,7 @@ export const Programmes: React.FC = () => {
         />
 
         <motion.div
-          className="relative max-w-3xl mx-auto text-center"
+          className="relative max-w-3xl mx-auto text-left"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -235,7 +231,7 @@ export const Programmes: React.FC = () => {
             </span>
             <br />{fr ? '& Pédagogie' : '& Pedagogy'}
           </h1>
-          <p className="mt-6 text-sm text-white/65 font-serif leading-relaxed max-w-2xl mx-auto">
+          <p className="mt-6 text-sm text-white/65 font-serif leading-relaxed max-w-2xl">
             {fr
               ? "Notre projet éducatif réconcilie exigence intellectuelle et bienveillance comportementale. L'organisation en petits collectifs d'Abidjan de 25 élèves max assure une totale assimilation académique quotidienne."
               : "Our educational project reconciles intellectual rigor with caring pedagogy. Small class sizes of 25 students maximum ensure complete daily academic assimilation."}
@@ -411,7 +407,7 @@ export const Programmes: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-10 items-start">
 
-            {/* ── Sidebar gauche — chiffres clés ── */}
+            {/* ── Sidebar gauche chiffres clés ── */}
             <div className="space-y-4 lg:sticky lg:top-28">
               <div className="rounded-3xl bg-brand-blue-deep p-6 text-white space-y-5">
                 <h3 className="font-sans font-bold text-[10px] uppercase tracking-widest text-brand-gold">
@@ -486,7 +482,7 @@ export const Programmes: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-            {/* ── Colonne gauche — dates clés ── */}
+            {/* ── Colonne gauche dates clés ── */}
             <div className="space-y-5 lg:sticky lg:top-28">
               <div className="rounded-3xl bg-brand-blue-deep text-white p-7 space-y-5">
                 <h3 className="font-sans font-bold text-[10px] uppercase tracking-widest text-brand-gold">
@@ -518,7 +514,7 @@ export const Programmes: React.FC = () => {
               </div>
             </div>
 
-            {/* ── Colonne droite — timeline ── */}
+            {/* ── Colonne droite timeline ── */}
             <Card className="rounded-3xl shadow-[0_4px_30px_rgba(13,46,92,0.08)] bg-white border-0 p-8 md:p-10">
               <div className="flex items-center gap-3 mb-10">
                 <div className="p-3 bg-brand-green/10 rounded-2xl">

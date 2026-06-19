@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
@@ -73,160 +69,8 @@ export const Blog: React.FC = () => {
       .catch(() => setCmsArticles([]));
   }, []);
 
-  const articles = [
-    {
-      id: "bil-1",
-      title: "L'importance cruciale du bilinguisme précoce dès la Petite Section",
-      summary: "Pourquoi l'acquisition naturelle d'une seconde langue avant l'âge de 6 ans façonne durablement la plasticité cérébrale de l'élève.",
-      date: "15 Mai 2026",
-      readTime: "4 min",
-      tag: "Pédagogie active",
-      author: "Dr. Marc-André Kouyo",
-      img: "/api/img-proxy?url=https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
-      content: (
-        <div className="space-y-4 font-serif leading-relaxed text-xs md:text-sm text-brand-dark/95">
-          <p>
-            De nombreuses études scientifiques en neurosciences s'accordent à le démontrer : le cerveau de l'enfant d'âge préscolaire possède un niveau d'élasticité synaptique extraordinaire. Entre 2 et 6 ans, l'acquisition linguistique ne relève pas d'un effort d'apprentissage théorique rébarbatif, mais d'un processus naturel d'adaptation comportementale.
-          </p>
-          <p>
-            À <strong>EPV Horizons Savants</strong>, nous avons structuré une immersion double Français/Anglais dès la Petite Section d'Maternelle. En intégrant l'anglais à travers les jeux d'éveil, les chants d'apprentissage, et les récits de contes quotidiens, l'enfant s'approprie le vocabulaire sans barrière psychologique.
-          </p>
-          <p>
-            Ce biculturalisme linguistique forme le socle essentiel pour faire fleurir les compétences intellectuelles indispensables aux citoyens globaux d'Abidjan pour relever les défis de demain.
-          </p>
-        </div>
-      )
-    },
-    {
-      id: "sing-2",
-      title: "La Méthode Mathématique active de Singapour expliquée aux parents d'Abidjan",
-      summary: "Découvrez l'approche concrète en 3 étapes (Concret, Imagé, Abstrait) qui réconcilie les enfants d'élémentaire avec le raisonnement arithmétique.",
-      date: "28 Avril 2026",
-      readTime: "5 min",
-      tag: "Sciences (STEM)",
-      author: "Mme Clarisse Touré Koffi",
-      img: "/api/img-proxy?url=https://images.unsplash.com/photo-1453733190148-c44698c26588?auto=format&fit=crop&w=600&q=80",
-      content: (
-        <div className="space-y-4 font-serif leading-relaxed text-xs md:text-sm text-brand-dark/95">
-          <p>
-            Pourquoi tant d'enfants redoutent-ils les mathématiques élémentaires ? La réponse réside souvent dans l'introduction trop hâtive et rigide de l'abstraction numérique pure (formules brutes, équations posées).
-          </p>
-          <p>
-            La méthode active de <strong>Singapour</strong>, dispensée dès la classe de CP à EPV Horizons Savants, repose à l'inverse sur un triptyque d'apprentissage très progressif :
-          </p>
-          <ol className="list-decimal pl-5 space-y-2 text-xs">
-            <li>
-              <strong>L'étape Concrète :</strong> L'enfant manipule physiquement des objets d'éveil (cubes, billes d'argile, jetons de couleur) pour appréhender les quantités réelles.
-            </li>
-            <li>
-              <strong>L'étape Imagée :</strong> Les objets d' Abidjan sont traduits graphiquement sous forme de bandes dessinées schématiques (modélisation par blocs).
-            </li>
-            <li>
-              <strong>L'étape Abstraite :</strong> Les symboles opératoires (+, -, &times;, &div;) sont introduits naturellement une fois le schème physique parfaitement assimilé.
-            </li>
-          </ol>
-          <p>
-            Cette progression logique permet à chaque élève d'Abidjan de bâtir des structures mentales d'excellence extrêmement stables pour aborder les sciences d'ingénieur complexes du secondaire.
-          </p>
-        </div>
-      )
-    },
-    {
-      id: "camp-3",
-      title: "Inauguration de notre campus vert d'Excellence à Bingerville",
-      summary: "Qu'est-ce qui fait d'EPV Horizons Savants le cadre propice et sécurisé par excellence pour le développement de vos enfants.",
-      date: "12 Avril 2026",
-      readTime: "3 min",
-      tag: "Vie de l'école",
-      author: "Secrétariat Général d'Abidjan",
-      img: "/api/img-proxy?url=https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
-      content: (
-        <div className="space-y-4 font-serif leading-relaxed text-xs md:text-sm text-brand-dark/95">
-          <p>
-            L'environnement physique dans lequel un enfant passe ses journées d'école agit directement sur son niveau de sérénité émotionnelle et sa concentration intellectuelle. C'est pourquoi l'architecture de notre complexe d'EPV Horizons Savants a fait l'objet d'un soin draconien.
-          </p>
-          <p>
-            Implanté au sein d'une zone résidentielle privilégiée de <strong>Bingerville, Ave Konan Kouassi Lambert 38</strong>, notre école moderne fait cohabiter la technologie d'orientation (salles entièrement climatisées, filtres à air aérés, tablettes multimédias d'éveil) avec la beauté tranquille de la nature.
-          </p>
-          <ul className="list-disc pl-5 space-y-1 text-xs">
-            <li>Jardin pédagogique écologique autonome de fleurs locales</li>
-            <li>Aires de récréation sportives équipées de pelouses amortissantes</li>
-            <li>Climatisation discrète filtrante à économie d'énergie respectueuse de la santé bronchique de l'élève</li>
-            <li>Contrôle d'accès par carte et veille de sécurité continue 24h/24</li>
-          </ul>
-          <p>
-            Nous vous invitons chaleureusement à réserver votre séance de visite privée sur notre calendrier officiel en ligne afin de venir contempler par vous-même ce joyau éducatif conçu pour l'épanouissement de vos enfants.
-          </p>
-        </div>
-      )
-    },
-    {
-      id: "why-epv-4",
-      title: "Pourquoi EPV Horizons Savants ? Notre Storytelling Fondateur d'Excellence",
-      summary: "Découvrez la genèse d'un projet éducatif inédit qui redéfinit l'excellence bilingue à Abidjan pour hisser chaque enfant au sommet de son autonomie.",
-      date: "05 Avril 2026",
-      readTime: "6 min",
-      tag: "Notre Vision",
-      author: "Comité de Direction d'EPV",
-      img: "/api/img-proxy?url=https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=600&q=80",
-      content: (
-        <div className="space-y-4 font-serif leading-relaxed text-xs md:text-sm text-brand-dark/95">
-          <p>
-            EPV Horizons Savants n'est pas simplement une école de plus à Abidjan ; c'est le fruit d'une ambition familiale et collective de parents et d'éducateurs chevronnés. Témoins des mutations globales de l'éducation, nos fondateurs ont souhaité créer un pont solide entre le programme d'enseignement rigoureux ivoirien et les pédagogies d'avant-garde mondiales.
-          </p>
-          <p>
-            Notre postulat d'origine est simple : tout enfant recèle un potentiel d'excellence. Le rôle de l'école est d'aménager un terreau fertilisé pour qu'il s'éveille sans frustration. Qu'il s'agisse de la structure de nos classes limitées à <strong>25 élèves au maximum</strong>, de l'immersion complète ou du recrutement de nos enseignants d'élite, chaque détail concourt à cette promesse.
-          </p>
-          <p className="font-bold text-[#0D2E5C]">
-            « Nous croyons en une école de la bienveillance stimulante, où l'exigence académique s'accomplit dans la joie d'apprendre au quotidien. »
-          </p>
-          <p>
-            En unissant des ressources numériques de pointe, une immersion linguistique bilingue continue franco-anglaise et un solide cadre moral ancré dans le respect d'autrui, EPV Horizons Savants se dresse comme la rampe de lancement idéale pour accompagner vos enfants vers un destin de leader éclairé.
-          </p>
-        </div>
-      )
-    },
-    {
-      id: "valeurs-5",
-      title: "Nos 5 Valeurs Cardinales de Croissance et de comportement citoyen",
-      summary: "Intégrité, curiosité, respect, persévérance et humanisme : comment nous insufflons ces repères éthiques cruciaux dans la vie scolaire.",
-      date: "25 Mars 2026",
-      readTime: "5 min",
-      tag: "Charte Éthique",
-      author: "Mme Clarisse Touré Koffi",
-      img: "/api/img-proxy?url=https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=600&q=80",
-      content: (
-        <div className="space-y-4 font-serif leading-relaxed text-xs md:text-sm text-brand-dark/95">
-          <p>
-            Si l'excellence académique est le moteur de notre enseignement de pointe, l'éthique de comportement en est l'indispensable boussole. À EPV Horizons Savants, nous formons des esprits aiguisés, mais aussi des cœurs généreux et intègres, prêts à s'investir positivement dans la société.
-          </p>
-          <p>
-            Notre charte éducative et comportementale s'articule autour de 5 valeurs cardinales clés partagées quotidiennement par l'équipe pédagogique et les élèves de Côte d'Ivoire :
-          </p>
-          <ul className="list-disc pl-5 space-y-2 text-xs">
-            <li>
-              <strong>L'Intégrité :</strong> Préférer l'honnêteté intellectuelle et morale, développer le sens des responsabilités et le respect de la parole donnée dès la maternelle.
-            </li>
-            <li>
-              <strong>La Curiosité :</strong> Favoriser l'audace de poser des questions heuristiques, d'expérimenter scientifiquement par l'erreur positive sans crainte du jugement.
-            </li>
-            <li>
-              <strong>Le Respect :</strong> Cultiver une bienveillance scrupuleuse d'autrui, de la nature ivoirienne (notre potager pédagogique) et des règles communautaires.
-            </li>
-            <li>
-              <strong>La Persévérance :</strong> Intégrer l'effort personnel régulier comme un chemin valorisant de dépassement et d'accomplissement de soi.
-            </li>
-            <li>
-              <strong>L'Humanisme :</strong> Ouvrir les yeux de nos futurs citoyens d'Abidjan sur le monde, par l'empathie, le bilinguisme précoce et l'appréciation des différences de cultures.
-            </li>
-          </ul>
-          <p>
-            Ces valeurs ne restent pas de vains mots écrits sur un mur d'école ; elles s'incarnent à travers des ateliers d'éloquence, des projets solidaires collectifs réguliers, et nos bilans de comportement individualisés remis mensuellement dans l'Espace Parent d'EPV Horizons Savants.
-          </p>
-        </div>
-      )
-    }
-  ];
+  // Articles à publier via l'interface admin (onglet Blog du tableau de bord)
+  const articles: any[] = [];
 
   const [shareCopied, setShareCopied] = React.useState(false);
 
@@ -278,7 +122,7 @@ export const Blog: React.FC = () => {
             HEADER
         ════════════════════════════════════════ */}
         <motion.div
-          className="text-center max-w-2xl mx-auto"
+          className="text-left max-w-2xl"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -290,7 +134,7 @@ export const Blog: React.FC = () => {
             Horizons Savants
           </h1>
 
-          <p className="mt-4 text-xs md:text-sm text-brand-muted font-serif leading-relaxed max-w-xl mx-auto">
+          <p className="mt-4 text-xs md:text-sm text-brand-muted font-serif leading-relaxed max-w-xl">
             {fr
               ? "Astuces parentales, insights d'apprentissage bilingue et actualités d'orientation d'Abidjan écrits par nos experts-éducateurs émérites."
               : "Parenting tips, bilingual learning insights and guidance news from Abidjan written by our distinguished educator-experts."}
@@ -327,6 +171,43 @@ export const Blog: React.FC = () => {
           </motion.div>
         )}
 
+        {/* ════════════════════════════════════════
+            ÉTAT VIDE aucun article publié
+        ════════════════════════════════════════ */}
+        {articles.length === 0 && cmsArticles.length === 0 ? (
+          <motion.div
+            className="flex flex-col items-center justify-center py-24 px-4 text-center"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {/* Icône */}
+            <div className="w-20 h-20 rounded-3xl bg-[#0D2E5C]/6 flex items-center justify-center mb-6">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0D2E5C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.5">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </div>
+            {/* Trait doré */}
+            <div className="w-10 h-0.5 bg-brand-gold rounded-full mb-5" />
+            <h2 className="font-sans font-extrabold text-xl text-[#0D2E5C] mb-2">
+              {fr ? 'Articles bientôt disponibles' : 'Articles coming soon'}
+            </h2>
+            <p className="font-serif text-sm text-[#6B7280] max-w-sm leading-relaxed">
+              {fr
+                ? "Notre équipe rédige actuellement des articles sur la pédagogie bilingue, la vie scolaire et les conseils parentaux. Revenez très bientôt."
+                : "Our team is currently writing articles on bilingual pedagogy, school life and parenting tips. Check back very soon."}
+            </p>
+            <div className="mt-8 flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0D2E5C]/6 border border-[#0D2E5C]/10">
+              <div className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
+              <span className="font-sans font-semibold text-[11px] uppercase tracking-[0.2em] text-[#0D2E5C]/60">
+                {fr ? 'Publication prévue prochainement' : 'Publication coming soon'}
+              </span>
+            </div>
+          </motion.div>
+        ) : (
+        <>
         {/* ════════════════════════════════════════
             CATEGORY FILTER BAR
         ════════════════════════════════════════ */}
@@ -637,6 +518,9 @@ export const Blog: React.FC = () => {
               </div>
             </div>
           </Modal>
+        )}
+
+        </>
         )}
 
       </div>

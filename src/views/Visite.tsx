@@ -276,7 +276,7 @@ export const Visite: React.FC = () => {
           </div>
         </div>
 
-        {/* ══ RIGHT PANEL — image immersive ══ */}
+        {/* ══ RIGHT PANEL image immersive ══ */}
         <div className="relative flex-1 overflow-hidden" style={{ minHeight: '55vw' }}>
 
           <AnimatePresence mode="wait">
@@ -290,12 +290,12 @@ export const Visite: React.FC = () => {
             >
               <motion.img
                 src={space.images[imgIdx]}
-                alt={`${L(space.label)} — photo ${imgIdx + 1}`}
+                alt={`${L(space.label)} photo ${imgIdx + 1}`}
                 className="absolute inset-0 w-full h-full object-cover"
                 animate={{ scale: kb.scale as any, x: kb.x as any, y: kb.y as any }}
                 transition={{ duration: 14, ease: 'linear', repeat: Infinity, repeatType: 'reverse' }}
               />
-              {/* Gradients sombres — sans surbrillance colorée */}
+              {/* Gradients sombres sans surbrillance colorée */}
               <div className="absolute inset-0"
                    style={{ background: 'linear-gradient(to right, rgba(5,14,29,0.55) 0%, rgba(5,14,29,0.10) 45%, transparent 70%)' }} />
               <div className="absolute inset-0"
@@ -303,7 +303,7 @@ export const Visite: React.FC = () => {
             </motion.div>
           </AnimatePresence>
 
-          {/* Label espace — bas gauche */}
+          {/* Label espace bas gauche */}
           <AnimatePresence mode="wait">
             <motion.div
               key={space.id}
@@ -344,7 +344,7 @@ export const Visite: React.FC = () => {
             </>
           )}
 
-          {/* Compteur photos — haut droite */}
+          {/* Compteur photos haut droite */}
           <div className="absolute top-5 right-5 z-10 flex items-center gap-1.5"
                style={{ background: 'rgba(0,0,0,0.50)', backdropFilter: 'blur(8px)', borderRadius: '999px', padding: '4px 12px', border: '1px solid rgba(255,255,255,0.08)' }}>
             <span className="text-white font-bold text-[11px]">{imgIdx + 1}</span>

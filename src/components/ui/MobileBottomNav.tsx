@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Home, GraduationCap, UserPlus, UserCircle } from 'lucide-react';

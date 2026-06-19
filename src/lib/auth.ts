@@ -1,7 +1,4 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- *
  * Toutes les opérations Neon Auth passent par le serveur Express (/api/auth/*)
  * pour éviter le blocage HTTP→HTTPS (403 Forbidden depuis un origin non-HTTPS).
  */
@@ -20,7 +17,7 @@ function clearToken() {
   sessionStorage.removeItem('neon_auth_token');
 }
 
-// ── API proxy — toutes les requêtes auth passent par /api/auth/* ───────────────
+// ── API proxy toutes les requêtes auth passent par /api/auth/* ───────────────
 
 async function authPost(path: string, body: object): Promise<any> {
   const r = await fetch(`/api/auth/${path}`, {
@@ -43,14 +40,14 @@ async function authPost(path: string, body: object): Promise<any> {
 
 // ── Fonctions publiques ───────────────────────────────────────────────────────
 
-/** Inscription — le serveur appelle Neon Auth en HTTPS */
+/** Inscription le serveur appelle Neon Auth en HTTPS */
 export async function signUpNeon(email: string, password: string, name: string) {
   const data = await authPost('register', { email, password, name });
   if (data?.token) storeToken(data.token);
   return data;
 }
 
-/** Connexion — le serveur appelle Neon Auth en HTTPS */
+/** Connexion le serveur appelle Neon Auth en HTTPS */
 export async function signInNeon(email: string, password: string) {
   const data = await authPost('signin', { email, password });
   if (data?.token) storeToken(data.token);
@@ -85,7 +82,7 @@ export async function checkSession(): Promise<boolean> {
   }
 }
 
-/** fetch authentifié vers l'API Express — ajoute automatiquement le Bearer */
+/** fetch authentifié vers l'API Express ajoute automatiquement le Bearer */
 export async function apiFetch(path: string, options: RequestInit = {}): Promise<Response> {
   const token = getStoredToken();
   const isFormData = options.body instanceof FormData;

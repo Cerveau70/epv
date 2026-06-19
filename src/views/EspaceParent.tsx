@@ -7,12 +7,12 @@ import { Badge }            from '../components/ui/Badge.tsx';
 import { Toast }            from '../components/ui/Toast.tsx';
 import { Prospect, RendezVous, StatutProspect, StatutRendezVous } from '../types.js';
 import {
-  LayoutGrid, BookOpen, Utensils, FolderOpen, MessageSquare, Gift,
+  LayoutGrid, BookOpen, Utensils, FolderOpen, MessageSquare,
   LogOut, Menu, X, ChevronRight, Check, ArrowLeft, Bell,
   GraduationCap, User, Calendar, Bus, Heart, Download,
   TrendingUp, CreditCard, Send, Phone, Mail, MapPin,
   Activity, Shield, Settings, FileText, AlertTriangle,
-  CheckCircle, Clock, Copy, Share2, Lock, Smartphone,
+  CheckCircle, Clock, Copy, Lock, Smartphone,
   Sliders, BarChart2, Minus, Paperclip, Eye, EyeOff,
   ChevronDown, Users, Wallet, BookMarked, Info, Award
 } from 'lucide-react';
@@ -26,7 +26,6 @@ type ParentTab =
   | 'vie'
   | 'finances'
   | 'messagerie'
-  | 'parrainage'
   | 'profil';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -64,13 +63,13 @@ const todayLabel = () =>
   new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
 const toNum = (v: any) => Number(v) || 0;
-const fmtN  = (v: any, dec = 1) => v != null && v !== '' ? Number(v).toFixed(dec) : '—';
+const fmtN  = (v: any, dec = 1) => v != null && v !== '' ? Number(v).toFixed(dec) : '';
 
 const avg = (notes: any[], key: 't1' | 't2') => {
-  if (!notes.length) return '—';
+  if (!notes.length) return '';
   const total = notes.reduce((s: number, n: any) => s + toNum(n[key]) * toNum(n.coef), 0);
   const coef  = notes.reduce((s: number, n: any) => s + toNum(n.coef), 0);
-  return coef > 0 ? (total / coef).toFixed(2) : '—';
+  return coef > 0 ? (total / coef).toFixed(2) : '';
 };
 
 // ─── UI Primitives ────────────────────────────────────────────────────────────
@@ -205,10 +204,10 @@ function SectionPage({ title, sub, children }: { title: string; sub?: string; ch
 // DASHBOARD
 // ════════════════════════════════════════════════════════════════════════════
 
-function DashboardTab({ session, appointments, devoirs, cantine, notes, absences, messages, evenements, paiements, reduction, tarifs, onTabChange }: {
+function DashboardTab({ session, appointments, devoirs, cantine, notes, absences, messages, evenements, paiements, tarifs, onTabChange }: {
   session: Prospect; appointments: RendezVous[];
   devoirs: any[]; cantine: any[]; notes: any[]; absences: any[]; messages: any[]; evenements: any[];
-  paiements: any[]; reduction: number; tarifs: Record<string,number>;
+  paiements: any[]; tarifs: Record<string,number>;
   onTabChange: (t: ParentTab) => void;
 }) {
   const nextRdv    = appointments
@@ -221,9 +220,9 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
   const todayMenu  = cantine[Math.max(0, Math.min(todayIdx - 1, 4))];
   const unreadMsg  = messages.filter(m => !m.lu).length;
 
-  // Solde réel : annuel avec réduction parrainage - total déjà payé
+  // Solde réel : annuel - total déjà payé
   const annuel  = tarifs[session.sectionVisee] || TARIFS_DEFAUT[session.sectionVisee] || 1500000;
-  const annuelReduit = Math.round(annuel * (1 - reduction / 100));
+  const annuelReduit = annuel;
   const totalPaye = paiements
     .filter(p => ['T1','T2','T3'].includes(p.trimestre))
     .reduce((s: number, p: any) => s + Number(p.montant), 0);
@@ -231,16 +230,16 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
 
   return (
     <SectionPage
-      title={`Tableau de bord — ${session.prenomParent} ${session.nomParent[0]}.`}
+      title={`Tableau de bord ${session.prenomParent} ${session.nomParent[0]}.`}
       sub={`${todayLabel()} · Dossier de ${session.prenomEnfant} ${session.nomEnfant}, ${SECTION_LABEL[session.sectionVisee] || session.sectionVisee}`}
     >
       {/* KPI row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard label="Moyenne générale" value={`${avgT2}/20`} sub="2e trimestre · Coefficient total 16" Icon={BarChart2} />
-        <KpiCard label="Assiduité" value="97 %" sub={`${absences.length} absence${absences.length>1?'s':''} enregistrée${absences.length>1?'s':''}`} Icon={Activity} />
+        <KpiCard label="Assiduité" value={absences.length === 0 ? '100 %' : `${Math.max(0, Math.round((1 - absences.length / 180) * 100))} %`} sub={`${absences.length} absence${absences.length>1?'s':''} enregistrée${absences.length>1?'s':''}`} Icon={Activity} />
         <KpiCard label="Devoirs en cours" value={pendingHW} sub={`sur ${devoirs.length} exercices assignés`} Icon={BookOpen} />
         <KpiCard label="Solde en attente" value={fmtMoney(soldeDu)}
-          sub={reduction > 0 ? `Réduction parrainage ${reduction}% appliquée` : 'Scolarité année en cours'}
+          sub="Scolarité année en cours"
           Icon={CreditCard} accent />
       </div>
 
@@ -263,7 +262,7 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
                 <span className="text-xs text-[#6B7280] truncate">{n.matiere}</span>
                 <span className="text-[11px] font-mono text-[#6B7280] tabular-nums w-8 text-right">{n.t1}</span>
                 <MiniLineChart values={[n.t1, n.t2 || n.t1]} color={(n.t2||n.t1) >= n.t1 ? '#059669' : '#DC2626'} />
-                <span className="text-[11px] font-mono font-semibold text-[#2C2C2C] tabular-nums w-8 text-right">{n.t2 ?? '—'}</span>
+                <span className="text-[11px] font-mono font-semibold text-[#2C2C2C] tabular-nums w-8 text-right">{n.t2 ?? ''}</span>
               </div>
             ))}
           </div>
@@ -304,7 +303,7 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
           </Card>
 
           <Card>
-            <CardHeader title="Agenda — Prochains événements" />
+            <CardHeader title="Agenda Prochains événements" />
             <div className="divide-y divide-[#F9FAFB]">
               {evenements.slice(0, 3).map((e: any, i: number) => (
                 <div key={i} className="px-5 py-3 flex items-center gap-4">
@@ -329,9 +328,9 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
       {/* Row 3: Cantine + Assiduité */}
       <div className="grid lg:grid-cols-2 gap-4">
 
-        {/* Cantine — menu du jour */}
+        {/* Cantine menu du jour */}
         <Card>
-          <CardHeader title="Menu de la cantine — semaine en cours"
+          <CardHeader title="Menu de la cantine semaine en cours"
             action={
               <button onClick={() => onTabChange('vie')}
                 className="text-[11px] font-semibold text-[#0D2E5C] hover:underline cursor-pointer flex items-center gap-1">
@@ -343,22 +342,22 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-[#F4F8FF]">
-                  <th className="text-left px-5 py-2.5 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">Jour</th>
-                  <th className="text-left px-3 py-2.5 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">Plat principal</th>
-                  <th className="text-left px-3 py-2.5 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide hidden sm:table-cell">Dessert</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200 whitespace-nowrap">Jour</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200 whitespace-nowrap">Plat principal</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200 whitespace-nowrap hidden sm:table-cell">Dessert</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F9FAFB]">
+              <tbody>
                 {cantine.map((c: any, i: number) => {
                   const isToday = c.jour === ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'][new Date().getDay()];
                   return (
                     <tr key={i} className={isToday ? 'bg-[#F9FAFB]' : ''}>
-                      <td className="px-5 py-3">
+                      <td className="px-4 py-3 border border-slate-200">
                         <span className={`font-semibold ${isToday ? 'text-[#0D2E5C]' : 'text-[#6B7280]'}`}>{c.jour}</span>
                         {isToday && <span className="ml-2 text-[9px] font-bold text-[#F5A623] uppercase">Aujourd'hui</span>}
                       </td>
-                      <td className="px-3 py-3 text-[#6B7280]">{c.plat}</td>
-                      <td className="px-3 py-3 text-[#6B7280] hidden sm:table-cell">{c.dessert}</td>
+                      <td className="px-4 py-3 border border-slate-200 text-[#6B7280]">{c.plat}</td>
+                      <td className="px-4 py-3 border border-slate-200 text-[#6B7280] hidden sm:table-cell">{c.dessert}</td>
                     </tr>
                   );
                 })}
@@ -369,11 +368,11 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
 
         {/* Assiduité résumé */}
         <Card>
-          <CardHeader title="Assiduité — Année scolaire 2025/2026" />
+          <CardHeader title="Assiduité Année scolaire 2025/2026" />
           <div className="p-5 space-y-4">
             <div className="grid grid-cols-3 gap-3 text-center">
               {[
-                { label: 'Taux de présence', value: '97,2 %', color: 'text-emerald-700' },
+                { label: 'Taux de présence', value: absences.length === 0 ? '100 %' : `${Math.max(0, Math.round((1 - absences.length / 180) * 100))} %`, color: 'text-emerald-700' },
                 { label: 'Absences',          value: `${absences.filter((a:any)=>a.type==='Absence').length}`,  color: 'text-[#2C2C2C]' },
                 { label: 'Retards',           value: `${absences.filter((a:any)=>a.type==='Retard').length}`,   color: 'text-[#2C2C2C]' },
               ].map(s => (
@@ -387,7 +386,7 @@ function DashboardTab({ session, appointments, devoirs, cantine, notes, absences
               <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide">Dernières absences</p>
               {absences.map((a: any, i: number) => (
                 <div key={i} className="flex items-center justify-between py-1.5 border-b border-slate-50">
-                  <span className="text-xs text-[#6B7280]">{fmtDate(a.date, { day:'numeric', month:'short' })} — {a.motif}</span>
+                  <span className="text-xs text-[#6B7280]">{fmtDate(a.date, { day:'numeric', month:'short' })} {a.motif}</span>
                   <StatusBadge statut={a.type === 'Absence' ? 'annule' : 'en_attente'} />
                 </div>
               ))}
@@ -461,12 +460,12 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                 {[
                   { label: '1er trimestre',  val: avg(notes, 't1'), sub: 'Moyenne pondérée' },
                   { label: '2e trimestre',   val: avg(notes, 't2'), sub: 'Moyenne pondérée' },
-                  { label: '3e trimestre',   val: '—',                  sub: 'En cours' },
+                  { label: '3e trimestre',   val: '',                  sub: 'En cours' },
                 ].map(s => (
                   <Card key={s.label} className="p-5 text-center">
                     <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide">{s.label}</p>
-                    <p className="text-3xl font-bold text-[#2C2C2C] mt-2">{s.val !== '—' ? `${s.val}` : '—'}</p>
-                    {s.val !== '—' && <p className="text-[10px] text-[#6B7280] mt-0.5">sur 20</p>}
+                    <p className="text-3xl font-bold text-[#2C2C2C] mt-2">{s.val ? `${s.val}` : ''}</p>
+                    {s.val ? <p className="text-[10px] text-[#6B7280] mt-0.5">sur 20</p> : null}
                     <p className="text-[10px] text-[#6B7280] mt-1">{s.sub}</p>
                   </Card>
                 ))}
@@ -479,21 +478,21 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                     <thead>
                       <tr className="border-b border-[#F4F8FF] bg-[#F9FAFB]">
                         {['Matière', 'Coef.', '1er Trimestre', '2e Trimestre', 'Évolution'].map(h => (
-                          <th key={h} className="text-left px-5 py-3 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">{h}</th>
+                          <th key={h} className="text-left px-4 py-3 font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200 whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#F9FAFB]">
+                    <tbody>
                       {notes.map((n: any, i: number) => {
                         const t1 = toNum(n.t1); const t2 = toNum(n.t2);
                         const up = t2 > t1;
                         return (
                           <tr key={i} className="hover:bg-[#F9FAFB] transition-colors">
-                            <td className="px-5 py-3.5 font-medium text-[#2C2C2C]">{n.matiere}</td>
-                            <td className="px-5 py-3.5 text-[#6B7280] text-center">{n.coef}</td>
-                            <td className="px-5 py-3.5 font-mono text-[#6B7280] tabular-nums">{fmtN(n.t1)}</td>
-                            <td className="px-5 py-3.5 font-mono font-semibold text-[#2C2C2C] tabular-nums">{fmtN(n.t2)}</td>
-                            <td className="px-5 py-3.5">
+                            <td className="px-4 py-3 border border-slate-200 font-medium text-[#2C2C2C]">{n.matiere}</td>
+                            <td className="px-4 py-3 border border-slate-200 text-[#6B7280] text-center">{n.coef}</td>
+                            <td className="px-4 py-3 border border-slate-200 font-mono text-[#6B7280] tabular-nums">{fmtN(n.t1)}</td>
+                            <td className="px-4 py-3 border border-slate-200 font-mono font-semibold text-[#2C2C2C] tabular-nums">{fmtN(n.t2)}</td>
+                            <td className="px-4 py-3 border border-slate-200">
                               <span className={`text-[10px] font-semibold ${up ? 'text-emerald-600' : 'text-rose-600'}`}>
                                 {up ? '+' : ''}{(t2 - t1).toFixed(1)} pt
                               </span>
@@ -505,14 +504,14 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                   </table>
                 </div>
                 <div className="px-5 py-3 border-t border-[#F4F8FF] flex items-center justify-between">
-                  <p className="text-xs text-[#6B7280]">Bulletin officiel — Année scolaire 2025/2026</p>
+                  <p className="text-xs text-[#6B7280]">Bulletin officiel Année scolaire 2025/2026</p>
                   <button onClick={() => {
                     const w = window.open('', '_blank', 'width=800,height=900');
                     if (!w) return;
                     const avgT1 = avg(notes, 't1');
                     const avgT2 = avg(notes, 't2');
                     w.document.write(`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-                    <title>Bulletin — ${session.prenomEnfant} ${session.nomEnfant}</title>
+                    <title>Bulletin ${session.prenomEnfant} ${session.nomEnfant}</title>
                     <style>body{font-family:Georgia,serif;padding:40px;max-width:720px;margin:0 auto;color:#0D2E5C}
                     h1{font-size:22px;border-bottom:3px solid #0D2E5C;padding-bottom:8px}
                     h2{font-size:14px;color:#1A4F8B;margin-top:24px}
@@ -523,7 +522,7 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                     .avg{font-size:18px;font-weight:bold;text-align:center;padding:12px;background:#EFF6FF;border-radius:8px;margin:16px 0}
                     .footer{margin-top:40px;font-size:11px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:16px}
                     @media print{button{display:none}}</style></head><body>
-                    <h1>Bulletin de Notes — EPV Horizons Savants</h1>
+                    <h1>Bulletin de Notes EPV Horizons Savants</h1>
                     <p><strong>Élève :</strong> ${session.prenomEnfant} ${session.nomEnfant} &nbsp;|&nbsp;
                     <strong>Classe :</strong> ${SECTION_LABEL[session.sectionVisee] || session.sectionVisee} &nbsp;|&nbsp;
                     <strong>Année :</strong> 2025/2026</p>
@@ -532,7 +531,7 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                     <h2>Détail par matière</h2>
                     <table><tr><th>Matière</th><th>Coef.</th><th>T1 /20</th><th>T2 /20</th><th>Évolution</th></tr>
                     ${notes.map(n => `<tr><td>${n.matiere}</td><td style="text-align:center">${n.coef}</td>
-                    <td style="text-align:center">${n.t1}</td><td style="text-align:center">${n.t2 ?? '—'}</td>
+                    <td style="text-align:center">${n.t1}</td><td style="text-align:center">${n.t2 ?? ''}</td>
                     <td style="text-align:center;color:${(n.t2||n.t1)>=n.t1?'green':'red'}">${n.t2?(n.t2-n.t1>0?'+':''+(n.t2-n.t1).toFixed(1)):''}</td></tr>`).join('')}
                     </table>
                     <div class="footer">EPV Horizons Savants ·Bingerville, Ave Konan Kouassi Lambert 38, Abidjan · Imprimé le ${new Date().toLocaleDateString('fr-FR')}</div>
@@ -563,17 +562,17 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                   <thead>
                     <tr className="border-b border-[#F4F8FF] bg-[#F9FAFB]">
                       {['Matière', 'Travail demandé', 'À rendre', 'Statut'].map(h => (
-                        <th key={h} className="text-left px-5 py-3 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">{h}</th>
+                        <th key={h} className="text-left px-4 py-3 font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200 whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#F9FAFB]">
+                  <tbody>
                     {devoirs.map((d, i) => (
                       <tr key={i} className={`hover:bg-[#F9FAFB] transition-colors ${d.statut==='done'?'opacity-60':''}`}>
-                        <td className="px-5 py-3.5 font-semibold text-slate-700 whitespace-nowrap">{d.matiere}</td>
-                        <td className="px-5 py-3.5 text-[#6B7280] max-w-xs">{d.sujet}</td>
-                        <td className="px-5 py-3.5 text-[#6B7280] whitespace-nowrap">{d.rendu}</td>
-                        <td className="px-5 py-3.5">
+                        <td className="px-4 py-3 border border-slate-200 font-semibold text-slate-700 whitespace-nowrap">{d.matiere}</td>
+                        <td className="px-4 py-3 border border-slate-200 text-[#6B7280] max-w-xs">{d.sujet}</td>
+                        <td className="px-4 py-3 border border-slate-200 text-[#6B7280] whitespace-nowrap">{d.rendu}</td>
+                        <td className="px-4 py-3 border border-slate-200">
                           <button onClick={() => toggleDevoir(i)}
                             className="flex items-center gap-1.5 cursor-pointer">
                             <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all
@@ -607,7 +606,7 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                         <span className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide">Niveau CECRL estimé : {bilinguisme.niveau}</span>
                       )}
                     </div>
-                    <p className="text-xs text-[#6B7280] mb-6">Programme bilingue EPV — {SECTION_LABEL[session.sectionVisee] || session.sectionVisee} · 8h d'anglais par semaine</p>
+                    <p className="text-xs text-[#6B7280] mb-6">Programme bilingue EPV {SECTION_LABEL[session.sectionVisee] || session.sectionVisee} · 8h d'anglais par semaine</p>
                     <div className="space-y-4">
                       {competences.map((b: any, i: number) => (
                         <div key={i} className="grid grid-cols-[200px_1fr] items-center gap-6">
@@ -634,7 +633,7 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
                 {[
-                  { label: 'Taux de présence',  val: '97,2 %', Icon: Activity },
+                  { label: 'Taux de présence',  val: absences.length === 0 ? '100 %' : `${Math.max(0, Math.round((1 - absences.length / 180) * 100))} %`, Icon: Activity },
                   { label: 'Absences totales',   val: `${absences.filter((a:any)=>a.type==='Absence').length} jours`, Icon: AlertTriangle },
                   { label: 'Retards enregistrés', val: `${absences.filter((a:any)=>a.type==='Retard').length}`, Icon: Clock },
                 ].map(s => (
@@ -650,19 +649,19 @@ function ParcoursTab({ session, devoirs, setDevoirs, notes, absences, bilinguism
                     <thead>
                       <tr className="border-b border-[#F4F8FF] bg-[#F9FAFB]">
                         {['Date', 'Type', 'Motif', 'Durée'].map(h => (
-                          <th key={h} className="text-left px-5 py-3 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">{h}</th>
+                          <th key={h} className="text-left px-4 py-3 font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200 whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#F9FAFB]">
+                    <tbody>
                       {absences.map((a: any, i: number) => (
                         <tr key={i}>
-                          <td className="px-5 py-3.5 text-[#6B7280]">{fmtDate(a.date)}</td>
-                          <td className="px-5 py-3.5">
+                          <td className="px-4 py-3 border border-slate-200 text-[#6B7280]">{fmtDate(a.date)}</td>
+                          <td className="px-4 py-3 border border-slate-200">
                             <StatusBadge statut={a.type === 'Absence' ? 'annule' : 'en_attente'} />
                           </td>
-                          <td className="px-5 py-3.5 text-[#6B7280]">{a.motif}</td>
-                          <td className="px-5 py-3.5 text-[#6B7280]">{a.duree}</td>
+                          <td className="px-4 py-3 border border-slate-200 text-[#6B7280]">{a.motif}</td>
+                          <td className="px-4 py-3 border border-slate-200 text-[#6B7280]">{a.duree}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -687,7 +686,7 @@ function VieScolaireTab({ session, cantine, evenements, transport, sante }: { se
   const [sub, setSub] = useState<Sub>('cantine');
 
   return (
-    <SectionPage title="Vie scolaire" sub="Services aux familles — informations pratiques">
+    <SectionPage title="Vie scolaire" sub="Services aux familles informations pratiques">
 
       <SubTabNav
         tabs={[
@@ -704,28 +703,28 @@ function VieScolaireTab({ session, cantine, evenements, transport, sante }: { se
 
           {sub === 'cantine' && (
             <Card>
-              <CardHeader title="Menu hebdomadaire" sub="Cuisine locale et internationale — validation diététique mensuelle" />
+              <CardHeader title="Menu hebdomadaire" sub="Cuisine locale et internationale validation diététique mensuelle" />
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="border-b border-[#F4F8FF] bg-[#F9FAFB]">
                       {['Jour', 'Plat principal', 'Accompagnement', 'Dessert'].map(h => (
-                        <th key={h} className="text-left px-5 py-3 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">{h}</th>
+                        <th key={h} className="text-left px-4 py-3 font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200 whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#F9FAFB]">
+                  <tbody>
                     {cantine.map((c: any, i: number) => {
                       const isToday = c.jour === ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'][new Date().getDay()];
                       return (
                         <tr key={i} className={`${isToday ? 'bg-[#F9FAFB] border-l-2 border-l-[#F5A623]' : 'hover:bg-[#F9FAFB]/50'} transition-colors`}>
-                          <td className="px-5 py-4 font-semibold text-[#2C2C2C]">
+                          <td className="px-4 py-3 border border-slate-200 font-semibold text-[#2C2C2C]">
                             {c.jour}
                             {isToday && <span className="ml-2 text-[9px] font-bold text-[#F5A623] uppercase tracking-wide">Aujourd'hui</span>}
                           </td>
-                          <td className="px-5 py-4 text-slate-700 font-medium">{c.plat}</td>
-                          <td className="px-5 py-4 text-slate-500">{c.accomp}</td>
-                          <td className="px-5 py-4 text-[#6B7280]">{c.dessert}</td>
+                          <td className="px-4 py-3 border border-slate-200 text-slate-700 font-medium">{c.plat}</td>
+                          <td className="px-4 py-3 border border-slate-200 text-slate-500">{c.accomp}</td>
+                          <td className="px-4 py-3 border border-slate-200 text-[#6B7280]">{c.dessert}</td>
                         </tr>
                       );
                     })}
@@ -801,14 +800,14 @@ function VieScolaireTab({ session, cantine, evenements, transport, sante }: { se
           {sub === 'sante' && (
             <div className="space-y-4">
               <Card>
-                <CardHeader title={`Fiche de santé — ${session.prenomEnfant} ${session.nomEnfant}`} />
+                <CardHeader title={`Fiche de santé ${session.prenomEnfant} ${session.nomEnfant}`} />
                 <div className="p-5">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
                     {[
-                      { label: 'Groupe sanguin',  val: sante?.groupeSanguin || '—' },
-                      { label: 'Allergies',        val: sante?.allergies || '—' },
-                      { label: 'Vaccinations',     val: sante?.vaccinations || '—' },
-                      { label: 'Médecin référent', val: sante?.medecin || '—' },
+                      { label: 'Groupe sanguin',  val: sante?.groupeSanguin || '' },
+                      { label: 'Allergies',        val: sante?.allergies || '' },
+                      { label: 'Vaccinations',     val: sante?.vaccinations || '' },
+                      { label: 'Médecin référent', val: sante?.medecin || '' },
                     ].map(f => (
                       <div key={f.label} className="bg-[#F9FAFB] border border-[#F4F8FF] rounded-md p-3">
                         <p className="text-[9px] font-semibold text-[#6B7280] uppercase tracking-wide">{f.label}</p>
@@ -819,7 +818,7 @@ function VieScolaireTab({ session, cantine, evenements, transport, sante }: { se
                   <div className="flex items-center gap-2.5 p-3 rounded-md border border-amber-100 bg-amber-50">
                     <AlertTriangle size={14} className="text-amber-600 shrink-0" />
                     <p className="text-xs text-amber-800">
-                      Contact d'urgence : {session.prenomParent} {session.nomParent} — {session.telephone}
+                      Contact d'urgence : {session.prenomParent} {session.nomParent} {session.telephone}
                     </p>
                   </div>
                 </div>
@@ -855,9 +854,9 @@ function VieScolaireTab({ session, cantine, evenements, transport, sante }: { se
 // FINANCES & DOCUMENTS
 // ════════════════════════════════════════════════════════════════════════════
 
-function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRdvBooked, onToast }: {
+function FinancesTab({ session, appointments, paiements, tarifs, onRdvBooked, onToast }: {
   session: Prospect; appointments: RendezVous[];
-  paiements: any[]; reduction: number; tarifs: Record<string,number>;
+  paiements: any[]; tarifs: Record<string,number>;
   onRdvBooked: (r: RendezVous) => void; onToast: (m: string) => void;
 }) {
   type Sub = 'facturation' | 'dossier' | 'rendezvous' | 'documents';
@@ -903,16 +902,15 @@ function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRd
     localStorage.setItem(`checklist_${session.id}`, JSON.stringify(upd));
   };
 
-  // Factures depuis vrais paiements + calcul avec réduction parrainage
   const annuel       = tarifs[session.sectionVisee] || TARIFS_DEFAUT[session.sectionVisee] || 1500000;
-  const annuelReduit = Math.round(annuel * (1 - reduction / 100));
+  const annuelReduit = annuel;
   const trim         = Math.round(annuelReduit / 3);
   const hasPay = (t: string) => paiements.some((p: any) => p.trimestre === t);
   const factures = [
-    { id:'T1', libelle:'Scolarité — 1er trimestre 2025/2026', montant:trim, statut: hasPay('T1') ? 'payée' : 'en_attente', date:'2025-09-05' },
-    { id:'T2', libelle:'Scolarité — 2e trimestre 2025/2026',  montant:trim, statut: hasPay('T2') ? 'payée' : 'en_attente', date:'2026-01-08' },
-    { id:'T3', libelle:'Scolarité — 3e trimestre 2025/2026',  montant:annuelReduit-trim*2, statut: hasPay('T3') ? 'payée' : 'en_attente', date:'2026-04-01' },
-    { id:'FN', libelle:'Fournitures scolaires — Sep. 2025',   montant:Math.round(annuel*0.07), statut: hasPay('FOURNITURES') ? 'payée' : 'en_attente', date:'2025-09-01' },
+    { id:'T1', libelle:'Scolarité 1er trimestre 2025/2026', montant:trim, statut: hasPay('T1') ? 'payée' : 'en_attente', date:'2025-09-05' },
+    { id:'T2', libelle:'Scolarité 2e trimestre 2025/2026',  montant:trim, statut: hasPay('T2') ? 'payée' : 'en_attente', date:'2026-01-08' },
+    { id:'T3', libelle:'Scolarité 3e trimestre 2025/2026',  montant:annuelReduit-trim*2, statut: hasPay('T3') ? 'payée' : 'en_attente', date:'2026-04-01' },
+    { id:'FN', libelle:'Fournitures scolaires Sep. 2025',   montant:Math.round(annuel*0.07), statut: hasPay('FOURNITURES') ? 'payée' : 'en_attente', date:'2025-09-01' },
   ];
   const totalPaid = factures.filter(f => f.statut === 'payée').reduce((s, f) => s + f.montant, 0);
   const totalDue  = factures.filter(f => f.statut === 'en_attente').reduce((s, f) => s + f.montant, 0);
@@ -952,18 +950,18 @@ function FinancesTab({ session, appointments, paiements, reduction, tarifs, onRd
                   <thead>
                     <tr className="border-b border-[#F4F8FF] bg-[#F9FAFB]">
                       {['Référence', 'Description', 'Date', 'Montant', 'Statut'].map(h => (
-                        <th key={h} className="text-left px-5 py-3 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">{h}</th>
+                        <th key={h} className="text-left px-4 py-3 font-semibold text-slate-600 text-[10px] uppercase tracking-wide bg-[#F1F5F9] border border-slate-200 whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#F9FAFB]">
+                  <tbody>
                     {factures.map(f => (
                       <tr key={f.id} className="hover:bg-[#F9FAFB] transition-colors">
-                        <td className="px-5 py-3.5 font-mono text-[#6B7280] text-[10px]">{f.id}</td>
-                        <td className="px-5 py-3.5 font-medium text-slate-700">{f.libelle}</td>
-                        <td className="px-5 py-3.5 text-[#6B7280]">{fmtDate(f.date, { day:'numeric', month:'short', year:'numeric' })}</td>
-                        <td className="px-5 py-3.5 font-mono font-semibold text-[#2C2C2C] tabular-nums">{fmtMoney(f.montant)}</td>
-                        <td className="px-5 py-3.5"><StatusBadge statut={f.statut} /></td>
+                        <td className="px-4 py-3 border border-slate-200 font-mono text-[#6B7280] text-[10px]">{f.id}</td>
+                        <td className="px-4 py-3 border border-slate-200 font-medium text-slate-700">{f.libelle}</td>
+                        <td className="px-4 py-3 border border-slate-200 text-[#6B7280]">{fmtDate(f.date, { day:'numeric', month:'short', year:'numeric' })}</td>
+                        <td className="px-4 py-3 border border-slate-200 font-mono font-semibold text-[#2C2C2C] tabular-nums">{fmtMoney(f.montant)}</td>
+                        <td className="px-4 py-3 border border-slate-200"><StatusBadge statut={f.statut} /></td>
                       </tr>
                     ))}
                   </tbody>
@@ -1230,7 +1228,7 @@ function MessageTab({ session, messages, setMessages, onToast }: {
   return (
     <SectionPage title="Messagerie sécurisée" sub="Communication directe avec l'équipe pédagogique et administrative">
 
-      {/* Bouton Nouveau message — toujours visible */}
+      {/* Bouton Nouveau message toujours visible */}
       <div className="flex justify-end">
         <button onClick={openCompose}
           className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#0D2E5C] text-white text-xs font-semibold hover:bg-[#1A4F8B] cursor-pointer transition-colors">
@@ -1271,7 +1269,7 @@ function MessageTab({ session, messages, setMessages, onToast }: {
                   {!m.lu && <div className="w-2 h-2 rounded-full bg-[#0D2E5C] shrink-0 mt-1" />}
                 </div>
                 <p className="text-[10px] text-[#6B7280] mt-0.5">
-                  {m.date ? new Date(m.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '—'}
+                  {m.date ? new Date(m.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : ''}
                 </p>
                 <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 font-normal">{m.contenu}</p>
               </button>
@@ -1324,7 +1322,7 @@ function MessageTab({ session, messages, setMessages, onToast }: {
               <div className="px-5 py-4 border-b border-[#F4F8FF] shrink-0">
                 <p className="text-sm font-semibold text-[#2C2C2C]">{sel.de}</p>
                 <p className="text-xs text-[#6B7280] mt-0.5">
-                  {sel.date ? new Date(sel.date).toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) : '—'}
+                  {sel.date ? new Date(sel.date).toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) : ''}
                 </p>
               </div>
               <div className="flex-1 overflow-y-auto px-5 py-5">
@@ -1351,7 +1349,7 @@ function MessageTab({ session, messages, setMessages, onToast }: {
             </>
           )}
 
-          {/* État vide — ni composition ni sélection */}
+          {/* État vide ni composition ni sélection */}
           {!composing && !sel && (
             <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center p-8">
               <div className="w-16 h-16 rounded-full bg-[#F9FAFB] border border-[#F4F8FF] flex items-center justify-center">
@@ -1374,141 +1372,6 @@ function MessageTab({ session, messages, setMessages, onToast }: {
   );
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// PARRAINAGE
-// ════════════════════════════════════════════════════════════════════════════
-
-const STATUT_PARRAINAGE_LABEL: Record<string, { label: string; cls: string }> = {
-  valide:     { label: 'Réduction validée',  cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  en_attente: { label: 'En attente',          cls: 'bg-amber-50 text-amber-700 border-amber-200'       },
-  refuse:     { label: 'Refusé',              cls: 'bg-red-50 text-red-600 border-red-200'             },
-};
-
-function ParrainageTab({ session, reduction, onToast }: { session: Prospect; reduction: number; onToast: (m: string) => void }) {
-  const [copied,   setCopied]   = useState(false);
-  const [filleuls, setFilleuls] = useState<any[]>([]);
-
-  useEffect(() => {
-    apiFetch(`/api/parent/mes-filleuls?prospectId=${session.id}`)
-      .then(r => r.ok ? r.json() : [])
-      .then(d => setFilleuls(Array.isArray(d) ? d : []))
-      .catch(() => {});
-  }, [session.id]);
-
-  const validCount = filleuls.filter(f => f.parrainageStatut === 'valide').length;
-  const reductionReelle = Math.min(validCount * 10, 40);
-
-  const copy = () => {
-    navigator.clipboard.writeText(session.codeParrainagePersonnel);
-    setCopied(true);
-    onToast('Code copié dans le presse-papiers.');
-    setTimeout(() => setCopied(false), 2500);
-  };
-  const waUrl = `https://wa.me/?text=${encodeURIComponent(`J'ai inscrit mon enfant à EPV Horizons Savants à Abidjan. Utilisez mon code ${session.codeParrainagePersonnel} pour bénéficier de 10% de réduction sur la scolarité. Plus d'informations : https://horizonssavants.com/#/admissions`)}`;
-
-  return (
-    <SectionPage title="Programme de parrainage" sub="Bénéficiez d'une réduction de 10% par famille parrainée inscrite">
-
-      <div className="grid lg:grid-cols-3 gap-4">
-        <KpiCard label="Familles parrainées"  value={filleuls.length} sub={filleuls.length === 0 ? 'Aucune famille référencée' : `${validCount} inscription(s) confirmée(s)`} Icon={Users} />
-        <KpiCard label="Réduction cumulée"    value={`${reductionReelle} %`} sub={reductionReelle > 0 ? 'Appliquée sur votre scolarité' : 'Parrainez pour bénéficier d\'une réduction'} Icon={TrendingUp} />
-        <KpiCard label="Réduction maximale"   value="40 %" sub="Cumulable jusqu'à 4 familles parrainées" Icon={Award} accent />
-      </div>
-
-      <Card className="p-6">
-        <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-widest mb-1">Votre code de parrainage personnel</p>
-        <div className="flex items-center gap-4 mt-3">
-          <span className="font-mono font-bold text-3xl text-[#0D2E5C] tracking-[0.15em]">
-            {session.codeParrainagePersonnel}
-          </span>
-          <button onClick={copy}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md border text-xs font-semibold transition-all cursor-pointer
-              ${copied ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'border-[#E5E7EB] text-[#6B7280] hover:border-slate-300'}`}>
-            {copied ? <><Check size={13} /> Copié</> : <><Copy size={13} /> Copier</>}
-          </button>
-        </div>
-        <p className="text-xs text-[#6B7280] mt-3 leading-relaxed max-w-lg">
-          Communiquez ce code à vos proches lors de leur pré-inscription sur le site d'EPV Horizons Savants. Toute famille dont l'inscription est confirmée vous fait bénéficier d'une réduction de 10% sur vos frais de scolarité.
-        </p>
-      </Card>
-
-      {/* Liste réelle des filleuls */}
-      <Card>
-        <CardHeader
-          title={`Mes filleuls (${filleuls.length})`}
-          sub="Familles ayant utilisé votre code lors de leur pré-inscription"
-        />
-        {filleuls.length === 0 ? (
-          <div className="px-5 py-8 text-center">
-            <Users size={24} className="mx-auto mb-2 text-slate-200" />
-            <p className="text-sm text-[#6B7280]">Aucune famille n'a encore utilisé votre code.</p>
-            <p className="text-xs text-[#6B7280] mt-1">Partagez votre code ci-dessus pour commencer à parrainer.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-[#F4F8FF] bg-[#F9FAFB]">
-                  {['Famille', 'Enfant', 'Classe', 'Dossier', 'Réduction'].map(h => (
-                    <th key={h} className="text-left px-5 py-3 font-semibold text-[#6B7280] text-[10px] uppercase tracking-wide">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#F9FAFB]">
-                {filleuls.map((f: any) => {
-                  const ps = STATUT_PARRAINAGE_LABEL[f.parrainageStatut] ?? STATUT_PARRAINAGE_LABEL.en_attente;
-                  return (
-                    <tr key={f.id} className="hover:bg-[#F9FAFB] transition-colors">
-                      <td className="px-5 py-3.5 font-medium text-[#2C2C2C]">{f.prenomParent} {f.nomParent}</td>
-                      <td className="px-5 py-3.5 text-[#6B7280]">{f.prenomEnfant} {f.nomEnfant}</td>
-                      <td className="px-5 py-3.5 text-slate-500">{SECTION_LABEL[f.sectionVisee] || f.sectionVisee}</td>
-                      <td className="px-5 py-3.5">
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded border bg-[#F9FAFB] text-[#6B7280] border-[#E5E7EB]">{f.statut}</span>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${ps.cls}`}>{ps.label}</span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
-
-      <Card>
-        <CardHeader title="Fonctionnement du programme" />
-        <div className="p-5">
-          <div className="grid grid-cols-3 divide-x divide-slate-100">
-            {[
-              { num: '01', title: 'Partagez votre code',   desc: 'Transmettez votre code personnel à des familles susceptibles d\'inscrire leur enfant à l\'EPV.' },
-              { num: '02', title: 'Ils s\'inscrivent',      desc: 'La famille utilise votre code lors de sa pré-inscription en ligne. Le code est associé à leur dossier.' },
-              { num: '03', title: 'Vous êtes crédité',      desc: 'Dès que leur inscription est confirmée physiquement, 10% est déduit de votre prochaine facture.' },
-            ].map(s => (
-              <div key={s.num} className="px-5 first:pl-0 last:pr-0">
-                <p className="text-2xl font-bold text-slate-100 mb-2">{s.num}</p>
-                <p className="text-xs font-semibold text-[#2C2C2C] mb-1.5">{s.title}</p>
-                <p className="text-xs text-[#6B7280] leading-relaxed">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Card>
-
-      <div className="flex gap-3">
-        <a href={waUrl} target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#25D366] text-white text-xs font-semibold hover:bg-[#1cb855] cursor-pointer transition-colors">
-          <Share2 size={13} /> Partager via WhatsApp
-        </a>
-        <button onClick={copy}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-md border border-[#E5E7EB] text-[#6B7280] text-xs font-semibold hover:bg-[#F9FAFB] cursor-pointer transition-colors">
-          <Copy size={13} /> Copier le lien
-        </button>
-      </div>
-    </SectionPage>
-  );
-}
 
 // ════════════════════════════════════════════════════════════════════════════
 // PROFIL
@@ -1629,8 +1492,6 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
                 <FieldDisplay label="Prénom"    value={session.prenomParent} />
                 <FieldDisplay label="Nom"       value={session.nomParent} />
                 <FieldDisplay label="Lien de parenté" value={session.lienParente} />
-                <FieldDisplay label="Code parrainage" value={session.codeParrainagePersonnel} />
-
                 {editing ? (
                   <div className="mt-4 space-y-3">
                     {[
@@ -1686,14 +1547,14 @@ function ProfilTab({ session, sante, onSessionUpdate }: {
               </Card>
               <Card className="p-6">
                 <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide mb-4">Données de santé</p>
-                <FieldDisplay label="Groupe sanguin"    value={sante?.groupeSanguin || '—'} />
-                <FieldDisplay label="Allergies connues" value={sante?.allergies     || '—'} />
-                <FieldDisplay label="Vaccinations"      value={sante?.vaccinations  || '—'} />
-                <FieldDisplay label="Médecin traitant"  value={sante?.medecin       || '—'} />
+                <FieldDisplay label="Groupe sanguin"    value={sante?.groupeSanguin || ''} />
+                <FieldDisplay label="Allergies connues" value={sante?.allergies     || ''} />
+                <FieldDisplay label="Vaccinations"      value={sante?.vaccinations  || ''} />
+                <FieldDisplay label="Médecin traitant"  value={sante?.medecin       || ''} />
               </Card>
               <Card className="p-6">
                 <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide mb-4">Contacts d'urgence</p>
-                <FieldDisplay label="Contact principal"  value={`${session.prenomParent} ${session.nomParent} — ${session.telephone}`} />
+                <FieldDisplay label="Contact principal"  value={`${session.prenomParent} ${session.nomParent} ${session.telephone}`} />
                 <FieldDisplay label="Contact secondaire" value="Non renseigné" />
                 <FieldDisplay label="Email de contact"   value={session.email} />
               </Card>
@@ -1854,7 +1715,7 @@ function BulletinParentTab({ session }: { session: Prospect }) {
     const mentionBg = b.mention==='Félicitations'?'#FEF3C7':b.mention==='Très bien'?'#DBEAFE':b.mention==='Bien'?'#DCFCE7':'#F1F5F9';
     const mentionFg = b.mention==='Félicitations'?'#92400E':b.mention==='Très bien'?'#1E40AF':b.mention==='Bien'?'#14532D':'#475569';
     const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-    <title>Bulletin ${session.prenomEnfant} — ${b.trimestre}</title>
+    <title>Bulletin ${session.prenomEnfant} ${b.trimestre}</title>
     <style>
       @page{size:A4 portrait;margin:0}
       @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
@@ -1877,7 +1738,7 @@ function BulletinParentTab({ session }: { session: Prospect }) {
       </div>
       <div style="text-align:right">
         <div style="background:#F5A623;color:#0D2E5C;font-size:11pt;font-weight:900;padding:7px 16px;border-radius:8px">BULLETIN SCOLAIRE</div>
-        <div style="color:rgba(255,255,255,0.7);font-size:9pt;margin-top:5px;font-weight:700">${b.trimestre} — 2026 / 2027</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:9pt;margin-top:5px;font-weight:700">${b.trimestre} 2026 / 2027</div>
       </div>
     </div>
     <div style="background:#EFF6FF;border-bottom:2px solid #BFDBFE;padding:10px 12mm;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px">
@@ -1895,26 +1756,26 @@ function BulletinParentTab({ session }: { session: Prospect }) {
       </div>
       <div>
         <div style="font-size:7pt;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Effectif classe</div>
-        <div style="font-size:10pt;font-weight:700;color:#0D2E5C">${b.effectifClasse??'—'} élèves</div>
+        <div style="font-size:10pt;font-weight:700;color:#0D2E5C">${b.effectifClasse??''} élèves</div>
       </div>
     </div>
     <div class="wrap">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 2fr;gap:10px;margin-bottom:16px">
         <div style="border:2px solid ${nc(b.moyenneGenerale)};border-radius:10px;padding:12px;text-align:center">
-          <div style="font-size:26pt;font-weight:900;color:${nc(b.moyenneGenerale)};line-height:1">${b.moyenneGenerale?.toFixed(2)??'—'}</div>
+          <div style="font-size:26pt;font-weight:900;color:${nc(b.moyenneGenerale)};line-height:1">${b.moyenneGenerale?.toFixed(2)??''}</div>
           <div style="font-size:7.5pt;color:#64748b;text-transform:uppercase;margin-top:4px">Moyenne / 20</div>
         </div>
         <div style="border:2px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center">
-          <div style="font-size:26pt;font-weight:900;color:#0D2E5C;line-height:1">${b.rang??'—'}</div>
+          <div style="font-size:26pt;font-weight:900;color:#0D2E5C;line-height:1">${b.rang??''}</div>
           <div style="font-size:7.5pt;color:#64748b;text-transform:uppercase;margin-top:4px">Rang / ${b.effectifClasse??'?'}</div>
         </div>
         <div style="border:2px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center">
-          <div style="font-size:26pt;font-weight:900;color:#0D2E5C;line-height:1">${b.effectifClasse??'—'}</div>
+          <div style="font-size:26pt;font-weight:900;color:#0D2E5C;line-height:1">${b.effectifClasse??''}</div>
           <div style="font-size:7.5pt;color:#64748b;text-transform:uppercase;margin-top:4px">Effectif</div>
         </div>
         <div style="border:2px solid ${mentionBg};border-radius:10px;padding:12px;background:${mentionBg};display:flex;flex-direction:column;align-items:center;justify-content:center">
           <div style="font-size:7.5pt;color:#64748b;text-transform:uppercase;margin-bottom:6px">Mention</div>
-          <div style="font-size:16pt;font-weight:900;color:${mentionFg}">${b.mention||'—'}</div>
+          <div style="font-size:16pt;font-weight:900;color:${mentionFg}">${b.mention||''}</div>
         </div>
       </div>
       <table style="margin-bottom:16px">
@@ -1927,7 +1788,7 @@ function BulletinParentTab({ session }: { session: Prospect }) {
         <tbody>${detail.map((n:any,i:number)=>`
           <tr style="background:${i%2===0?'white':'#F8FAFF'}">
             <td style="font-weight:700">${n.matiere}</td>
-            <td style="text-align:center;font-size:11pt;font-weight:900;color:${nc(n.note)}">${n.note?.toFixed(2)??'—'}</td>
+            <td style="text-align:center;font-size:11pt;font-weight:900;color:${nc(n.note)}">${n.note?.toFixed(2)??''}</td>
             <td style="text-align:center;color:#64748b">${n.coef}</td>
             <td style="color:#475569;font-style:italic;font-size:9pt">${n.appreciation||''}</td>
           </tr>`).join('')}
@@ -1999,16 +1860,16 @@ function BulletinParentTab({ session }: { session: Prospect }) {
               {/* Stats */}
               <div className="grid grid-cols-3 gap-4 p-5 border-b border-brand-border/40">
                 <div className="text-center">
-                  <p className={`text-2xl font-black ${noteCls(b.moyenneGenerale)}`}>{b.moyenneGenerale != null ? Number(b.moyenneGenerale).toFixed(2) : '—'}</p>
+                  <p className={`text-2xl font-black ${noteCls(b.moyenneGenerale)}`}>{b.moyenneGenerale != null ? Number(b.moyenneGenerale).toFixed(2) : ''}</p>
                   <p className="text-[10px] text-[#6B7280] uppercase tracking-wide font-semibold mt-0.5">Moyenne / 20</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-black text-brand-blue-deep">{b.rang ?? '—'}<span className="text-sm text-[#6B7280] font-normal">/{b.effectifClasse ?? '?'}</span></p>
+                  <p className="text-2xl font-black text-brand-blue-deep">{b.rang ?? ''}<span className="text-sm text-[#6B7280] font-normal">/{b.effectifClasse ?? '?'}</span></p>
                   <p className="text-[10px] text-[#6B7280] uppercase tracking-wide font-semibold mt-0.5">Classement</p>
                 </div>
                 <div className="text-center">
                   <span className="inline-block px-3 py-1 rounded-full text-xs font-bold border border-amber-200 bg-amber-50 text-amber-700">
-                    {b.mention || '—'}
+                    {b.mention || ''}
                   </span>
                   <p className="text-[10px] text-[#6B7280] uppercase tracking-wide font-semibold mt-1.5">Mention</p>
                 </div>
@@ -2029,7 +1890,7 @@ function BulletinParentTab({ session }: { session: Prospect }) {
                         {(b.notesDetail || []).map((n: any, i: number) => (
                           <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[#F9FAFB] border border-[#F4F8FF]">
                             <span className="text-xs font-semibold text-[#6B7280] flex-1">{n.matiere}</span>
-                            <span className={`text-sm font-bold w-14 text-center ${noteCls(n.note)}`}>{n.note != null ? Number(n.note).toFixed(2) : '—'}</span>
+                            <span className={`text-sm font-bold w-14 text-center ${noteCls(n.note)}`}>{n.note != null ? Number(n.note).toFixed(2) : ''}</span>
                             <span className="text-xs text-[#6B7280] w-12 text-center">coef {n.coef}</span>
                             <span className="text-xs text-slate-500 flex-1 text-right">{n.appreciation || ''}</span>
                           </div>
@@ -2058,7 +1919,6 @@ const NAV: { id: ParentTab; label: string; Icon: React.FC<any> }[] = [
   { id: 'vie',        label: 'Vie scolaire',           Icon: Utensils       },
   { id: 'finances',   label: 'Finances & Documents',  Icon: FolderOpen     },
   { id: 'messagerie', label: 'Messagerie',             Icon: MessageSquare  },
-  { id: 'parrainage', label: 'Parrainage',             Icon: Gift           },
 ];
 
 export const EspaceParent: React.FC = () => {
@@ -2106,7 +1966,6 @@ export const EspaceParent: React.FC = () => {
   const [sante,        setSante]        = useState<any | null>(null);
   const [bilinguisme,  setBilinguisme]  = useState<any | null>(null);
   const [paiements,    setPaiements]    = useState<any[]>([]);
-  const [reduction,    setReduction]    = useState<number>(0);
   const [tarifs,       setTarifs]       = useState<Record<string,number>>(TARIFS_DEFAUT);
   const [tab,          setTab]          = useState<ParentTab>('dashboard');
   const [mobileOpen,   setMobileOpen]   = useState(false);
@@ -2138,15 +1997,6 @@ export const EspaceParent: React.FC = () => {
       .then(r => r.ok ? r.json() : [])
       .then((data: any[]) => {
         setPaiements(Array.isArray(data) ? data.filter((p: any) => p.statut === 'validé') : []);
-      }).catch(() => {});
-
-    // Réduction parrainage — calculée depuis les filleuls du parent
-    apiFetch(`/api/parent/mes-filleuls?prospectId=${pid}`)
-      .then(r => r.ok ? r.json() : [])
-      .then((data: any[]) => {
-        if (!Array.isArray(data)) return;
-        const validCount = data.filter((f: any) => f.parrainageStatut === 'valide').length;
-        setReduction(Math.min(validCount * 10, 40));
       }).catch(() => {});
 
     // Tarifs depuis la configuration
@@ -2339,13 +2189,12 @@ export const EspaceParent: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.18 }}>
-              {tab === 'dashboard'  && <DashboardTab session={session} appointments={appointments} devoirs={devoirs} cantine={cantine} notes={notes} absences={absences} messages={messages} evenements={evenements} paiements={paiements} reduction={reduction} tarifs={tarifs} onTabChange={setTab} />}
+              {tab === 'dashboard'  && <DashboardTab session={session} appointments={appointments} devoirs={devoirs} cantine={cantine} notes={notes} absences={absences} messages={messages} evenements={evenements} paiements={paiements} tarifs={tarifs} onTabChange={setTab} />}
               {tab === 'parcours'   && <ParcoursTab  session={session} devoirs={devoirs} setDevoirs={setDevoirs} notes={notes} absences={absences} bilinguisme={bilinguisme} />}
               {tab === 'bulletins'  && <BulletinParentTab session={session} />}
               {tab === 'vie'        && <VieScolaireTab session={session} cantine={cantine} evenements={evenements} transport={transport} sante={sante} />}
-              {tab === 'finances'   && <FinancesTab  session={session} appointments={appointments} paiements={paiements} reduction={reduction} tarifs={tarifs} onRdvBooked={handleRdvBooked} onToast={setToast} />}
+              {tab === 'finances'   && <FinancesTab  session={session} appointments={appointments} paiements={paiements} tarifs={tarifs} onRdvBooked={handleRdvBooked} onToast={setToast} />}
               {tab === 'messagerie' && <MessageTab   session={session} messages={messages} setMessages={setMessages} onToast={setToast} />}
-              {tab === 'parrainage' && <ParrainageTab session={session} reduction={reduction} onToast={setToast} />}
               {(tab as string) === 'profil' && <ProfilTab session={session} sante={sante} onSessionUpdate={s => { setSession(s); localStorage.setItem('parent_session', JSON.stringify(s)); }} />}
             </motion.div>
           </AnimatePresence>

@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 
 export enum StatutProspect {
   PROSPECT = 'Prospect',
@@ -23,9 +19,7 @@ export interface Prospect {
   telephone: string; // Formatted as +225...
   email: string;
   commune: string; // Cocody, Marcory, Plateau, Yopougon, Abobo, Adjame, Treichville, Port-Bouet, Koumassi, Bingerville, etc.
-  source: string; // Réseaux sociaux / Bouche-à-oreille / Flyer / Affiche / Partenaire / Code parrainage / Autre
-  codeParrainageUtilise?: string; // EPV-XXXXX format
-  codeParrainagePersonnel: string; // EPV-NOM01 format
+  source: string;
   statut: StatutProspect;
   notesAdmin?: string;
   photoUrl?: string;
@@ -55,15 +49,6 @@ export interface RendezVous {
   createdAt: string;
 }
 
-export interface Parrainage {
-  id: string;
-  codeParrain: string; // EPV-XXXXX
-  prospectIdParrain: string; // Parent sponsor
-  prospectIdFilleul: string; // Parent referred
-  statut: 'en_attente' | 'valide' | 'expire';
-  reductionAppliquee: number; // e.g. 10% or absolute value in FCFA (e.g., 50000 FCFA reduction)
-  createdAt: string;
-}
 
 export interface SectionPlace {
   section: string; // PS, MS, GS, CP, CE1, CE2, CM1, CM2

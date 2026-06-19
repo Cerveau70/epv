@@ -1,7 +1,5 @@
-/**
- * Système de traduction FR / EN — EPV Horizons Savants
- * Couvre : Navbar, Footer, Home, Admissions, Programmes, Contact, FAQ, Ecole
- */
+// Système de traduction FR / EN EPV Horizons Savants
+// Couvre : Navbar, Footer, Home, Admissions, Programmes, Contact, FAQ, Ecole
 
 export type Lang = 'fr' | 'en';
 
@@ -23,7 +21,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'drawer.nav':      'Navigation',
     'drawer.lang':     'Langue',
     'drawer.cta':      'Espace Parent →',
-    'nav.subtitle':    "École d'Excellence · Abidjan",
+    'nav.subtitle':    "",
 
     // ── Mobile Bottom Nav ────────────────────────────────────────
     'bnav.home':       'Accueil',
@@ -42,7 +40,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'footer.legal':    '© 2026 EPV Horizons Savants. Tous droits réservés.',
     'footer.legal2':   'Agrément MENA N° 2026/SAG',
 
-    // ── Home — Hero ──────────────────────────────────────────────
+    // ── Home Hero ──────────────────────────────────────────────
     'hero.badge1':     'Inscriptions Ouvertes',
     'hero.badge2':     'Rentrée Septembre 2026',
     'hero.h1a':        'NOUS FAISONS DES SACHANTS',
@@ -54,7 +52,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'hero.btn.rdv':    'Prendre RDV',
     'hero.btn.prog':   'Nos Programmes',
 
-    // ── Home — Sections ──────────────────────────────────────────
+    // ── Home Sections ──────────────────────────────────────────
     'home.pillars':    'Nos Trois Piliers Fondateurs',
     'home.pillar1.title': 'Excellence Académique',
     'home.pillar2.title': 'Bilinguisme Précoce',
@@ -68,7 +66,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     // ── Admissions ───────────────────────────────────────────────
     'adm.hero.sup':    'Candidatures 2026/2027',
     'adm.hero.title':  'Pré-Inscriptions Ouvertes',
-    'adm.hero.sub':    "Rejoignez l'école d'excellence de Bingerville.",
+    'adm.hero.sub':    "Rejoignez EPV Horizons Savants à Bingerville.",
     'adm.hero.btn1':   'Commencer ma pré-inscription',
     'adm.hero.btn2':   'Télécharger le dossier',
     'adm.process':     'Le Parcours d\'Admission',
@@ -86,7 +84,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     // ── École ────────────────────────────────────────────────────
     'ecole.hero.sup':  "Notre École",
     'ecole.hero.title':'EPV Horizons Savants',
-    'ecole.hero.sub':  "Une école d'excellence à Bingerville, Abidjan.",
+    'ecole.hero.sub':  "Une école à Bingerville, Abidjan.",
     'ecole.mission':   'Notre Mission',
     'ecole.values':    'Nos Valeurs',
     'ecole.team':      'Notre Équipe',
@@ -132,7 +130,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'drawer.nav':      'Navigation',
     'drawer.lang':     'Language',
     'drawer.cta':      'Parent Space →',
-    'nav.subtitle':    'School of Excellence · Abidjan',
+    'nav.subtitle':    'Bingerville · Abidjan',
 
     // ── Mobile Bottom Nav ────────────────────────────────────────
     'bnav.home':       'Home',
@@ -154,7 +152,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'footer.legal':    '© 2026 EPV Horizons Savants. All rights reserved.',
     'footer.legal2':   'Accreditation MENA No. 2026/SAG',
 
-    // ── Home — Hero ──────────────────────────────────────────────
+    // ── Home Hero ──────────────────────────────────────────────
     'hero.badge1':     'Enrollments Open',
     'hero.badge2':     'School Year September 2026',
     'hero.h1a':        'NOUS FAISONS DES SACHANTS',
@@ -166,7 +164,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'hero.btn.rdv':    'Book Appointment',
     'hero.btn.prog':   'Our Programs',
 
-    // ── Home — Sections ──────────────────────────────────────────
+    // ── Home Sections ──────────────────────────────────────────
     'home.pillars':    'Our Three Founding Pillars',
     'home.pillar1.title': 'Academic Excellence',
     'home.pillar2.title': 'Early Bilingualism',
@@ -180,7 +178,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     // ── Admissions ───────────────────────────────────────────────
     'adm.hero.sup':    'Applications 2026/2027',
     'adm.hero.title':  'Enrollments Are Open',
-    'adm.hero.sub':    'Join the school of excellence in Bingerville.',
+    'adm.hero.sub':    'Join EPV Horizons Savants in Bingerville.',
     'adm.hero.btn1':   'Start my enrollment',
     'adm.hero.btn2':   'Download the application',
     'adm.process':     'The Admission Process',
@@ -198,7 +196,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     // ── École ────────────────────────────────────────────────────
     'ecole.hero.sup':  'Our School',
     'ecole.hero.title':'EPV Horizons Savants',
-    'ecole.hero.sub':  'A school of excellence in Bingerville, Abidjan.',
+    'ecole.hero.sub':  'A school in Bingerville, Abidjan.',
     'ecole.mission':   'Our Mission',
     'ecole.values':    'Our Values',
     'ecole.team':      'Our Team',
